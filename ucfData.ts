@@ -33,7 +33,7 @@ interface StandardEvent {
 	url: string;
 	source: 'campuslabs' | 'events.ucf.edu';
 	originalId: number;
-	
+
 	// Optional fields that may not exist in all sources
 	organization?: StandardOrganization;
 	latitude?: number;
@@ -174,7 +174,7 @@ async function fetchCampusLabsData(): Promise<{
 	categories: StandardCategory[];
 }> {
 	console.log('🎓 Fetching Campus Labs data...');
-	
+
 	const http = axios.create({
 		baseURL: CAMPUS_LABS_API_BASE,
 		timeout: 30_000,
@@ -306,10 +306,10 @@ function parseDateTime(dateTime: string): string {
 
 async function fetchPage(pageNum: number): Promise<cheerio.CheerioAPI> {
 	const url = pageNum === 1 ? EVENTS_UCF_UPCOMING_URL : `${EVENTS_UCF_UPCOMING_URL}?page=${pageNum}`;
-	
+
 	let retryCount = 0;
 	const maxRetries = 3;
-	
+
 	while (retryCount < maxRetries) {
 		try {
 			const response = await axios.get(url, {
@@ -318,7 +318,7 @@ async function fetchPage(pageNum: number): Promise<cheerio.CheerioAPI> {
 				},
 				timeout: 30000,
 			});
-			
+
 			return cheerio.load(response.data);
 		} catch (error) {
 			retryCount++;
@@ -327,21 +327,21 @@ async function fetchPage(pageNum: number): Promise<cheerio.CheerioAPI> {
 			await new Promise(resolve => setTimeout(resolve, 2000 * retryCount)); // Progressive delay
 		}
 	}
-	
+
 	throw new Error('Max retries exceeded');
 }
 
 function extractUCFCategories($: cheerio.CheerioAPI): Map<string, StandardCategory> {
 	const categories = new Map<string, StandardCategory>();
 	let categoryId = 1;
-	
+
 	$('aside ul.list-unstyled li').each((_, el) => {
 		const $el = $(el);
 		const $link = $el.find('a');
 		if ($link.length) {
 			const href = $link.attr('href');
 			const name = $link.text().trim();
-			
+
 			if (href && name) {
 				const match = href.match(/\/category\/\d+\/([^\/]+)\//);
 				if (match) {
@@ -359,50 +359,50 @@ function extractUCFCategories($: cheerio.CheerioAPI): Map<string, StandardCatego
 			}
 		}
 	});
-	
+
 	return categories;
 }
 
 function extractUCFEventsFromPage($: cheerio.CheerioAPI, categories: Map<string, StandardCategory>): StandardEvent[] {
 	const events: StandardEvent[] = [];
-	
+
 	$('ul.event-list li.event').each((_, el) => {
 		const $event = $(el);
-		
+
 		const $title = $event.find('h3 a.stretched-link');
 		const name = $title.text().trim();
 		const relativeUrl = $title.attr('href');
-		
+
 		if (!name || !relativeUrl) return;
-		
+
 		const url = `${EVENTS_UCF_BASE_URL}${relativeUrl}`;
 		const recurring = $event.find('.fa-sync-alt').length > 0;
-		
+
 		const classList = $event.attr('class')?.split(' ') || [];
 		const categoryClass = classList.find((cls: string) =>
 			cls !== 'event' && cls !== 'mb-3' && cls !== 'mb-md-4',
 		);
-		
+
 		const startDateTime = $event.find('time.dtstart').attr('datetime') || '';
 		const endDateTime = $event.find('time.dtend').attr('datetime') || '';
-		
+
 		const $location = $event.find('.location');
 		let location = '';
 		if ($location.length) {
 			const locationText = $location.text().trim();
 			location = locationText.replace(/^\s*\uf041\s*/, '').trim();
 		}
-		
+
 		const description = cleanDescription($event.find('p.description').text() || '');
-		
+
 		const eventCategories: StandardCategory[] = [];
 		if (categoryClass && categories.has(categoryClass)) {
 			eventCategories.push(categories.get(categoryClass)!);
 		}
-		
+
 		const idMatch = relativeUrl.match(/\/event\/(\d+)\//);
 		const extractedId = idMatch ? parseInt(idMatch[1]) : Date.now(); // fallback ID
-		
+
 		const standardEvent: StandardEvent = {
 			id: `events-ucf-${extractedId}`,
 			originalId: extractedId,
@@ -417,16 +417,16 @@ function extractUCFEventsFromPage($: cheerio.CheerioAPI, categories: Map<string,
 			recurring,
 			source: 'events.ucf.edu',
 		};
-		
+
 		events.push(standardEvent);
 	});
-	
+
 	return events;
 }
 
 async function getMaxPages(): Promise<number> {
 	const $ = await fetchPage(1);
-	
+
 	let maxPages = 1;
 	$('ul.pagination li.page-item a.page-link').each((_, el) => {
 		const pageText = $(el).text().trim();
@@ -435,7 +435,7 @@ async function getMaxPages(): Promise<number> {
 			maxPages = pageNum;
 		}
 	});
-	
+
 	return maxPages;
 }
 
@@ -444,22 +444,22 @@ async function fetchEventsUCFData(): Promise<{
 	categories: StandardCategory[];
 }> {
 	console.log('🏛️ Fetching events.ucf.edu data...');
-	
+
 	const $firstPage = await fetchPage(1);
 	const categories = extractUCFCategories($firstPage);
 	const maxPages = await getMaxPages();
-	
+
 	console.log(`📄 Found ${categories.size} categories and ${maxPages} pages to scrape`);
-	
+
 	let allEvents = extractUCFEventsFromPage($firstPage, categories);
-	
+
 	// Fetch remaining pages with delay
 	for (let page = 2; page <= Math.min(maxPages, 5); page++) { // Limit to 5 pages for testing
 		try {
 			const $ = await fetchPage(page);
 			const pageEvents = extractUCFEventsFromPage($, categories);
 			allEvents = allEvents.concat(pageEvents);
-			
+
 			if (page < maxPages) {
 				await new Promise(resolve => setTimeout(resolve, 500));
 			}
@@ -467,17 +467,17 @@ async function fetchEventsUCFData(): Promise<{
 			console.error(`Error fetching page ${page}:`, error);
 		}
 	}
-	
+
 	const uniqueEvents = new Map<string, StandardEvent>();
 	allEvents.forEach(event => {
 		uniqueEvents.set(event.id, event);
 	});
-	
+
 	const events = Array.from(uniqueEvents.values());
 	const categoriesArray = Array.from(categories.values());
-	
+
 	console.log(`✅ Events UCF: ${events.length} unique events and ${categoriesArray.length} categories`);
-	
+
 	return {
 		events: events.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()),
 		categories: categoriesArray.sort((a, b) => a.name.localeCompare(b.name)),
@@ -486,17 +486,17 @@ async function fetchEventsUCFData(): Promise<{
 
 // ===== MAIN COMBINATION FUNCTION =====
 
-async function fetchCombinedUCFEvents(): Promise<CombinedData> {
-	console.log('🚀 Starting combined UCF events fetch...\n');
-	
+async function fetchCombinedUCFData(): Promise<CombinedData> {
+	console.log('🚀 Starting combined UCF data fetch...\n');
+
 	let campusLabsData: { organizations: StandardOrganization[]; events: StandardEvent[]; categories: StandardCategory[] };
 	let eventsUCFData: { events: StandardEvent[]; categories: StandardCategory[] };
-	
+
 	try {
 		// Always try to fetch Campus Labs data first
 		console.log('🎓 Fetching Campus Labs data...');
 		campusLabsData = await fetchCampusLabsData();
-		
+
 		// Try to fetch events.ucf.edu data with error handling
 		try {
 			console.log('🏛️ Fetching events.ucf.edu data...');
@@ -506,23 +506,23 @@ async function fetchCombinedUCFEvents(): Promise<CombinedData> {
 			console.log('📄 Continuing with Campus Labs data only...');
 			eventsUCFData = { events: [], categories: [] };
 		}
-		
+
 		// Combine all data
 		const allEvents = [...campusLabsData.events, ...eventsUCFData.events];
 		const allCategories = [...campusLabsData.categories, ...eventsUCFData.categories];
 		const allOrganizations = campusLabsData.organizations; // Only Campus Labs has organizations
-		
+
 		// Sort events by start time
 		allEvents.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-		
+
 		// Sort categories by name
 		allCategories.sort((a, b) => a.name.localeCompare(b.name));
-		
+
 		const sources: string[] = ['campuslabs'];
 		if (eventsUCFData.events.length > 0) {
 			sources.push('events.ucf.edu');
 		}
-		
+
 		const combinedData: CombinedData = {
 			metadata: {
 				scrapedAt: new Date().toISOString(),
@@ -535,15 +535,15 @@ async function fetchCombinedUCFEvents(): Promise<CombinedData> {
 			categories: allCategories,
 			organizations: allOrganizations,
 		};
-		
+
 		console.log('\n📊 FINAL SUMMARY:');
 		console.log(`   📅 Total Events: ${combinedData.metadata.totalEvents}`);
 		console.log(`   🏷️  Total Categories: ${combinedData.metadata.totalCategories}`);
 		console.log(`   🏛️  Total Organizations: ${combinedData.metadata.totalOrganizations}`);
 		console.log(`   📊 Sources: ${combinedData.metadata.sources.join(', ')}`);
-		
+
 		return combinedData;
-		
+
 	} catch (error) {
 		console.error('❌ Error fetching combined data:', error);
 		throw error;
@@ -552,13 +552,13 @@ async function fetchCombinedUCFEvents(): Promise<CombinedData> {
 
 // ===== EXPORTS AND MAIN =====
 
-export { fetchCombinedUCFEvents, StandardEvent, StandardCategory, StandardOrganization, CombinedData };
+export { fetchCombinedUCFData, StandardEvent, StandardCategory, StandardOrganization, CombinedData };
 
 // Main function for direct execution
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function main(): Promise<void> {
 	try {
-		const combinedData = await fetchCombinedUCFEvents();
+		const combinedData = await fetchCombinedUCFData();
 		console.log('\n📄 Combined data ready!');
 		console.log(JSON.stringify(combinedData, null, 2));
 	} catch (error) {
