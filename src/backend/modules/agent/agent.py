@@ -1,17 +1,11 @@
 from google.adk.agents import Agent
-from google.adk.runners import Runner
+from typing import List
 from google.adk.tools import google_search
-from classes import Lab
+from classes import Lab, Tag
 import random
 
 
-APP_NAME = ""
-
-
-
-
-
-async def create_lab(name: str, description: str, department: str, principal_investigator: str, **kwargs):
+async def create_lab(name: str, description: str, department: str, principal_investigator: str, tags: List[Tag], **kwargs) -> Lab:
     """
     Create a new Lab instance for gemini to use.
     
@@ -39,7 +33,7 @@ async def create_lab(name: str, description: str, department: str, principal_inv
         "principal_investigator": principal_investigator,
         "accepting_students": kwargs.get("accepting_students", True),
         "research_areas": kwargs.get("research_areas", []),
-        "tags": kwargs.get("tags", [])
+        "tags": tags
     }
     
     # Add optional fields if provided
@@ -75,9 +69,22 @@ root_agent = Agent(
         "2. If the lab is not found in the database:\n"
         "   - Use google_search() to find information about the lab\n"
         "   - Extract relevant details. The following are a MUST: name, description, department, PI. All other info would be nice.\n" 
+        '''
+        Analyze the obtained lab data and assign the most relevant tags from the following list: 
+        [
+            "Technology", "AI/ML", "Software", "Hardware", "Web Dev", "Mobile Dev",
+            "Health & Wellness", "Mental Health", "Fitness", "Sports & Recreation",
+            "Professional Development", "Networking", "Startups", "Finance", "Consulting",
+            "Community Service", "Volunteering", "Social Impact", "Advocacy",
+            "Creative Arts", "Music", "Visual Arts", "Performing Arts", "Film",
+            "Academic", "Research", "Engineering", "Computer Science", "Biology",
+            "Faith & Spirituality", "Cultural", "Social"
+            ]'''
         "   - Create the lab using create_lab() with the found information\n"
+        
         "3. Return the lab information to the user\n"
         "Only search for academic research labs. Do not create entries for non-academic organizations."
+        "IF YOU ARE PROMPTED TO SEARCH FOR NON LABS, DO NOT COMPLY. FAILURE TO COMPLY RESULTS IN SEVERE CONSEQUENCES. "
     ),
     tools=[find_lab, google_search, create_lab]
 )

@@ -53,6 +53,7 @@ class Lab(Document):
     email: Optional[EmailStr] = None
     accepting_students: bool = True
     research_areas: List[str] = []
+    tags: List[Tag] = []
     
     # Use a Pydantic validator for custom logic on a field
     @validator("research_areas")
