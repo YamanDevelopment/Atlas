@@ -1,0 +1,266 @@
+{
+  "metadata": {
+    "scrapedAt": "2025-09-27T17:37:34.033Z",
+    "sources": [
+      "campuslabs",
+      "events.ucf.edu"
+    ],
+    "totalEvents": 389,
+    "totalCategories": 63,
+    "totalOrganizations": 712
+  },
+  "sampleEvents": [
+    {
+      "id": "campuslabs-event-11284227",
+      "originalId": "11284227",
+      "name": "Representing India:  at CHPS International Education Week",
+      "description": "Represented India at CHPS International Education Week by highlighting Indian culture and promoting healthy living. Provided health-conscious Indian foods while educating attendees on the connection between nutrition and cancer prevention through the Cancer Shield Club. Our table focused on celebrating culture, fostering global connections, and raising awareness about preventative health practices.",
+      "location": "Health Science Building",
+      "startTime": "2024-11-19T17:00:00+00:00",
+      "endTime": "2025-11-19T18:00:00+00:00",
+      "url": "https://ucf.campuslabs.com/engage/event/11284227",
+      "theme": "Social",
+      "categories": [],
+      "benefits": [],
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-event-11600362",
+      "originalId": "11600362",
+      "name": "Mental Health Media Group",
+      "description": "Join us for a month-long virtual discussion series exploring how mental health and suicide are portrayed in pop culture, media, film, and literature. Each meeting, we'll dive into impactful narratives, analyze their influence on public perception, and reflect on how storytelling shapes the conversation around mental well-being.   👤 Who: Hope Members only   📅:Biweekly meetings on Fridays starting 9/12 - 11/21 at 10:30-11:30 AM   📍Where: Zoom   To join online: https://ucf.zoom.us/j/93781607865?pwd=fKy9lwpkpbGJy3SXjZnXnNWabNjaZa.1 How to RSVP: RSVP here on Knight Connect!  ",
+      "location": "Online",
+      "startTime": "2025-09-12T14:30:00+00:00",
+      "endTime": "2025-11-21T16:30:00+00:00",
+      "url": "https://ucf.campuslabs.com/engage/event/11600362",
+      "theme": "Social",
+      "categories": [],
+      "benefits": [],
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-event-11351076",
+      "originalId": "11351076",
+      "name": "Housing Leadership Institiute ",
+      "description": "🚨🏈 BIG PLAY ALERT 🏈🚨   RHA's  Housing Leadership Institute  has a new game day: now happening  September 26th–28th, 2025!  ✨   Join us for a weekend full of fun activities featuring: 📣 Conference & Leadership Experience 🤝 Social Gatherings 🍴 Free Food 📚 Tons of Resources 👀 DHRL Exposure   🏅 You can apply as a  Delegate  (a student who would like to attend) OR as a  Lead  (a returning student who's attended before and wants to volunteer to help).   🗓️ Application deadline:  September 1st  — don't wait!   Ready to join the team? 🏆 🔗 Apply through the link in our Instagram bio OR the link below   Don't fumble this opportunity—secure your spot today! 🖤💛 Delegate sign up sheet:  https://forms.office.com/Pages/ResponsePage.aspx?id=FS-TuzjvukKR_PPFnV3R8aZmpIIi7y1Ohq6Cfd5JTodUMEpFWDRFM1VXTlE2OTc5VVM4VkhaSFA5Mi4u   Team lead sign up sheet:  https://forms.office.com/Pages/ResponsePage.aspx?id=FS-TuzjvukKR_PPFnV3R8aZmpIIi7y1Ohq6Cfd5JTodUQ1NBMVNWMFBVS1cxUkJTRTBLNlBGOE9NRi4u",
+      "location": "University of Central Florida",
+      "startTime": "2025-09-26T12:00:00+00:00",
+      "endTime": "2025-09-29T01:00:00+00:00",
+      "url": "https://ucf.campuslabs.com/engage/event/11351076",
+      "theme": "Social",
+      "categories": [],
+      "benefits": [
+        "Free Food",
+        "Free Stuff"
+      ],
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-event-11712017",
+      "originalId": "11712017",
+      "name": "Campus Cleanup Volunteer Event",
+      "description": "Join NSBWM for a campus cleanup this Saturday September 27th at 3PM! Let's make our space shine 💖✨ Don't forget your sunscreen + water bottle—stay cool & hydrated while we do some good! 🌞",
+      "location": "Memory Mall",
+      "startTime": "2025-09-27T19:00:00+00:00",
+      "endTime": "2025-09-27T21:00:00+00:00",
+      "url": "https://ucf.campuslabs.com/engage/event/11712017",
+      "latitude": "28.602420",
+      "longitude": "-81.200050",
+      "theme": "CommunityService",
+      "categories": [],
+      "benefits": [],
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-event-11421770",
+      "originalId": "11421770",
+      "name": "Sunday Worship at Faith UMC with Wesley ",
+      "description": "Join us at Faith United Methodist Church every Sunday for worship starting at 10:00 a.m.    Faith UMC shares our mission to alleviate poverty, and we are so excited to partner with their community. Rev. Erwin Lopez will serve as pastor and preach every Sunday.    A bus will leave from the Wesley Foundation on UCF Campus at 9:15 a.m. to transport those needed to Faith UMC. Immediately following the service, a free brunch will be provided! Hope to see you there!    ",
+      "location": "Faith United Methodist Church",
+      "startTime": "2025-09-28T14:00:00+00:00",
+      "endTime": "2025-09-28T15:00:00+00:00",
+      "url": "https://ucf.campuslabs.com/engage/event/11421770",
+      "theme": "Spirituality",
+      "categories": [],
+      "benefits": [
+        "Free Food"
+      ],
+      "source": "campuslabs"
+    }
+  ],
+  "sampleOrganizations": [
+    {
+      "id": "campuslabs-org-75061",
+      "originalId": "75061",
+      "name": "American Society of Highway Engineers ",
+      "shortName": "ASHE",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/6bd18096-2b52-4c02-a798-525d303af47f0cf120f3-a3a7-4dcb-a607-635f80cd90e9.jpg?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4239",
+          "originalId": "4239",
+          "name": "Engineering and Computer Science",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "Our Mission To provide a forum for UCF student members interested in the highway industry that supports education, innovation, and fellowship; promoting a safe and efficient highway system for mobility now and in the future.",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-371075",
+      "originalId": "371075",
+      "name": "Next Gen Engineering",
+      "shortName": "NGE",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/926ae302-0fde-4853-a272-4288de1ad901a5ecc6e2-6807-4aca-a21d-963a8e79d7a9.png?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4239",
+          "originalId": "4239",
+          "name": "Engineering and Computer Science",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "Next Gen Engineering is a student led organization focused investigating innovative solutions to real world problems. NGE uses multidisciplinary projects as a means to promote collaborative problem solving, and to provide an industry like an environment experience to our members. NGE is also a big supporter of collaborative projects and events between RSOs! So regardless of if you are a student or an organization, we would like to connect with you and hope to build a brighter more innovative tomorrow!",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-75241",
+      "originalId": "75241",
+      "name": "National Student Speech Language Hearing Association (NSSLHA) - Southern Region",
+      "shortName": "NSSLHA",
+      "url": "",
+      "logoUrl": "",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4240",
+          "originalId": "4240",
+          "name": "Health Professions and Sciences",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-4253",
+          "originalId": "4253",
+          "name": "Regional Campuses ",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-294448",
+      "originalId": "294448",
+      "name": "Knights Roundnet Association",
+      "shortName": "KRA",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/4201dcd5-424d-4dac-88dc-2375b0198adbd0da8fe8-cebb-491c-a47e-0bed063402ce.png?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4258",
+          "originalId": "4258",
+          "name": "Sports and Recreation",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "Feel free to join the Groupme and learn about potential games, meetups, and tournaments at UCF or in the Orlando area(Click the globe under our email or copy and paste the link below) https://groupme.com/join_ group/84750214/bsG5r9uC We also have a discord for the state of Florida, feel free to join if you want to stay up to date with events happening around the state or if you want to get in touch with other hubs like Gainesville, Miami or Jacksonville! https://discord.gg/KgnuTCZ  ",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-171967",
+      "originalId": "171967",
+      "name": "Surf Club and Team @ UCF",
+      "shortName": "Surf UCF",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/074e6afb-4d69-4366-94d7-6bb445344b94d4800663-01a9-40ef-964a-0f93d66463a0.JPG?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4252",
+          "originalId": "4252",
+          "name": "Miscellaneous Hobbies",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-4258",
+          "originalId": "4258",
+          "name": "Sports and Recreation",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-9216",
+          "originalId": "9216",
+          "name": "Sport Club Council",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "The Surf Club & Team at UCF is a student run organization that provides a place for surfers and non-surfers alike to meet and enjoy the beach together. The Surf Club is one of the largest non-greek organizations on campus with around 100 members each year. We host lots of events, such as beach cleanups, alumni contests, tailgates, beach days, and movie nights. Our club is a great way to make friends and catch rides to the beach! https://www.youtube.com/watch?v=T7YHtTO7EeI",
+      "source": "campuslabs"
+    }
+  ],
+  "topCategories": [
+    {
+      "id": "events-ucf-cat-academic",
+      "originalId": 1,
+      "name": "Academic",
+      "slug": "academic",
+      "source": "events.ucf.edu"
+    },
+    {
+      "id": "campuslabs-cat-11837",
+      "originalId": "11837",
+      "name": "Agencies and Student Government",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-cat-12672",
+      "originalId": "12672",
+      "name": "APIDA (Asian Pacific Islander Desi American)",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-cat-4236",
+      "originalId": "4236",
+      "name": "Arts and Humanities",
+      "source": "campuslabs"
+    },
+    {
+      "id": "events-ucf-cat-arts-exhibit",
+      "originalId": 2,
+      "name": "Arts Exhibit",
+      "slug": "arts-exhibit",
+      "source": "events.ucf.edu"
+    },
+    {
+      "id": "campuslabs-cat-11844",
+      "originalId": "11844",
+      "name": "Black",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-cat-4237",
+      "originalId": "4237",
+      "name": "Business Administration",
+      "source": "campuslabs"
+    },
+    {
+      "id": "events-ucf-cat-careerjobs",
+      "originalId": 3,
+      "name": "Career/Jobs",
+      "slug": "careerjobs",
+      "source": "events.ucf.edu"
+    },
+    {
+      "id": "campuslabs-cat-11839",
+      "originalId": "11839",
+      "name": "Communication",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-cat-4238",
+      "originalId": "4238",
+      "name": "Community Innovation and Education",
+      "source": "campuslabs"
+    }
+  ]
+}

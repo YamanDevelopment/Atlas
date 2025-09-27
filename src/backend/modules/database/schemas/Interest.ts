@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ILinkedTag {
 	tagId: number;
-	confidence: number; // 0–1
+	weight: number; // 0–1, AI-generated weight for this interest-tag relationship
 }
 
 export interface IInterest extends Document {
@@ -18,11 +18,11 @@ export interface IInterest extends Document {
 const LinkedTagSchema: Schema<ILinkedTag> = new Schema<ILinkedTag>(
 	{
 		tagId: { type: Number, ref: 'Tag', required: true },
-		confidence: {
+		weight: {
 			type: Number,
 			required: true,
-			min: [0, 'Confidence must be at least 0'],
-			max: [1, 'Confidence cannot exceed 1'],
+			min: [0, 'Weight must be at least 0'],
+			max: [1, 'Weight cannot exceed 1'],
 		},
 	},
 	{ _id: false },
@@ -49,13 +49,13 @@ const InterestSchema: Schema<IInterest> = new Schema<IInterest>({
 });
 
 // Indexes for performance
-InterestSchema.index({ keyword: 1 }); // Keyword lookups
+// Indexes for performance
+// Note: id and keyword already have unique indexes from field definitions
 InterestSchema.index({ keyword: 'text' }); // Text search on keywords
 InterestSchema.index({ 'linkedTags.tagId': 1 }); // Tag association queries
 InterestSchema.index({ isUserGenerated: 1 }); // Filter by generation type
 InterestSchema.index({ createdBy: 1 }); // User-generated interests by creator
 InterestSchema.index({ createdAt: -1 }); // Recently created interests
-InterestSchema.index({ id: 1 }); // ID lookups
-InterestSchema.index({ 'linkedTags.confidence': -1 }); // High confidence matches
+InterestSchema.index({ 'linkedTags.weight': -1 }); // High weight matches
 
 export const Interest = mongoose.model<IInterest>('Interest', InterestSchema);

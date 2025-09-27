@@ -3,7 +3,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface ITag extends Document {
 	id: number;
 	name: string;
-	category: 'primary' | 'secondary'; // e.g., primary: "Academic", secondary: "Computer Science", tertiary: "AI"
+	category: 'primary' | 'secondary'; // e.g., primary: "Academic", secondary: "Computer Science"
+	parentTag?: mongoose.Types.ObjectId; // Reference to parent tag (null for primary tags)
 	popularity: number; // number of times tag has been used/linked
 	createdAt: Date;
 	updatedAt: Date;
@@ -26,6 +27,21 @@ const TagSchema: Schema<ITag> = new Schema<ITag>({
 		required: true,
 		enum: ['primary', 'secondary'],
 	},
+	parentTag: {
+		type: Schema.Types.ObjectId,
+		ref: 'Tag',
+		default: null,
+		validate: {
+			validator: async function(this: ITag, value: mongoose.Types.ObjectId | null) {
+				if (!value) return true; // null is valid (primary tags have no parent)
+
+				// Check that parent tag exists and is a primary tag
+				const parentTag = await mongoose.model('Tag').findById(value);
+				return parentTag && parentTag.category === 'primary';
+			},
+			message: 'Parent tag must exist and be a primary category tag',
+		},
+	},
 	popularity: { type: Number, default: 0, min: 0 },
 
 	createdAt: { type: Date, default: Date.now },
@@ -33,12 +49,26 @@ const TagSchema: Schema<ITag> = new Schema<ITag>({
 });
 
 // Indexes for performance
-TagSchema.index({ name: 1 }); // Name lookups
+// Note: id and name already have unique indexes from field definitions
 TagSchema.index({ category: 1 }); // Category filtering
 TagSchema.index({ popularity: -1 }); // Most popular tags
 TagSchema.index({ category: 1, popularity: -1 }); // Popular tags by category
 TagSchema.index({ name: 'text' }); // Text search on names
 TagSchema.index({ createdAt: -1 }); // Recently created tags
-TagSchema.index({ id: 1 }); // ID lookups
+TagSchema.index({ parentTag: 1 }); // Parent tag relationships
+TagSchema.index({ parentTag: 1, category: 1 }); // Children of specific parent
+
+// Pre-save middleware to ensure data consistency
+TagSchema.pre('save', function(next) {
+	// Primary tags should not have a parent
+	if (this.category === 'primary' && this.parentTag) {
+		this.parentTag = undefined;
+	}
+
+	// Secondary tags should have a parent (will be validated by the validator above)
+	// Update timestamp
+	this.updatedAt = new Date();
+	next();
+});
 
 export const Tag = mongoose.model<ITag>('Tag', TagSchema);
