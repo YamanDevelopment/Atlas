@@ -137,114 +137,6 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8" style="min-height: 500px;">
         <!-- Left Column (2/3 width) -->
         <div class="lg:col-span-2 space-y-8" style="min-height: 400px;">
-          <!-- Your Starter Plan -->
-          <div class="bg-white rounded-xl shadow-sm p-6" style="min-height: 300px;">
-            <div class="flex items-center justify-between mb-6">
-              <h2 class="text-xl font-semibold text-gray-900">Your Starter Plan</h2>
-              <span class="text-sm text-gray-500">Personalized for you</span>
-            </div>
-
-            <!-- Show recommendations if plan not accepted -->
-            <div v-if="!planAccepted" class="min-h-[400px]">
-              <!-- Club Recommendations -->
-              <div class="space-y-6 recommendations-section">
-                <h3 class="text-lg font-medium text-gray-900">Recommended for You</h3>
-                
-                <!-- Primary Recommendation (first club) -->
-                <div v-if="recommendedClubs.length > 0" class="border-l-4 border-indigo-600 pl-4">
-                  <div class="bg-indigo-50 rounded-lg p-4">
-                    <div class="flex justify-between items-start">
-                      <div class="flex-1">
-                        <h4 class="font-medium text-indigo-900">{{ recommendedClubs[0].name }}</h4>
-                        <p class="text-indigo-700 text-sm mt-1">{{ recommendedClubs[0].description }}</p>
-                        <div class="flex items-center mt-2 space-x-4 text-xs text-indigo-600">
-                          <span>👥 {{ recommendedClubs[0].memberCount }} members</span>
-                          <span v-if="recommendedClubs[0].categories.length">
-                            🏷️ {{ recommendedClubs[0].categories[0].name }}
-                          </span>
-                        </div>
-                      </div>
-                      <button
-                        @click="acceptOpportunity(recommendedClubs[0])"
-                        class="ml-4 px-3 py-1 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700"
-                      >
-                        Accept
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Secondary Recommendations -->
-                <div v-if="recommendedClubs.length > 1">
-                  <h3 class="text-lg font-medium text-gray-900 mb-4">More Options</h3>
-                  <div class="grid md:grid-cols-2 gap-4">
-                    <div
-                      v-for="club in recommendedClubs.slice(1, 3)"
-                      :key="club.id"
-                      class="border rounded-lg p-4 hover:border-indigo-300 transition-colors"
-                    >
-                      <h4 class="font-medium text-gray-900">{{ club.name }}</h4>
-                      <p class="text-gray-600 text-sm mt-1">{{ club.description }}</p>
-                      <div class="flex justify-between items-center mt-3">
-                        <span class="text-xs text-gray-500">{{ club.memberCount }} members</span>
-                        <button
-                          @click="acceptOpportunity(club)"
-                          class="px-2 py-1 text-indigo-600 border border-indigo-600 text-xs rounded hover:bg-indigo-50"
-                        >
-                          Accept
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Alternative Options -->
-                <div v-if="recommendedClubs.length > 3">
-                  <h3 class="text-lg font-medium text-gray-900 mb-4">Alternative Options</h3>
-                  <div class="grid md:grid-cols-3 gap-3">
-                    <div
-                      v-for="club in recommendedClubs.slice(3)"
-                      :key="club.id"
-                      class="border rounded-lg p-3 hover:border-gray-300 transition-colors"
-                    >
-                      <h4 class="font-medium text-gray-900 text-sm">{{ club.name }}</h4>
-                      <p class="text-gray-600 text-xs mt-1 line-clamp-2">{{ club.description }}</p>
-                      <div class="flex justify-between items-center mt-2">
-                        <span class="text-xs text-gray-500">{{ club.memberCount }} members</span>
-                        <button
-                          @click="acceptOpportunity(club)"
-                          class="text-indigo-600 text-xs hover:text-indigo-800"
-                        >
-                          + Add
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="flex justify-center pt-4">
-                  <button
-                    @click="acceptStarterPlan"
-                    class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-                  >
-                    Accept Entire Plan
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Show acceptance confirmation if plan accepted -->
-            <div v-else class="text-center py-8 min-h-[400px] flex flex-col justify-center">
-              <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h3 class="text-lg font-medium text-gray-900">Plan Accepted!</h3>
-              <p class="text-gray-600">Your commitments are now being tracked below.</p>
-            </div>
-          </div>
-
           <!-- Your Commitments -->
           <div class="bg-white rounded-xl shadow-sm p-6 commitments-section min-h-[300px]">
             <div class="flex items-center justify-between mb-6">
@@ -283,7 +175,165 @@
             </div>
 
             <div v-else class="text-center py-8 text-gray-500">
-              <p>No commitments yet. Accept some recommendations above to get started!</p>
+              <p>No commitments yet. Accept some recommendations below to get started!</p>
+            </div>
+          </div>
+
+          <!-- Your Starter Plan -->
+          <div class="bg-white rounded-xl shadow-sm p-6" style="min-height: 300px;">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xl font-semibold text-gray-900">Involvement Plan</h2>
+              <span class="text-sm text-gray-500">Suggestion</span>
+            </div>
+
+            <!-- Show recommendations if plan not accepted -->
+            <div v-if="!planAccepted" class="min-h-[400px]">
+              <!-- Plan Description -->
+              <div class="mb-6">
+                <p class="text-gray-600 mb-4">
+                  Utilizing your field of study and interests, we've packaged the perfect involvement plan just for you! 
+                  Check it out and see which of the suggested orgs you would like to get involved with.
+                </p>
+                
+                <!-- What's Included -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                  <h4 class="font-medium text-gray-900 mb-3">What's included:</h4>
+                  <ul class="space-y-2 text-sm text-gray-600">
+                    <li class="flex items-center">
+                      <span class="w-2 h-2 bg-indigo-600 rounded-full mr-3"></span>
+                      1x High Commitment Extracurricular
+                    </li>
+                    <li class="flex items-center">
+                      <span class="w-2 h-2 bg-indigo-600 rounded-full mr-3"></span>
+                      2x Lower Commitment Organizations
+                    </li>
+                    <li class="flex items-center">
+                      <span class="w-2 h-2 bg-indigo-600 rounded-full mr-3"></span>
+                      1x Non-technical Discovery Club
+                    </li>
+                    <li class="flex items-center">
+                      <span class="w-2 h-2 bg-indigo-600 rounded-full mr-3"></span>
+                      Some Upcoming events you may like
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Involvement Plan Recommendations -->
+              <div class="space-y-6 recommendations-section">
+                <!-- High Commitment Extracurricular -->
+                <div class="border border-red-200 rounded-lg p-4 bg-red-50">
+                  <div class="flex items-center mb-3">
+                    <span class="px-2 py-1 bg-red-600 text-white text-xs rounded-full font-medium">
+                      HIGH COMMITMENT
+                    </span>
+                    <span class="ml-2 text-sm text-gray-600">~8-12 hours/week</span>
+                  </div>
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <h4 class="font-medium text-gray-900">{{ recommendedClubs[0]?.name || 'AI Research Club' }}</h4>
+                      <p class="text-gray-600 text-sm mt-1">{{ recommendedClubs[0]?.description || 'Perfect for CS majors - research opportunities and leadership roles' }}</p>
+                      <div class="flex items-center mt-2 space-x-4 text-xs text-gray-500">
+                        <span>👥 {{ recommendedClubs[0]?.memberCount || 87 }} members</span>
+                        <span>🎯 Matches your major & interests</span>
+                      </div>
+                    </div>
+                    <button
+                      @click="acceptOpportunity(recommendedClubs[0] || mockHighCommitment)"
+                      class="ml-4 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 font-medium whitespace-nowrap"
+                    >
+                      Accept
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Lower Commitment Organizations -->
+                <div>
+                  <h4 class="font-medium text-gray-900 mb-3">Lower Commitment Organizations</h4>
+                  <div class="space-y-3">
+                    <!-- First Low Commitment -->
+                    <div class="border border-blue-200 rounded-lg p-4 bg-blue-50">
+                      <div class="flex items-center mb-2">
+                        <span class="px-2 py-1 bg-blue-600 text-white text-xs rounded-full font-medium">
+                          LOW COMMITMENT
+                        </span>
+                        <span class="ml-2 text-sm text-gray-600">~2-4 hours/week</span>
+                      </div>
+                      <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                          <h5 class="font-medium text-gray-900">{{ recommendedClubs[1]?.name || 'Tech Entrepreneurship Club' }}</h5>
+                          <p class="text-gray-600 text-sm mt-1">{{ recommendedClubs[1]?.description || 'Network with like-minded students and learn about startups' }}</p>
+                        </div>
+                        <button
+                          @click="acceptOpportunity(recommendedClubs[1] || mockLowCommitment1)"
+                          class="ml-4 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 font-medium whitespace-nowrap"
+                        >
+                          Accept
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Second Low Commitment -->
+                    <div class="border border-blue-200 rounded-lg p-4 bg-blue-50">
+                      <div class="flex items-center mb-2">
+                        <span class="px-2 py-1 bg-blue-600 text-white text-xs rounded-full font-medium">
+                          LOW COMMITMENT
+                        </span>
+                        <span class="ml-2 text-sm text-gray-600">~2-4 hours/week</span>
+                      </div>
+                      <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                          <h5 class="font-medium text-gray-900">{{ recommendedClubs[2]?.name || 'ACM Student Chapter' }}</h5>
+                          <p class="text-gray-600 text-sm mt-1">{{ recommendedClubs[2]?.description || 'Professional development and coding competitions' }}</p>
+                        </div>
+                        <button
+                          @click="acceptOpportunity(recommendedClubs[2] || mockLowCommitment2)"
+                          class="ml-4 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 font-medium whitespace-nowrap"
+                        >
+                          Accept
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Non-technical Discovery Club -->
+                <div class="border border-purple-200 rounded-lg p-4 bg-purple-50">
+                  <div class="flex items-center mb-3">
+                    <span class="px-2 py-1 bg-purple-600 text-white text-xs rounded-full font-medium">
+                      DISCOVERY
+                    </span>
+                    <span class="ml-2 text-sm text-gray-600">~1-3 hours/week</span>
+                  </div>
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <h4 class="font-medium text-gray-900">Photography Club</h4>
+                      <p class="text-gray-600 text-sm mt-1">Explore your creative side and build a portfolio outside of tech</p>
+                      <div class="flex items-center mt-2 space-x-4 text-xs text-gray-500">
+                        <span>👥 89 members</span>
+                        <span>📸 Beginner friendly</span>
+                      </div>
+                    </div>
+                    <button
+                      @click="acceptOpportunity(mockDiscoveryClub)"
+                      class="ml-4 px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 font-medium whitespace-nowrap"
+                    >
+                      Accept
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Show acceptance confirmation if plan accepted -->
+            <div v-else class="text-center py-8 min-h-[400px] flex flex-col justify-center">
+              <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-medium text-gray-900">Plan Accepted!</h3>
+              <p class="text-gray-600">Your commitments are now being tracked below.</p>
             </div>
           </div>
         </div>
@@ -536,6 +586,55 @@ const recommendedClubs = ref<Club[]>([
     url: 'https://photo.ucf.edu'
   }
 ]);
+
+// Mock data for involvement plan - these would come from backend recommendations
+const mockHighCommitment = ref<Club>({
+  id: 'club-high-1',
+  name: 'AI Research Club',
+  description: 'Perfect for CS majors - research opportunities and leadership roles',
+  categories: [{ id: 'academic', name: 'Academic' }],
+  memberCount: 87,
+  isFollowing: false,
+  upcomingEvents: [],
+  logoUrl: '',
+  url: 'https://ai.research.ucf.edu'
+});
+
+const mockLowCommitment1 = ref<Club>({
+  id: 'club-low-1',
+  name: 'Tech Entrepreneurship Club',
+  description: 'Network with like-minded students and learn about startups',
+  categories: [{ id: 'career', name: 'Career' }],
+  memberCount: 156,
+  isFollowing: false,
+  upcomingEvents: [],
+  logoUrl: '',
+  url: 'https://techentrepreneurship.ucf.edu'
+});
+
+const mockLowCommitment2 = ref<Club>({
+  id: 'club-low-2',
+  name: 'ACM Student Chapter',
+  description: 'Professional development and coding competitions',
+  categories: [{ id: 'academic', name: 'Academic' }],
+  memberCount: 203,
+  isFollowing: false,
+  upcomingEvents: [],
+  logoUrl: '',
+  url: 'https://acm.ucf.edu'
+});
+
+const mockDiscoveryClub = ref<Club>({
+  id: 'club-discovery-1',
+  name: 'Photography Club',
+  description: 'Explore your creative side and build a portfolio outside of tech',
+  categories: [{ id: 'hobby', name: 'Hobby' }],
+  memberCount: 89,
+  isFollowing: false,
+  upcomingEvents: [],
+  logoUrl: '',
+  url: 'https://photo.ucf.edu'
+});
 
 // Methods
 const toggleNotifications = () => {
