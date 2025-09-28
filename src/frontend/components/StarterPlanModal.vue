@@ -70,8 +70,8 @@
                 </svg>
               </div>
               <div>
-                <h5 class="font-medium text-gray-900">Smart Recommendations</h5>
-                <p class="text-sm text-gray-600">Discover opportunities based on your interests</p>
+                <h5 class="font-medium text-gray-900">Resume Building</h5>
+                <p class="text-sm text-gray-600">Discover opportunities based on your interests to help gain experience</p>
               </div>
             </div>
             
@@ -83,7 +83,7 @@
               </div>
               <div>
                 <h5 class="font-medium text-gray-900">Balance Management</h5>
-                <p class="text-sm text-gray-600">Avoid overcommitment with smart limits</p>
+                <p class="text-sm text-gray-600">Avoid overcommitment with smart limits with smart limitations</p>
               </div>
             </div>
             

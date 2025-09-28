@@ -152,9 +152,9 @@
               <div
                 v-for="commitment in commitments"
                 :key="commitment.id"
-                class="flex items-center justify-between p-4 border rounded-lg"
+                class="flex items-center justify-between p-4 rounded-lg bg-gray-50"
               >
-                <div class="flex items-center">
+                <div class="flex items-center flex-1">
                   <div class="w-3 h-3 rounded-full mr-3"
                        :class="getCommitmentStatusColor(commitment.status)">
                   </div>
@@ -167,13 +167,22 @@
                   <select
                     :value="commitment.status"
                     @change="updateCommitmentStatus(commitment.id, ($event.target as HTMLSelectElement).value)"
-                    class="text-sm border rounded px-2 py-1"
+                    class="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white hover:border-indigo-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none transition-all duration-200 font-medium text-gray-700"
                   >
                     <option value="pending">Pending</option>
                     <option value="active">Active</option>
                     <option value="passive">Passive</option>
                     <option value="inactive">Inactive</option>
                   </select>
+                  <button
+                    @click="removeCommitment(commitment.id)"
+                    class="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                    title="Remove commitment"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
                 </div>
               </div>
             </div>
@@ -233,18 +242,18 @@
                     </span>
                     <span class="ml-2 text-sm text-gray-600">~8-12 hours/week</span>
                   </div>
-                  <div class="flex justify-between items-start">
-                    <div class="flex-1">
-                      <h4 class="font-medium text-gray-900">{{ recommendedClubs[0]?.name || 'AI Research Club' }}</h4>
-                      <p class="text-gray-600 text-sm mt-1">{{ recommendedClubs[0]?.description || 'Perfect for CS majors - research opportunities and leadership roles' }}</p>
-                      <div class="flex items-center mt-2 space-x-4 text-xs text-gray-500">
-                        <span>👥 {{ recommendedClubs[0]?.memberCount || 87 }} members</span>
-                        <span>🎯 Matches your major & interests</span>
-                      </div>
+                  <div class="mb-4">
+                    <h4 class="font-medium text-gray-900">{{ recommendedClubs[0]?.name || 'AI Research Club' }}</h4>
+                    <p class="text-gray-600 text-sm mt-1">{{ recommendedClubs[0]?.description || 'Perfect for CS majors - research opportunities and leadership roles' }}</p>
+                    <div class="flex items-center mt-2 space-x-4 text-xs text-gray-500">
+                      <span>👥 {{ recommendedClubs[0]?.memberCount || 87 }} members</span>
+                      <span>🎯 Matches your major & interests</span>
                     </div>
+                  </div>
+                  <div class="flex justify-end">
                     <button
                       @click="acceptOpportunity(recommendedClubs[0] || mockHighCommitment)"
-                      class="ml-4 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 font-medium whitespace-nowrap"
+                      class="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 font-medium whitespace-nowrap"
                     >
                       Accept
                     </button>
@@ -263,14 +272,14 @@
                         </span>
                         <span class="ml-2 text-sm text-gray-600">~2-4 hours/week</span>
                       </div>
-                      <div class="flex justify-between items-start">
-                        <div class="flex-1">
-                          <h5 class="font-medium text-gray-900">{{ recommendedClubs[1]?.name || 'Tech Entrepreneurship Club' }}</h5>
-                          <p class="text-gray-600 text-sm mt-1">{{ recommendedClubs[1]?.description || 'Network with like-minded students and learn about startups' }}</p>
-                        </div>
+                      <div class="mb-4">
+                        <h5 class="font-medium text-gray-900">{{ recommendedClubs[1]?.name || 'Tech Entrepreneurship Club' }}</h5>
+                        <p class="text-gray-600 text-sm mt-1">{{ recommendedClubs[1]?.description || 'Network with like-minded students and learn about startups' }}</p>
+                      </div>
+                      <div class="flex justify-end">
                         <button
                           @click="acceptOpportunity(recommendedClubs[1] || mockLowCommitment1)"
-                          class="ml-4 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 font-medium whitespace-nowrap"
+                          class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 font-medium whitespace-nowrap"
                         >
                           Accept
                         </button>
@@ -285,14 +294,14 @@
                         </span>
                         <span class="ml-2 text-sm text-gray-600">~2-4 hours/week</span>
                       </div>
-                      <div class="flex justify-between items-start">
-                        <div class="flex-1">
-                          <h5 class="font-medium text-gray-900">{{ recommendedClubs[2]?.name || 'ACM Student Chapter' }}</h5>
-                          <p class="text-gray-600 text-sm mt-1">{{ recommendedClubs[2]?.description || 'Professional development and coding competitions' }}</p>
-                        </div>
+                      <div class="mb-4">
+                        <h5 class="font-medium text-gray-900">{{ recommendedClubs[2]?.name || 'ACM Student Chapter' }}</h5>
+                        <p class="text-gray-600 text-sm mt-1">{{ recommendedClubs[2]?.description || 'Professional development and coding competitions' }}</p>
+                      </div>
+                      <div class="flex justify-end">
                         <button
                           @click="acceptOpportunity(recommendedClubs[2] || mockLowCommitment2)"
-                          class="ml-4 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 font-medium whitespace-nowrap"
+                          class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 font-medium whitespace-nowrap"
                         >
                           Accept
                         </button>
@@ -309,18 +318,18 @@
                     </span>
                     <span class="ml-2 text-sm text-gray-600">~1-3 hours/week</span>
                   </div>
-                  <div class="flex justify-between items-start">
-                    <div class="flex-1">
-                      <h4 class="font-medium text-gray-900">Photography Club</h4>
-                      <p class="text-gray-600 text-sm mt-1">Explore your creative side and build a portfolio outside of tech</p>
-                      <div class="flex items-center mt-2 space-x-4 text-xs text-gray-500">
-                        <span>👥 89 members</span>
-                        <span>📸 Beginner friendly</span>
-                      </div>
+                  <div class="mb-4">
+                    <h4 class="font-medium text-gray-900">Photography Club</h4>
+                    <p class="text-gray-600 text-sm mt-1">Explore your creative side and build a portfolio outside of tech</p>
+                    <div class="flex items-center mt-2 space-x-4 text-xs text-gray-500">
+                      <span>👥 89 members</span>
+                      <span>📸 Beginner friendly</span>
                     </div>
+                  </div>
+                  <div class="flex justify-end">
                     <button
                       @click="acceptOpportunity(mockDiscoveryClub)"
-                      class="ml-4 px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 font-medium whitespace-nowrap"
+                      class="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 font-medium whitespace-nowrap"
                     >
                       Accept
                     </button>
@@ -352,7 +361,8 @@
               <div
                 v-for="event in upcomingEvents"
                 :key="event.id"
-                class="border-l-4 border-indigo-500 pl-4 py-2"
+                @click="openEventModal(event)"
+                class="border-l-4 border-indigo-500 pl-4 py-2 cursor-pointer hover:bg-gray-50 rounded-r-lg transition-colors duration-200"
               >
                 <h4 class="font-medium text-gray-900 text-sm">{{ event.name }}</h4>
                 <p class="text-xs text-gray-500">{{ formatDate(event.startTime) }}</p>
@@ -437,6 +447,106 @@
       @tour-complete="onTourComplete"
       @tour-ended="onTourComplete"
     />
+
+    <!-- Event Modal -->
+    <Transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-all duration-200 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="showEventModal"
+        class="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50 p-4"
+        @click="closeEventModal"
+      >
+        <Transition
+          enter-active-class="transition-all duration-300 ease-out"
+          enter-from-class="opacity-0 transform scale-95 translate-y-4"
+          enter-to-class="opacity-100 transform scale-100 translate-y-0"
+          leave-active-class="transition-all duration-200 ease-in"
+          leave-from-class="opacity-100 transform scale-100 translate-y-0"
+          leave-to-class="opacity-0 transform scale-95 translate-y-4"
+        >
+          <div
+            v-if="showEventModal && modalEventData"
+            class="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl max-w-3xl w-full mx-4 max-h-[85vh] overflow-y-auto border border-white/20"
+            @click.stop
+          >
+            <!-- Event Modal Content -->
+            <div class="p-8">
+              <div class="flex justify-between items-start mb-8">
+                <div class="flex-1 pr-6">
+                  <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ modalEventData.name }}</h2>
+                  <p class="text-gray-600">{{ modalEventData.description }}</p>
+                </div>
+                <button @click="closeEventModal" class="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div>
+                  <h3 class="font-semibold text-gray-900 mb-4">Event Details</h3>
+                  <div class="space-y-3">
+                    <div class="flex items-center text-gray-600">
+                      <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>{{ formatDate(modalEventData.startTime) }}</span>
+                    </div>
+                    <div class="flex items-center text-gray-600">
+                      <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span>{{ modalEventData.location }}</span>
+                    </div>
+                    <div v-if="modalEventData.attendeeCount" class="flex items-center text-gray-600">
+                      <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                      </svg>
+                      <span>{{ modalEventData.attendeeCount }} attending</span>
+                    </div>
+                    <div v-if="modalEventData.organizer" class="flex items-center text-gray-600">
+                      <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                      <span>{{ modalEventData.organizer }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-gray-900 mb-4">Why You'll Love This</h3>
+                  <p class="text-gray-600">{{ modalEventData.whyRecommended || 'Perfect opportunity to expand your network and learn something new!' }}</p>
+                </div>
+              </div>
+
+              <div class="flex gap-4 pt-6 border-t border-gray-200/50">
+                <button
+                  @click="rsvpEvent(modalEventData, 'going')"
+                  class="flex-1 py-4 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-medium text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105"
+                  :class="{ 'from-green-600 to-green-700 hover:from-green-700 hover:to-green-800': (modalEventData as any).rsvpStatus === 'going' }"
+                >
+                  {{ (modalEventData as any).rsvpStatus === 'going' ? '✓ Going' : 'I\'m Going' }}
+                </button>
+                <button
+                  @click="rsvpEvent(modalEventData, 'interested')"
+                  class="px-8 py-4 bg-white border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 font-medium"
+                  :class="{ 'border-indigo-600 text-indigo-600 bg-indigo-50': (modalEventData as any).rsvpStatus === 'interested' }"
+                >
+                  {{ (modalEventData as any).rsvpStatus === 'interested' ? '✓ Interested' : 'Interested' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </Transition>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -448,6 +558,10 @@ const showStarterPlanModal = ref(false);
 const showTour = ref(false);
 const planAccepted = ref(false);
 const showNotifications = ref(false);
+
+// Event modal states
+const showEventModal = ref(false);
+const modalEventData = ref<Event | null>(null);
 
 // Starter plan data
 const starterPlan = ref<Plan>({
@@ -544,14 +658,46 @@ const upcomingEvents = ref<Event[]>([
   {
     id: 'event-1',
     name: 'AI Workshop: Neural Networks',
-    description: 'Neural network workshop for beginners',
+    title: 'AI Workshop: Neural Networks',
+    description: 'Learn the fundamentals of neural networks through hands-on coding exercises and real-world applications. Perfect for beginners and intermediate students.',
+    shortDescription: 'Hands-on neural network workshop',
     location: 'Engineering Building Room 201',
     startTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     endTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000),
+    date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+    endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000),
     categories: [{ id: 'workshop', name: 'Workshop' }],
+    category: 'workshop',
+    tags: ['AI', 'Machine Learning', 'Workshop'],
     isBookmarked: true,
     attendeeCount: 45,
+    organizer: 'AI Research Club',
+    whyRecommended: 'Perfect match for your machine learning interests and career goals',
+    isVirtual: false,
+    isFree: true,
     url: 'https://events.ucf.edu/ai-workshop'
+  },
+  {
+    id: 'event-2',
+    name: 'Tech Career Fair',
+    title: 'Tech Career Fair',
+    description: 'Connect with top tech companies including Google, Microsoft, and local startups. Bring your resume and be prepared to network!',
+    shortDescription: 'Network with tech recruiters',
+    location: 'Student Union Pegasus Ballroom',
+    startTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+    endTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 6 * 60 * 60 * 1000),
+    date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+    endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 6 * 60 * 60 * 1000),
+    categories: [{ id: 'career', name: 'Career' }],
+    category: 'career',
+    tags: ['Career', 'Technology', 'Networking'],
+    isBookmarked: false,
+    attendeeCount: 234,
+    organizer: 'Career Services',
+    whyRecommended: 'Excellent opportunity for your computer science career path',
+    isVirtual: false,
+    isFree: true,
+    url: 'https://events.ucf.edu/tech-career-fair'
   }
 ]);
 
@@ -723,6 +869,16 @@ const updateCommitmentStatus = async (commitmentId: string, status: string) => {
   }
 };
 
+const removeCommitment = async (commitmentId: string) => {
+  const index = commitments.value.findIndex((c: Commitment) => c.id === commitmentId);
+  if (index > -1) {
+    const [removedCommitment] = commitments.value.splice(index, 1);
+    if (removedCommitment) {
+      console.log('Removed commitment:', removedCommitment.title);
+    }
+  }
+};
+
 const getCommitmentStatusColor = (status: string) => {
   const colors = {
     pending: 'bg-yellow-400',
@@ -752,6 +908,26 @@ const formatDate = (date: Date) => {
   } catch (error) {
     console.error('Error formatting date:', error);
     return 'Invalid Date';
+  }
+};
+
+// Event modal methods
+const openEventModal = (event: Event) => {
+  modalEventData.value = event;
+  showEventModal.value = true;
+};
+
+const closeEventModal = () => {
+  showEventModal.value = false;
+  modalEventData.value = null;
+};
+
+const rsvpEvent = (event: Event, status: string) => {
+  console.log('RSVP for event:', event.name, 'with status:', status);
+  // Update event RSVP status
+  const eventInList = upcomingEvents.value.find(e => e.id === event.id);
+  if (eventInList && 'rsvpStatus' in eventInList) {
+    (eventInList as any).rsvpStatus = status;
   }
 };
 
