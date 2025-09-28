@@ -84,8 +84,10 @@
               :key="interest.id"
               @click="toggleInterest(interest)"
               :disabled="!selectedInterests.includes(interest) && selectedInterests.length >= 10"
-              class="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              :class="{ 'bg-indigo-50 text-indigo-700': selectedInterests.includes(interest) }"
+              class="w-full text-left p-3 border-b border-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              :class="selectedInterests.includes(interest) 
+                ? 'bg-indigo-50 text-indigo-700' 
+                : 'hover:bg-indigo-50 hover:text-indigo-700'"
             >
               <div class="flex justify-between items-center">
                 <span>{{ interest.name }}</span>
@@ -126,57 +128,86 @@
       <!-- Step 3: Current Involvement -->
       <div v-else-if="currentStep === 3" class="space-y-8">
         <div class="text-center">
-          <h1 class="text-3xl font-bold text-gray-900 mb-4">Current involvement</h1>
+          <h1 class="text-3xl font-bold text-gray-900 mb-4">Current Involvement</h1>
           <p class="text-lg text-gray-600">What are you currently involved in? (Optional)</p>
         </div>
 
+        <!-- Searchable dropdown -->
         <div class="space-y-4">
           <label class="block text-sm font-medium text-gray-700 mb-2">
-            Current commitments (clubs, jobs, sports, etc.)
+            Search and add your current involvements
           </label>
-          <div class="space-y-2">
-            <div
-              v-for="(involvement, index) in currentInvolvements"
-              :key="index"
-              class="flex gap-2"
+          <div class="relative">
+            <input
+              v-model="involvementSearch"
+              @input="handleInvolvementSearch"
+              @focus="showInvolvementDropdown = true"
+              @blur="closeDropdown"
+              type="text"
+              placeholder="Search for clubs, jobs, sports teams, etc..."
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+            />
+            
+            <!-- Dropdown results -->
+            <div 
+              v-if="showInvolvementDropdown && filteredInvolvements.length > 0"
+              class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto"
             >
-              <input
-                v-model="currentInvolvements[index]"
-                type="text"
-                placeholder="e.g., Study group, Part-time job, Soccer team..."
-                class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-              />
               <button
-                @click="removeInvolvement(index)"
-                class="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                v-for="involvement in filteredInvolvements"
+                :key="involvement.id"
+                @click="addInvolvement(involvement)"
+                class="w-full text-left p-3 hover:bg-indigo-50 border-b border-gray-100 last:border-b-0 transition-colors"
               >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
+                <div class="font-medium text-gray-900">{{ involvement.name }}</div>
               </button>
             </div>
-            <button
-              @click="addInvolvement"
-              class="w-full p-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600"
-            >
-              + Add another involvement
-            </button>
           </div>
         </div>
 
-        <!-- Quick options -->
-        <div class="space-y-4">
-          <p class="text-sm text-gray-600">Or select from common options:</p>
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-            <button
-              v-for="option in commonInvolvements"
-              :key="option"
-              @click="addCommonInvolvement(option)"
-              class="p-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+        <!-- Selected involvements with status selection -->
+        <div v-if="selectedInvolvements.length > 0" class="space-y-4">
+          <h3 class="text-lg font-medium text-gray-900">Your Current Involvements</h3>
+          <div class="space-y-3">
+            <div
+              v-for="involvement in selectedInvolvements"
+              :key="involvement.id"
+              class="flex items-center justify-between bg-gray-50 p-4 rounded-lg"
             >
-              {{ option }}
-            </button>
+              <div class="flex-1">
+                <div class="font-medium text-gray-900 mb-2">{{ involvement.name }}</div>
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    v-for="status in memberStatuses"
+                    :key="status.value"
+                    @click="updateInvolvementStatus(involvement.id, status.value as 'pending' | 'active' | 'passive' | 'inactive')"
+                    :class="[
+                      'px-3 py-1 text-xs rounded-full border transition-all',
+                      involvement.status === status.value
+                        ? getStatusColor(status.value)
+                        : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'
+                    ]"
+                    :title="status.description"
+                  >
+                    {{ status.label }}
+                  </button>
+                </div>
+              </div>
+              <button 
+                @click="removeInvolvement(involvement.id)"
+                class="ml-4 text-red-600 hover:text-red-800"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
+        </div>
+
+        <div v-else class="text-center text-gray-500 py-8">
+          <p>Search and add your current involvements above to get personalized recommendations.</p>
+          <p class="text-sm mt-1">No worries if you're not involved in anything yet - we'll help you find great opportunities!</p>
         </div>
       </div>
 
@@ -204,7 +235,20 @@
 </template>
 
 <script setup lang="ts">
-import type { Interest } from '../types';
+// Simple interface for onboarding interests (avoiding complex Interest type for now)
+interface OnboardingInterest {
+  id: string;
+  name: string;
+  category: string;
+  isCustom: boolean;
+}
+
+// Interface for involvement items
+interface InvolvementItem {
+  id: string;
+  name: string;
+  status: 'pending' | 'active' | 'passive' | 'inactive';
+}
 
 // State
 const currentStep = ref(1);
@@ -223,12 +267,12 @@ const majors = ref([
 ]);
 
 // Step 2: Interests
-const selectedInterests = ref<Interest[]>([]);
+const selectedInterests = ref<OnboardingInterest[]>([]);
 const interestSearch = ref('');
-const searchResults = ref<Interest[]>([]);
-const customInterests = ref<Interest[]>([]);
+const searchResults = ref<OnboardingInterest[]>([]);
+const customInterests = ref<OnboardingInterest[]>([]);
 
-const allInterests: Interest[] = [
+const allInterests: OnboardingInterest[] = [
   // Academic
   { id: '1', name: 'Machine Learning', category: 'academic', isCustom: false },
   { id: '2', name: 'Data Science', category: 'academic', isCustom: false },
@@ -263,12 +307,46 @@ const allInterests: Interest[] = [
   { id: '29', name: 'Tennis', category: 'sport', isCustom: false },
 ];
 
-// Step 3: Current Involvement
-const currentInvolvements = ref(['']);
-const commonInvolvements = [
-  'Study Group', 'Part-time Job', 'Internship', 'Greek Life', 
-  'Student Government', 'Volunteer Work', 'Sports Team', 'Music Ensemble'
+// Step 3: Current Involvement - Searchable dropdown approach
+const selectedInvolvements = ref<InvolvementItem[]>([]);
+const involvementSearch = ref('');
+const showInvolvementDropdown = ref(false);
+
+const availableInvolvements = [
+  { id: 'study-group', name: 'Study Groups' },
+  { id: 'part-time-job', name: 'Part-time Job' },
+  { id: 'internship', name: 'Internship' },
+  { id: 'greek-life', name: 'Greek Life' },
+  { id: 'student-gov', name: 'Student Government' },
+  { id: 'volunteer', name: 'Volunteer Work' },
+  { id: 'sports-team', name: 'Sports Team' },
+  { id: 'music-ensemble', name: 'Music Ensemble' },
+  { id: 'research', name: 'Research Project' },
+  { id: 'student-org', name: 'Student Organizations' },
+  { id: 'tutoring', name: 'Tutoring' },
+  { id: 'clubs', name: 'Academic Clubs' },
+  { id: 'honor-society', name: 'Honor Society' },
+  { id: 'peer-mentor', name: 'Peer Mentoring' },
+  { id: 'student-media', name: 'Student Media' },
+  { id: 'outdoor-rec', name: 'Outdoor Recreation' },
 ];
+
+const memberStatuses = [
+  { value: 'pending', label: 'Pending', description: 'Application submitted, awaiting acceptance' },
+  { value: 'active', label: 'Active', description: 'Regular participation and engagement' },
+  { value: 'passive', label: 'Passive', description: 'Occasional participation' },
+  { value: 'inactive', label: 'Inactive', description: 'Member but not currently participating' }
+];
+
+// Computed for filtered search results
+const filteredInvolvements = computed(() => {
+  if (!involvementSearch.value) return availableInvolvements.slice(0, 8);
+  
+  return availableInvolvements.filter(involvement => 
+    involvement.name.toLowerCase().includes(involvementSearch.value.toLowerCase()) &&
+    !selectedInvolvements.value.some(selected => selected.id === involvement.id)
+  );
+});
 
 // Computed
 const canProceed = computed(() => {
@@ -306,7 +384,7 @@ const handleInterestSearch = () => {
   }
 };
 
-const toggleInterest = (interest: Interest) => {
+const toggleInterest = (interest: OnboardingInterest) => {
   const index = selectedInterests.value.findIndex(i => i.id === interest.id);
   if (index >= 0) {
     selectedInterests.value.splice(index, 1);
@@ -315,7 +393,7 @@ const toggleInterest = (interest: Interest) => {
   }
 };
 
-const removeInterest = (interest: Interest) => {
+const removeInterest = (interest: OnboardingInterest) => {
   const index = selectedInterests.value.findIndex(i => i.id === interest.id);
   if (index >= 0) {
     selectedInterests.value.splice(index, 1);
@@ -332,7 +410,7 @@ const removeInterest = (interest: Interest) => {
 
 const addCustomInterest = () => {
   if (interestSearch.value && customInterests.value.length < 5 && selectedInterests.value.length < 10) {
-    const customInterest: Interest = {
+    const customInterest: OnboardingInterest = {
       id: 'custom-' + Date.now(),
       name: interestSearch.value,
       category: 'hobby', // Default category
@@ -357,23 +435,51 @@ const getCategoryColor = (category: string) => {
   return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800';
 };
 
-const addInvolvement = () => {
-  currentInvolvements.value.push('');
-};
-
-const removeInvolvement = (index: number) => {
-  currentInvolvements.value.splice(index, 1);
-};
-
-const addCommonInvolvement = (involvement: string) => {
-  if (!currentInvolvements.value.includes(involvement)) {
-    const emptyIndex = currentInvolvements.value.findIndex(inv => inv === '');
-    if (emptyIndex >= 0) {
-      currentInvolvements.value[emptyIndex] = involvement;
-    } else {
-      currentInvolvements.value.push(involvement);
-    }
+// New involvement methods
+const addInvolvement = (involvement: typeof availableInvolvements[0]) => {
+  if (!selectedInvolvements.value.some(item => item.id === involvement.id)) {
+    selectedInvolvements.value.push({
+      id: involvement.id,
+      name: involvement.name,
+      status: 'active' // Default status
+    });
+    involvementSearch.value = '';
+    showInvolvementDropdown.value = false;
   }
+};
+
+const removeInvolvement = (involvementId: string) => {
+  const index = selectedInvolvements.value.findIndex(item => item.id === involvementId);
+  if (index >= 0) {
+    selectedInvolvements.value.splice(index, 1);
+  }
+};
+
+const updateInvolvementStatus = (involvementId: string, status: 'pending' | 'active' | 'passive' | 'inactive') => {
+  const involvement = selectedInvolvements.value.find(item => item.id === involvementId);
+  if (involvement) {
+    involvement.status = status;
+  }
+};
+
+const getStatusColor = (status: string) => {
+  const colors = {
+    pending: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+    active: 'bg-green-100 text-green-700 border-green-300',
+    passive: 'bg-blue-100 text-blue-700 border-blue-300',
+    inactive: 'bg-gray-100 text-gray-700 border-gray-300'
+  };
+  return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-700 border-gray-300';
+};
+
+const handleInvolvementSearch = () => {
+  showInvolvementDropdown.value = true;
+};
+
+const closeDropdown = () => {
+  setTimeout(() => {
+    showInvolvementDropdown.value = false;
+  }, 200);
 };
 
 const completeOnboarding = async () => {
@@ -386,7 +492,7 @@ const completeOnboarding = async () => {
     const onboardingData = {
       major: selectedMajor.value,
       interests: selectedInterests.value,
-      currentInvolvement: currentInvolvements.value.filter(inv => inv.trim() !== '')
+      currentInvolvement: selectedInvolvements.value
     };
     
     console.log('Onboarding completed:', onboardingData);
