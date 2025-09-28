@@ -10,6 +10,7 @@ export interface IUser extends Document {
 	username: string;
 	email: string;
 	password: string; // hashed password
+	role: string; // user role: 'user' | 'admin' | 'moderator'
 
 	lastLogin?: Date;
 	createdAt: Date;
@@ -52,6 +53,12 @@ const UserSchema: Schema = new Schema<IUser>({
 		validate: [validator.isEmail, 'Please provide a valid email address'],
 	},
 	password: { type: String, required: true, minlength: 6 },
+	role: {
+		type: String,
+		required: true,
+		default: 'user',
+		enum: ['user', 'admin', 'moderator'],
+	},
 
 	lastLogin: { type: Date },
 	createdAt: { type: Date, default: Date.now },

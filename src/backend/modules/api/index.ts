@@ -11,6 +11,12 @@ import interestsRoutes, { setHandler as setInterestsHandler } from './routes/int
 import tagsRoutes, { setHandler as setTagsHandler } from './routes/tags';
 import recommendationsRoutes, { setHandler as setRecommendationsHandler } from './routes/recommendations';
 
+// Import admin routes
+import adminDashboardRoutes, { setHandler as setAdminDashboardHandler } from './routes/admin/dashboard';
+import adminUsersRoutes, { setHandler as setAdminUsersHandler } from './routes/admin/users';
+import adminContentRoutes, { setHandler as setAdminContentHandler } from './routes/admin/content';
+import adminAnalyticsRoutes, { setHandler as setAdminAnalyticsHandler } from './routes/admin/analytics';
+
 const router = Router();
 
 /**
@@ -27,7 +33,13 @@ export function initializeApiRoutes(handler: Handler): Router {
 	setTagsHandler(handler);
 	setRecommendationsHandler(handler);
 
-	// Mount all routes
+	// Set handler for admin routes
+	setAdminDashboardHandler(handler);
+	setAdminUsersHandler(handler);
+	setAdminContentHandler(handler);
+	setAdminAnalyticsHandler(handler);
+
+	// Mount all public routes
 	router.use('/auth', authRoutes);
 	router.use('/events', eventsRoutes);
 	router.use('/organizations', organizationsRoutes);
@@ -36,6 +48,12 @@ export function initializeApiRoutes(handler: Handler): Router {
 	router.use('/interests', interestsRoutes);
 	router.use('/tags', tagsRoutes);
 	router.use('/recommendations', recommendationsRoutes);
+
+	// Mount admin routes (protected by requireAdmin middleware)
+	router.use('/admin/dashboard', adminDashboardRoutes);
+	router.use('/admin/users', adminUsersRoutes);
+	router.use('/admin/content', adminContentRoutes);
+	router.use('/admin/analytics', adminAnalyticsRoutes);
 
 	// API health check endpoint
 	router.get('/health', (req, res) => {
@@ -63,6 +81,12 @@ export function initializeApiRoutes(handler: Handler): Router {
 				tags: '/api/tags',
 				recommendations: '/api/recommendations',
 				health: '/api/health',
+				admin: {
+					dashboard: '/api/admin/dashboard',
+					users: '/api/admin/users',
+					content: '/api/admin/content',
+					analytics: '/api/admin/analytics',
+				},
 			},
 			documentation: 'https://github.com/your-org/atlas/docs/api',
 		});
