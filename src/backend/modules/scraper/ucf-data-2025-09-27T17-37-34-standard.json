@@ -1,11 +1,11 @@
 {
   "metadata": {
-    "scrapedAt": "2025-09-27T09:24:04.638Z",
+    "scrapedAt": "2025-09-27T17:37:34.033Z",
     "sources": [
       "campuslabs",
       "events.ucf.edu"
     ],
-    "totalEvents": 390,
+    "totalEvents": 389,
     "totalCategories": 63,
     "totalOrganizations": 712
   },
@@ -56,38 +56,17 @@
       "source": "campuslabs"
     },
     {
-      "id": "campuslabs-event-11548037",
-      "originalId": "11548037",
-      "name": "Cypress Wetland Clean-Up",
-      "description": "Join us for a morning of community service as we clean up the Cypress area! This two-hour event focuses on picking up litter, beautifying the community, and helping preserve the local environment. **Please complete the Volunteer Services Agreement here before your first clean-up:  https://risk.ucf.edu/university-volunteers/ **",
-      "location": "Cypress Dome",
-      "startTime": "2025-09-27T12:00:00+00:00",
-      "endTime": "2025-09-27T13:00:00+00:00",
-      "url": "https://ucf.campuslabs.com/engage/event/11548037",
+      "id": "campuslabs-event-11712017",
+      "originalId": "11712017",
+      "name": "Campus Cleanup Volunteer Event",
+      "description": "Join NSBWM for a campus cleanup this Saturday September 27th at 3PM! Let's make our space shine 💖✨ Don't forget your sunscreen + water bottle—stay cool & hydrated while we do some good! 🌞",
+      "location": "Memory Mall",
+      "startTime": "2025-09-27T19:00:00+00:00",
+      "endTime": "2025-09-27T21:00:00+00:00",
+      "url": "https://ucf.campuslabs.com/engage/event/11712017",
+      "latitude": "28.602420",
+      "longitude": "-81.200050",
       "theme": "CommunityService",
-      "categories": [
-        {
-          "id": "campuslabs-event-cat-20473",
-          "originalId": "20473",
-          "name": "Community Service",
-          "source": "campuslabs"
-        }
-      ],
-      "benefits": [],
-      "source": "campuslabs"
-    },
-    {
-      "id": "campuslabs-event-11631356",
-      "originalId": "11631356",
-      "name": "Econ River Wilderness Hike",
-      "description": "Get ready for another hike! We'll be at the Econ River Wilderness Area on Saturday, September 27th at 9:00 am. Be sure to bring sun protection, water, and comfortable shoes. Loaner binoculars will be provided. It's ok if you don't know anything about birds, we will teach you! Come get some fresh air and see what the trails have to offer!",
-      "location": "Econ River Wilderness Area",
-      "startTime": "2025-09-27T13:00:00+00:00",
-      "endTime": "2025-09-27T16:00:00+00:00",
-      "url": "https://ucf.campuslabs.com/engage/event/11631356",
-      "latitude": "28.613500",
-      "longitude": "-81.173630",
-      "theme": "Social",
       "categories": [],
       "benefits": [],
       "source": "campuslabs"
@@ -4365,28 +4344,6 @@
       "source": "campuslabs"
     },
     {
-      "id": "events-ucf-3951607",
-      "originalId": 3951607,
-      "name": "JCPenney Suit-Up Event",
-      "description": "It can feel overwhelming to shop for professional wear. We invite you to join JCPenney’s Suit-Up Event for shopping assistance on clothes for your next interview. Who should come: UCF students and alumni (Bring your UCF ID). Valencia College students. FAMU Law students. What is Suit-Up: An exclusive in store shopping event for career apparel with exclusive discounts not available …",
-      "location": "8001 South Orange Blossom Trail, Orlando, Florida 32809, United States",
-      "startTime": "2025-09-27T11:00:00-144:00",
-      "endTime": "2025-09-27T14:00:00-144:00",
-      "url": "https://events.ucf.edu/event/3951607/jcpenney-suit-up-event/",
-      "theme": "careerjobs",
-      "categories": [
-        {
-          "id": "events-ucf-cat-careerjobs",
-          "originalId": 3,
-          "name": "Career/Jobs",
-          "slug": "careerjobs",
-          "source": "events.ucf.edu"
-        }
-      ],
-      "recurring": false,
-      "source": "events.ucf.edu"
-    },
-    {
       "id": "events-ucf-3939163",
       "originalId": 3939163,
       "name": "PaddleFest 2025",
@@ -7108,6 +7065,28 @@
           "originalId": 6,
           "name": "Health & Well-being",
           "slug": "health-well-being",
+          "source": "events.ucf.edu"
+        }
+      ],
+      "recurring": false,
+      "source": "events.ucf.edu"
+    },
+    {
+      "id": "events-ucf-3952666",
+      "originalId": 3952666,
+      "name": "Resume Day",
+      "description": "Are you ready to take your career to the next level? The School of Hospitality Management and Culinary Arts is hosting a one-day Resume Day just for you. This is your chance to get a competitive edge in the job market, no matter your major. What to Expect: Professional Resume Reviews: Get personalized, one-on-one feedback from top industry leaders. Learn what hiring managers …",
+      "location": "UnionWest 4th Floor: Common Area",
+      "startTime": "2025-10-09T10:00:00-144:00",
+      "endTime": "2025-10-09T13:00:00-144:00",
+      "url": "https://events.ucf.edu/event/3952666/resume-day/",
+      "theme": "careerjobs",
+      "categories": [
+        {
+          "id": "events-ucf-cat-careerjobs",
+          "originalId": 3,
+          "name": "Career/Jobs",
+          "slug": "careerjobs",
           "source": "events.ucf.edu"
         }
       ],
@@ -11544,6 +11523,120 @@
       "source": "campuslabs"
     },
     {
+      "id": "campuslabs-org-90969",
+      "originalId": "90969",
+      "name": "Student Government Election Commission",
+      "shortName": "SGA EC",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/740df3ef-1c71-4059-b4f9-df75fd05322d92e3b785-7b9f-4e31-aeec-cd7a9d75ac7b.jpg?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-11837",
+          "originalId": "11837",
+          "name": "Agencies and Student Government",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "The Election Commission  serves to promote and facilitate Student Government elections. The Election Commission is comprised of the Supervisor of Elections, the Assistant Supervisor of Elections, and 12 other Election Commissioners. Together, they successfully market, facilitate, and execute the Elections! They also ensure that all candidates and campaigners abide by the Election Statutes and enjoy a fair and transparent election experience.     Potential candidates can find the Candidate Application Packets in the \"Forms\" section of the Election Commission Knight Connect page. Presidential petition sheets can be found in the \"Documents\" section of the Election Commission Knight Connect page. Please convert the Petition sheets to a .csv file upon submission.    2025 Fall Events: Prospective Presidential and Senate Candidates Q&A Date and Time: Wednesday, November 12th, 5:00 PM - 7:00 PM Location: Live Oak Event Center – Magnolia Room   2026 Election Period Timeline:   2026 Info Sessions! Time: 10:15 AM - 11:00 AM Location: Sand Key, SU Room 220   Dates: January 27th,  January 29th, February 3rd, February 5th, February 6th, February 9th, February 10th, and February 11th   Virtual (Zoom) Dates: February 13th (12:00 PM - 12:45 PM) and February 17th (9:00 AM - 9:45 AM)   Important Dates: Election Period Begins & Presidential Petition Forms Open: Monday, January 12th, 9:00 AM   Declaration of Candidacy Period: Monday-Friday, February 9th-13th, 9:00 AM - 5:00 PM   Active Campaigning Allowed Beginning: Monday, February 9th, 9:00 AM -  Candidates may campaign only after receiving verification from the Election Commission.   Write-In Application Process: File the write-in declaration by Wednesday, March 15, 5:00 PM ; Eligibility verified by Thursday, March 12th, 5:00 PM   Election Events Presidential Ticket Debate: Monday, February 23rd, 7:00 PM - 9:00 PM (Doors open at 6:00 PM) Location:  Student Union Pegasus Ballroom D-I     Candidate Expo:  Wednesday, March 4th, 2026, 12:00 PM - 2:00 PM Location:  Student Union Key West Ballroom     Election Voting: Time: Monday-Wednesday, March 9th-11th, 8:00 AM - 5:00 PM If there is no runoff,  the E lection period ends Wednesday, March 25, 2026.   Runoff Election (if necessary): Monday-Wednesday, March 23rd-26th, 8:00 AM - 5:00 PM If there is a run-off, the  Election period ends Wednesday, April 8th.   A comprehensive calendar with all relevant dates and deadlines can be found on the SG Election Commission UCF Events calendar:  https://events.ucf.edu/calendar/5821/student-government-election-commission/this-month/     Contact Information: Amarah Presley, Supervisor of Elections:  sga_ec@ucf.edu   Andrew Collazo Borges, Assistant Supervisor of Elections:  sga_aec@ucf.edu   Chantel Carter, SG Advisor:  chantel.carter@ucf.edu",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-74949",
+      "originalId": "74949",
+      "name": "Health Service Administration, Student Association",
+      "shortName": "HSASA",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/2a87a97a-2c11-4f5d-a6d7-b447660c5aa84bdb96c3-c20c-4a95-8692-e6ea4007c113.png?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4238",
+          "originalId": "4238",
+          "name": "Community Innovation and Education",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "Our Mission: HSASA is an organization comprising students interested in pursuing careers in health care administration. The goal of our organization is to provide networking opportunities for students within the field. We invite professionals from various healthcare organizations to talk to our members about their careers as well as other pertinent healthcare topics. Also, we participate in numerous events throughout the year including socials, intramural sports, philanthropic events, and fundraisers.  Any student, regardless of major or academic level, currently enrolled in classes at UCF may join our organization. Please check the \"Events\" tab on the left-hand side to RSVP or to find out more information about upcoming philanthropic events and tour dates! Spaces are limited so please make sure to RSVP in advance. For further information, contact hsasa@ucf.edu. To directly contact our president, Derric Esquivel, send an e-mail to de667145@ucf.edu.",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-75179",
+      "originalId": "75179",
+      "name": "Zeta Tau Alpha Fraternity",
+      "shortName": "Zeta",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/204aa1c8-6d5c-42ad-be3a-420f510598ae6dd1a4c8-3492-450d-a10c-e51f5e5c40d4.jpg?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4249",
+          "originalId": "4249",
+          "name": "Greek: Panhellenic Council",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "Seek the Noblest!",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-365779",
+      "originalId": "365779",
+      "name": "Knights of Fiber Arts",
+      "shortName": "KoFA",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/704f5fc1-856f-47e5-a3e3-5d7ec79b7b6d5f572e35-988a-45f6-bcf6-aa92d0f00a25.jpg?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4236",
+          "originalId": "4236",
+          "name": "Arts and Humanities",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-4245",
+          "originalId": "4245",
+          "name": "Creative Arts",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-4252",
+          "originalId": "4252",
+          "name": "Miscellaneous Hobbies",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-11851",
+          "originalId": "11851",
+          "name": "LGBTQ+",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "We are a club that allows students interested in hobbies under the umbrella of fiber arts (i.e. knitting, crocheting, sewing, etc.) to meet and socialize with other students with similar hobbies. Through weekly, casual meetings, we get to know each other, form friendships, and work on our personal projects! We may occasionally have meetings at different locations, but often enjoy picnics!",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-75010",
+      "originalId": "75010",
+      "name": "The Cypress Dome Society",
+      "shortName": "CDS",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/d00496fb-794b-4669-b203-03d53cfc791bbe5b4b8b-5532-4951-bc75-bd2a991a96dd.png?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4236",
+          "originalId": "4236",
+          "name": "Arts and Humanities",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-4245",
+          "originalId": "4245",
+          "name": "Creative Arts",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "The Cypress Dome Society is the University of Central Florida's literary organization staffed by undergraduate students. Named after a feature of the landscape on the UCF campus, we are dedicated to fostering the literary arts and promoting a sense of community among writers and artists through events and our annual publication, The Cypress Dome, UCF's undergraduate literary journal.  Founded in 1989, The Cypress Dome received the Associated Writing Programs Directors' Award for exceptional content in 1995. It is edited, designed, and produced by a selected editorial team of The Cypress Dome Society students as part of a year-long internship. Poetry, fiction, creative nonfiction, flash fiction/nonfiction, graphic narratives, and visual art may be submitted in the fall term, according to submission guidelines distributed each fall, to be considered for publication in the annual issue published each spring. Our events, such as our monthly Open Mic sessions, and our publication seek to cultivate creativity and diversity and are open to both graduate and undergraduate students.  For more information on how to get involved in The Cypress Dome Society, contact us or join our Discord ( https://discord.gg/MSAhPUgAyx ) If you are interested in submitting your work for publication in The Cypress Dome , please visit our website: https://cah.ucf.edu/cypressdome/ .",
+      "source": "campuslabs"
+    },
+    {
       "id": "campuslabs-org-238660",
       "originalId": "238660",
       "name": "Student Engagement (UCF Downtown and Valencia College Downtown Campus) ",
@@ -11602,117 +11695,27 @@
       "source": "campuslabs"
     },
     {
-      "id": "campuslabs-org-354113",
-      "originalId": "354113",
-      "name": "National Association of Hispanic Journalists",
-      "shortName": "NAHJ",
+      "id": "campuslabs-org-179996",
+      "originalId": "179996",
+      "name": "Botanical Society at the University of Central Florida",
+      "shortName": "BSA",
       "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/2b4f51e4-2128-45bb-a853-95ab14eed6869ef1e255-b0de-40af-8e34-ce27f82881eb.png?preset=small-sq",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/db894e4c-456d-4974-aeb6-d8e4ef83e21e0540efe5-36c5-44c3-9be6-46048eabc3c2.png?preset=small-sq",
       "categories": [
         {
-          "id": "campuslabs-cat-11839",
-          "originalId": "11839",
-          "name": "Communication",
+          "id": "campuslabs-cat-4244",
+          "originalId": "4244",
+          "name": "Sciences",
           "source": "campuslabs"
         },
         {
-          "id": "campuslabs-cat-11850",
-          "originalId": "11850",
-          "name": "LatinX",
+          "id": "campuslabs-cat-4257",
+          "originalId": "4257",
+          "name": "Social/Political Awareness",
           "source": "campuslabs"
         }
       ],
-      "description": "The National Association of Hispanic Journalists (NAHJ) at UCF is  dedicated to the recognition and professional advancement of hispanic students in journalism and other areas in the media. NAHJ is an educational and charitable association, which offers scholarships, conferences and other opportunities. Here at UCF, we promote internships and create a student-produced webcast each semester.  Any students who are interested in diversity and inclusion in the media are welcome to join our club, regardless of major or background. ",
-      "source": "campuslabs"
-    },
-    {
-      "id": "campuslabs-org-365779",
-      "originalId": "365779",
-      "name": "Knights of Fiber Arts",
-      "shortName": "KoFA",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/704f5fc1-856f-47e5-a3e3-5d7ec79b7b6d5f572e35-988a-45f6-bcf6-aa92d0f00a25.jpg?preset=small-sq",
-      "categories": [
-        {
-          "id": "campuslabs-cat-4236",
-          "originalId": "4236",
-          "name": "Arts and Humanities",
-          "source": "campuslabs"
-        },
-        {
-          "id": "campuslabs-cat-4245",
-          "originalId": "4245",
-          "name": "Creative Arts",
-          "source": "campuslabs"
-        },
-        {
-          "id": "campuslabs-cat-4252",
-          "originalId": "4252",
-          "name": "Miscellaneous Hobbies",
-          "source": "campuslabs"
-        },
-        {
-          "id": "campuslabs-cat-11851",
-          "originalId": "11851",
-          "name": "LGBTQ+",
-          "source": "campuslabs"
-        }
-      ],
-      "description": "We are a club that allows students interested in hobbies under the umbrella of fiber arts (i.e. knitting, crocheting, sewing, etc.) to meet and socialize with other students with similar hobbies. Through weekly, casual meetings, we get to know each other, form friendships, and work on our personal projects! We may occasionally have meetings at different locations, but often enjoy picnics!",
-      "source": "campuslabs"
-    },
-    {
-      "id": "campuslabs-org-90969",
-      "originalId": "90969",
-      "name": "Student Government Election Commission",
-      "shortName": "SGA EC",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/740df3ef-1c71-4059-b4f9-df75fd05322d92e3b785-7b9f-4e31-aeec-cd7a9d75ac7b.jpg?preset=small-sq",
-      "categories": [
-        {
-          "id": "campuslabs-cat-11837",
-          "originalId": "11837",
-          "name": "Agencies and Student Government",
-          "source": "campuslabs"
-        }
-      ],
-      "description": "The Election Commission  serves to promote and facilitate Student Government elections. The Election Commission is comprised of the Supervisor of Elections, the Assistant Supervisor of Elections, and 12 other Election Commissioners. Together, they successfully market, facilitate, and execute the Elections! They also ensure that all candidates and campaigners abide by the Election Statutes and enjoy a fair and transparent election experience.     Potential candidates can find the Candidate Application Packets in the \"Forms\" section of the Election Commission Knight Connect page. Presidential petition sheets can be found in the \"Documents\" section of the Election Commission Knight Connect page. Please convert the Petition sheets to a .csv file upon submission.    2025 Fall Events: Prospective Presidential and Senate Candidates Q&A Date and Time: Wednesday, November 12th, 5:00 PM - 7:00 PM Location: Live Oak Event Center – Magnolia Room   2026 Election Period Timeline:   2026 Info Sessions! Time: 10:15 AM - 11:00 AM Location: Sand Key, SU Room 220   Dates: January 27th,  January 29th, February 3rd, February 5th, February 6th, February 9th, February 10th, and February 11th   Virtual (Zoom) Dates: February 13th (12:00 PM - 12:45 PM) and February 17th (9:00 AM - 9:45 AM)   Important Dates: Election Period Begins & Presidential Petition Forms Open: Monday, January 12th, 9:00 AM   Declaration of Candidacy Period: Monday-Friday, February 9th-13th, 9:00 AM - 5:00 PM   Active Campaigning Allowed Beginning: Monday, February 9th, 9:00 AM -  Candidates may campaign only after receiving verification from the Election Commission.   Write-In Application Process: File the write-in declaration by Wednesday, March 15, 5:00 PM ; Eligibility verified by Thursday, March 12th, 5:00 PM   Election Events Presidential Ticket Debate: Monday, February 23rd, 7:00 PM - 9:00 PM (Doors open at 6:00 PM) Location:  Student Union Pegasus Ballroom D-I     Candidate Expo:  Wednesday, March 4th, 2026, 12:00 PM - 2:00 PM Location:  Student Union Key West Ballroom     Election Voting: Time: Monday-Wednesday, March 9th-11th, 8:00 AM - 5:00 PM If there is no runoff,  the E lection period ends Wednesday, March 25, 2026.   Runoff Election (if necessary): Monday-Wednesday, March 23rd-26th, 8:00 AM - 5:00 PM If there is a run-off, the  Election period ends Wednesday, April 8th.   A comprehensive calendar with all relevant dates and deadlines can be found on the SG Election Commission UCF Events calendar:  https://events.ucf.edu/calendar/5821/student-government-election-commission/this-month/     Contact Information: Amarah Presley, Supervisor of Elections:  sga_ec@ucf.edu   Andrew Collazo Borges, Assistant Supervisor of Elections:  sga_aec@ucf.edu   Chantel Carter, SG Advisor:  chantel.carter@ucf.edu",
-      "source": "campuslabs"
-    },
-    {
-      "id": "campuslabs-org-74949",
-      "originalId": "74949",
-      "name": "Health Service Administration, Student Association",
-      "shortName": "HSASA",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/2a87a97a-2c11-4f5d-a6d7-b447660c5aa84bdb96c3-c20c-4a95-8692-e6ea4007c113.png?preset=small-sq",
-      "categories": [
-        {
-          "id": "campuslabs-cat-4238",
-          "originalId": "4238",
-          "name": "Community Innovation and Education",
-          "source": "campuslabs"
-        }
-      ],
-      "description": "Our Mission: HSASA is an organization comprising students interested in pursuing careers in health care administration. The goal of our organization is to provide networking opportunities for students within the field. We invite professionals from various healthcare organizations to talk to our members about their careers as well as other pertinent healthcare topics. Also, we participate in numerous events throughout the year including socials, intramural sports, philanthropic events, and fundraisers.  Any student, regardless of major or academic level, currently enrolled in classes at UCF may join our organization. Please check the \"Events\" tab on the left-hand side to RSVP or to find out more information about upcoming philanthropic events and tour dates! Spaces are limited so please make sure to RSVP in advance. For further information, contact hsasa@ucf.edu. To directly contact our president, Derric Esquivel, send an e-mail to de667145@ucf.edu.",
-      "source": "campuslabs"
-    },
-    {
-      "id": "campuslabs-org-75179",
-      "originalId": "75179",
-      "name": "Zeta Tau Alpha Fraternity",
-      "shortName": "Zeta",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/204aa1c8-6d5c-42ad-be3a-420f510598ae6dd1a4c8-3492-450d-a10c-e51f5e5c40d4.jpg?preset=small-sq",
-      "categories": [
-        {
-          "id": "campuslabs-cat-4249",
-          "originalId": "4249",
-          "name": "Greek: Panhellenic Council",
-          "source": "campuslabs"
-        }
-      ],
-      "description": "Seek the Noblest!",
+      "description": "The mission of Botanical Society of America is to create a community for students interested in botanical sciences. By forming a community of plant science students with the Botanical Society of America we will be able to offer professional development opportunities and help link students to internships and jobs.    General Body Meetings on the last Wednesday of every month.  Join our Discord for up to date club info! (https://discord.gg/fErqUW4WJ4)",
       "source": "campuslabs"
     },
     {
@@ -11751,6 +11754,30 @@
       "source": "campuslabs"
     },
     {
+      "id": "campuslabs-org-354113",
+      "originalId": "354113",
+      "name": "National Association of Hispanic Journalists",
+      "shortName": "NAHJ",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/2b4f51e4-2128-45bb-a853-95ab14eed6869ef1e255-b0de-40af-8e34-ce27f82881eb.png?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-11839",
+          "originalId": "11839",
+          "name": "Communication",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-11850",
+          "originalId": "11850",
+          "name": "LatinX",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "The National Association of Hispanic Journalists (NAHJ) at UCF is  dedicated to the recognition and professional advancement of hispanic students in journalism and other areas in the media. NAHJ is an educational and charitable association, which offers scholarships, conferences and other opportunities. Here at UCF, we promote internships and create a student-produced webcast each semester.  Any students who are interested in diversity and inclusion in the media are welcome to join our club, regardless of major or background. ",
+      "source": "campuslabs"
+    },
+    {
       "id": "campuslabs-org-136403",
       "originalId": "136403",
       "name": "A Heartfulness Meditation Experience",
@@ -11766,54 +11793,6 @@
         }
       ],
       "description": "Our objective is to equip UCF students with a set of inner practices for personality development and self growth. We offer meditation and relaxation training to the entire UCF community with support from certified Heartfulness Trainers. Heartfulness: Living by the Heart By tuning into our hearts, we learn to be centered in our highest selves. We can learn to strengthen that connection and cultivate an inner knowing that wisely directs and guides our lives. With practice, we can grow to face the challenges of life with courage and acceptance. If we live by the heart, we can become what we're meant to be. Explore and experience. Feel the lightness and joy of your true nature. Heartfulness meditation is simply taking the time every day to tune into that internal presence. In a short while, you'll learn to remain connected to that gentle support throughout the day. Heartfulness meditation can students to learn how to: 1. Relax for physical well-being 2. Deepen your meditation 3. Simplify thoughts 4. Unwind the mind 5. Let go of stress, rejuvenate 6. Observe your deepest feelings 7. Make wise life choices 8. Find inner strength 9. Develop confidence and balance 10. Nurture relationships 11. Find joy within",
-      "source": "campuslabs"
-    },
-    {
-      "id": "campuslabs-org-75010",
-      "originalId": "75010",
-      "name": "The Cypress Dome Society",
-      "shortName": "CDS",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/d00496fb-794b-4669-b203-03d53cfc791bbe5b4b8b-5532-4951-bc75-bd2a991a96dd.png?preset=small-sq",
-      "categories": [
-        {
-          "id": "campuslabs-cat-4236",
-          "originalId": "4236",
-          "name": "Arts and Humanities",
-          "source": "campuslabs"
-        },
-        {
-          "id": "campuslabs-cat-4245",
-          "originalId": "4245",
-          "name": "Creative Arts",
-          "source": "campuslabs"
-        }
-      ],
-      "description": "The Cypress Dome Society is the University of Central Florida's literary organization staffed by undergraduate students. Named after a feature of the landscape on the UCF campus, we are dedicated to fostering the literary arts and promoting a sense of community among writers and artists through events and our annual publication, The Cypress Dome, UCF's undergraduate literary journal.  Founded in 1989, The Cypress Dome received the Associated Writing Programs Directors' Award for exceptional content in 1995. It is edited, designed, and produced by a selected editorial team of The Cypress Dome Society students as part of a year-long internship. Poetry, fiction, creative nonfiction, flash fiction/nonfiction, graphic narratives, and visual art may be submitted in the fall term, according to submission guidelines distributed each fall, to be considered for publication in the annual issue published each spring. Our events, such as our monthly Open Mic sessions, and our publication seek to cultivate creativity and diversity and are open to both graduate and undergraduate students.  For more information on how to get involved in The Cypress Dome Society, contact us or join our Discord ( https://discord.gg/MSAhPUgAyx ) If you are interested in submitting your work for publication in The Cypress Dome , please visit our website: https://cah.ucf.edu/cypressdome/ .",
-      "source": "campuslabs"
-    },
-    {
-      "id": "campuslabs-org-179996",
-      "originalId": "179996",
-      "name": "Botanical Society at the University of Central Florida",
-      "shortName": "BSA",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/db894e4c-456d-4974-aeb6-d8e4ef83e21e0540efe5-36c5-44c3-9be6-46048eabc3c2.png?preset=small-sq",
-      "categories": [
-        {
-          "id": "campuslabs-cat-4244",
-          "originalId": "4244",
-          "name": "Sciences",
-          "source": "campuslabs"
-        },
-        {
-          "id": "campuslabs-cat-4257",
-          "originalId": "4257",
-          "name": "Social/Political Awareness",
-          "source": "campuslabs"
-        }
-      ],
-      "description": "The mission of Botanical Society of America is to create a community for students interested in botanical sciences. By forming a community of plant science students with the Botanical Society of America we will be able to offer professional development opportunities and help link students to internships and jobs.    General Body Meetings on the last Wednesday of every month.  Join our Discord for up to date club info! (https://discord.gg/fErqUW4WJ4)",
       "source": "campuslabs"
     },
     {
@@ -18322,17 +18301,6 @@
       "source": "campuslabs"
     },
     {
-      "id": "campuslabs-org-417445",
-      "originalId": "417445",
-      "name": "ToKnight Show",
-      "shortName": "TKS",
-      "url": "",
-      "logoUrl": "",
-      "categories": [],
-      "description": "The mission of ToKnight Show is to teach students how to write and produce comedy sketches for the purpose of putting together a monthly variety show.",
-      "source": "campuslabs"
-    },
-    {
       "id": "campuslabs-org-83604",
       "originalId": "83604",
       "name": "Saudi Students Association",
@@ -18387,17 +18355,6 @@
       "source": "campuslabs"
     },
     {
-      "id": "campuslabs-org-408148",
-      "originalId": "408148",
-      "name": "The Rosen Entrepreneurship & Innovation Club",
-      "shortName": "REIgKNIGHTS",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/f3d69bf3-73c8-4618-8753-9d36e5591f8a48e61f2d-cfd9-4206-80a2-7f5c16e35006.png?preset=small-sq",
-      "categories": [],
-      "description": "Our Goals We aim to help you: • Cultivate an entrepreneurial mindset • Build career networks with Rosen College students and industry professionals • Access resources to create your own entrepreneurial ventures • Develop skills essential for success in hospitality and tourism entrepreneurship What We Offer REIgKNIGHTS hosts a variety of exciting opportunities, including: • Networking Events with industry leaders, entrepreneurs, and peers • Workshops and Seminars on business planning, marketing strategies, and financial management tailored to hospitality • Entrepreneurship Competitions where you can pitch innovative ideas, receive feedback from experts, and compete for awards and prizes • Collaboration Projects that let you tackle real-world challenges with local businesses and organizations • Membership Benefits including exclusive resources, mentorship opportunities, and industry insights Whether you're passionate about hospitality, marketing, leadership, or simply exploring your entrepreneurial side, REIgKNIGHTS welcomes students from all majors to join a vibrant community of innovators.",
-      "source": "campuslabs"
-    },
-    {
       "id": "campuslabs-org-294518",
       "originalId": "294518",
       "name": "Korean Culture Club",
@@ -18419,6 +18376,28 @@
         }
       ],
       "description": "The Korean Culture Club (KCC) at UCF allows members to respectfully appreciate all aspects of Korean culture including but not limited to language, cuisine, music, dance, arts and history. Join our Discord . Follow us on Instagram . Follow our  Facebook page.",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-408148",
+      "originalId": "408148",
+      "name": "The Rosen Entrepreneurship & Innovation Club",
+      "shortName": "REIgKNIGHTS",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/f3d69bf3-73c8-4618-8753-9d36e5591f8a48e61f2d-cfd9-4206-80a2-7f5c16e35006.png?preset=small-sq",
+      "categories": [],
+      "description": "Our Goals We aim to help you: • Cultivate an entrepreneurial mindset • Build career networks with Rosen College students and industry professionals • Access resources to create your own entrepreneurial ventures • Develop skills essential for success in hospitality and tourism entrepreneurship What We Offer REIgKNIGHTS hosts a variety of exciting opportunities, including: • Networking Events with industry leaders, entrepreneurs, and peers • Workshops and Seminars on business planning, marketing strategies, and financial management tailored to hospitality • Entrepreneurship Competitions where you can pitch innovative ideas, receive feedback from experts, and compete for awards and prizes • Collaboration Projects that let you tackle real-world challenges with local businesses and organizations • Membership Benefits including exclusive resources, mentorship opportunities, and industry insights Whether you're passionate about hospitality, marketing, leadership, or simply exploring your entrepreneurial side, REIgKNIGHTS welcomes students from all majors to join a vibrant community of innovators.",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-417445",
+      "originalId": "417445",
+      "name": "ToKnight Show",
+      "shortName": "TKS",
+      "url": "",
+      "logoUrl": "",
+      "categories": [],
+      "description": "The mission of ToKnight Show is to teach students how to write and produce comedy sketches for the purpose of putting together a monthly variety show.",
       "source": "campuslabs"
     },
     {
@@ -24346,48 +24325,6 @@
       "source": "campuslabs"
     },
     {
-      "id": "campuslabs-org-367067",
-      "originalId": "367067",
-      "name": "American Statistical Association at UCF",
-      "shortName": "AmStat@UCF",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/10f69759-1a2b-48bd-88c6-de47f7bb3fc73ae4af33-c434-4479-828a-3b28eb3bd11f.jpg?preset=small-sq",
-      "categories": [
-        {
-          "id": "campuslabs-cat-4239",
-          "originalId": "4239",
-          "name": "Engineering and Computer Science",
-          "source": "campuslabs"
-        },
-        {
-          "id": "campuslabs-cat-4244",
-          "originalId": "4244",
-          "name": "Sciences",
-          "source": "campuslabs"
-        }
-      ],
-      "description": "AmStat@UCF, a chapter of the American Statistical Association, provides a big tent for statistics within the University of Central Florida, forming a community of statisticians, data scientists, actuaries, and all who love statistics! Our chapter teaches members fundamental data science skills through workshops and gives opportunities to apply these skills with projects! Alongside having keynote speakers at our general body meetings and social events where our members can connect with other students, we aspire to make every member of our club better prepared for their careers, whether they go to graduate school or directly into industry or government.",
-      "source": "campuslabs"
-    },
-    {
-      "id": "campuslabs-org-90448",
-      "originalId": "90448",
-      "name": "Rosen Apartments",
-      "shortName": "",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/7045db0c-ef3b-4dda-826e-903e02de9c5e428aa587-c15a-4cc2-82cd-1f34b298326f.png?preset=small-sq",
-      "categories": [
-        {
-          "id": "campuslabs-cat-11848",
-          "originalId": "11848",
-          "name": "Housing and Residence Life",
-          "source": "campuslabs"
-        }
-      ],
-      "description": "To provide a residence life program that encourages a positive living and learning environment, supportive of students development in the college community by providing quality opportunities and connections for academic and personal growth.",
-      "source": "campuslabs"
-    },
-    {
       "id": "campuslabs-org-289141",
       "originalId": "289141",
       "name": "We In Animation at UCF",
@@ -24457,6 +24394,48 @@
         }
       ],
       "description": "Mission The mission of Pok&eacute;Knights is to create an environment that brings the many UCF students who love Pok&eacute;mon together as one organization. This organization will host events, movie nights, and activities that allow students to engage and interact with each other while sharing a love of Pok&eacute;mon. Goals This organization focuses on the interest of Pok&eacute;mon from all aspects, such as: Pok&eacute;mon History Pok&eacute;mon Anime Pok&eacute;mon Video Games Pok&eacute;mon Trading Card Game Pok&eacute;mon Manga Pok&eacute;mon GO Regular Club Meeting Information UCF PokeKnights Fall 2025 Main Campus In-Person Club Meetings Day: Wednesday Time: 7:00 PM - 8:45 PM Location: Student Union, Room 219 Social Media We use Discord to communicate!  UCF PokeKnights Discord @ucfpokeknights UCF PokeKnights Facebook UCF PokeKnights Twitter UCF PokeKnights Instagram  ",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-367067",
+      "originalId": "367067",
+      "name": "American Statistical Association at UCF",
+      "shortName": "AmStat@UCF",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/10f69759-1a2b-48bd-88c6-de47f7bb3fc73ae4af33-c434-4479-828a-3b28eb3bd11f.jpg?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4239",
+          "originalId": "4239",
+          "name": "Engineering and Computer Science",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-4244",
+          "originalId": "4244",
+          "name": "Sciences",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "AmStat@UCF, a chapter of the American Statistical Association, provides a big tent for statistics within the University of Central Florida, forming a community of statisticians, data scientists, actuaries, and all who love statistics! Our chapter teaches members fundamental data science skills through workshops and gives opportunities to apply these skills with projects! Alongside having keynote speakers at our general body meetings and social events where our members can connect with other students, we aspire to make every member of our club better prepared for their careers, whether they go to graduate school or directly into industry or government.",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-90448",
+      "originalId": "90448",
+      "name": "Rosen Apartments",
+      "shortName": "",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/7045db0c-ef3b-4dda-826e-903e02de9c5e428aa587-c15a-4cc2-82cd-1f34b298326f.png?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-11848",
+          "originalId": "11848",
+          "name": "Housing and Residence Life",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "To provide a residence life program that encourages a positive living and learning environment, supportive of students development in the college community by providing quality opportunities and connections for academic and personal growth.",
       "source": "campuslabs"
     },
     {
@@ -25451,102 +25430,6 @@
       "source": "campuslabs"
     },
     {
-      "id": "campuslabs-org-405830",
-      "originalId": "405830",
-      "name": "After The Sect",
-      "shortName": "ATS",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/1a63f8ef-ad50-410f-ab25-09c120d0ce1583329d13-8a44-4bfc-9a83-bf66f34c1c91.png?preset=small-sq",
-      "categories": [
-        {
-          "id": "campuslabs-cat-4238",
-          "originalId": "4238",
-          "name": "Community Innovation and Education",
-          "source": "campuslabs"
-        },
-        {
-          "id": "campuslabs-cat-4257",
-          "originalId": "4257",
-          "name": "Social/Political Awareness",
-          "source": "campuslabs"
-        }
-      ],
-      "description": "Life after leaving a high-control group (aka a cult) can be difficult, and that's why we're here: to provide support for folks in any stage of the transition process. Discord Server: https://discord.gg/vPKUeTfgFG",
-      "source": "campuslabs"
-    },
-    {
-      "id": "campuslabs-org-301879",
-      "originalId": "301879",
-      "name": "Beach Volleyball Club @ UCF",
-      "shortName": "UCFBVC",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/820efc73-a6b6-4fd3-a33b-4db80c178547918d048e-ff79-4277-99f4-c8fa0eeb0856.jpg?preset=small-sq",
-      "categories": [
-        {
-          "id": "campuslabs-cat-4258",
-          "originalId": "4258",
-          "name": "Sports and Recreation",
-          "source": "campuslabs"
-        }
-      ],
-      "description": "",
-      "source": "campuslabs"
-    },
-    {
-      "id": "campuslabs-org-75109",
-      "originalId": "75109",
-      "name": "Pi Delta Psi Fraternity, Inc.",
-      "shortName": "PDPsi",
-      "url": "",
-      "logoUrl": "",
-      "categories": [
-        {
-          "id": "campuslabs-cat-4256",
-          "originalId": "4256",
-          "name": "Service",
-          "source": "campuslabs"
-        },
-        {
-          "id": "campuslabs-cat-4257",
-          "originalId": "4257",
-          "name": "Social/Political Awareness",
-          "source": "campuslabs"
-        },
-        {
-          "id": "campuslabs-cat-11841",
-          "originalId": "11841",
-          "name": "Greek: Diversified Greek Council",
-          "source": "campuslabs"
-        }
-      ],
-      "description": "Pi Delta Psi Fraternity, Inc. is the first and only Asian-based fraternity at UCF. We operate off of four pillars: Academic Achievement, Cultural Awareness, Friendship/Loyalty, and Righteousness. We seek to empower the UCF community and to help break down stereotypes of the Asian community while giving back as well. Our National Philanthropy is The Asia Foundation.",
-      "source": "campuslabs"
-    },
-    {
-      "id": "campuslabs-org-171759",
-      "originalId": "171759",
-      "name": "Smash Knights",
-      "shortName": "SK",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/c63e2dc1-6224-4c55-b62a-3d57f033a80d3ce9014d-7ece-4131-a4b0-ab913618dd30.png?preset=small-sq",
-      "categories": [
-        {
-          "id": "campuslabs-cat-4252",
-          "originalId": "4252",
-          "name": "Miscellaneous Hobbies",
-          "source": "campuslabs"
-        },
-        {
-          "id": "campuslabs-cat-4258",
-          "originalId": "4258",
-          "name": "Sports and Recreation",
-          "source": "campuslabs"
-        }
-      ],
-      "description": "Smash Knights is a community on campus that has the goal to help organize events for students who enjoy playing the video game series Super Smash Brothers and offer a platform for students to socialize and compete.   For more information, please join our Discord: https://discord.gg/BrSDjuAhyS !",
-      "source": "campuslabs"
-    },
-    {
       "id": "campuslabs-org-88729",
       "originalId": "88729",
       "name": "Bold Campus Ministry at UCF",
@@ -25688,6 +25571,102 @@
         }
       ],
       "description": "ACS at UCF provides a wide range of professional and academic development activities for our members.  We regularly host speakers on a wide array of chemistry-related topics, including professors and industry spokespeople.  We help our members connect with research mentors, and provide tutoring for academic success.  We also host fun chemistry events, such as various experiments and ACS educational programs. ACS at UCF also coordinates many volunteering opportunities for our members.  From running science experiments in the local community, to hosting booths for STEM day, to volunteering at the Orlando Science Center, we are always ready to help.  Our club prioritizes community outreach, and we have lots of opportunities for our members to volunteer. Interested in joining?  Visit  acsatucf.com  to see when our meeting times are for this semester or send us an email at president.acsucf@gmail.com. Meetings are held: Monday @5:00 PM in PSB 160 Our Current Officers: President:  Arianna Guemarez Vice-President:  Emilina Schmidt Secretary:  Myrah Bracero Treasurer:  Matthew Hiciano Event Coordinator:  Sobirjon Sharipov Outreach Coordinator: Malia Jeukeng",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-405830",
+      "originalId": "405830",
+      "name": "After The Sect",
+      "shortName": "ATS",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/1a63f8ef-ad50-410f-ab25-09c120d0ce1583329d13-8a44-4bfc-9a83-bf66f34c1c91.png?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4238",
+          "originalId": "4238",
+          "name": "Community Innovation and Education",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-4257",
+          "originalId": "4257",
+          "name": "Social/Political Awareness",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "Life after leaving a high-control group (aka a cult) can be difficult, and that's why we're here: to provide support for folks in any stage of the transition process. Discord Server: https://discord.gg/vPKUeTfgFG",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-301879",
+      "originalId": "301879",
+      "name": "Beach Volleyball Club @ UCF",
+      "shortName": "UCFBVC",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/820efc73-a6b6-4fd3-a33b-4db80c178547918d048e-ff79-4277-99f4-c8fa0eeb0856.jpg?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4258",
+          "originalId": "4258",
+          "name": "Sports and Recreation",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-75109",
+      "originalId": "75109",
+      "name": "Pi Delta Psi Fraternity, Inc.",
+      "shortName": "PDPsi",
+      "url": "",
+      "logoUrl": "",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4256",
+          "originalId": "4256",
+          "name": "Service",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-4257",
+          "originalId": "4257",
+          "name": "Social/Political Awareness",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-11841",
+          "originalId": "11841",
+          "name": "Greek: Diversified Greek Council",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "Pi Delta Psi Fraternity, Inc. is the first and only Asian-based fraternity at UCF. We operate off of four pillars: Academic Achievement, Cultural Awareness, Friendship/Loyalty, and Righteousness. We seek to empower the UCF community and to help break down stereotypes of the Asian community while giving back as well. Our National Philanthropy is The Asia Foundation.",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-171759",
+      "originalId": "171759",
+      "name": "Smash Knights",
+      "shortName": "SK",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/c63e2dc1-6224-4c55-b62a-3d57f033a80d3ce9014d-7ece-4131-a4b0-ab913618dd30.png?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4252",
+          "originalId": "4252",
+          "name": "Miscellaneous Hobbies",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-4258",
+          "originalId": "4258",
+          "name": "Sports and Recreation",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "Smash Knights is a community on campus that has the goal to help organize events for students who enjoy playing the video game series Super Smash Brothers and offer a platform for students to socialize and compete.   For more information, please join our Discord: https://discord.gg/BrSDjuAhyS !",
       "source": "campuslabs"
     },
     {
@@ -26002,6 +25981,106 @@
       "source": "campuslabs"
     },
     {
+      "id": "campuslabs-org-409816",
+      "originalId": "409816",
+      "name": "Investment Club",
+      "shortName": "IC",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/1502d41e-84db-4d23-8462-c8c70779c4014cb74791-fcb1-47d2-bf0a-81a097fc2fa2.jpg?preset=small-sq",
+      "categories": [],
+      "description": "Investment Club @UCF is committed to provide students with hands-on experience in financial markets, portfolio management, and investment strategies, while fostering professional development through managing a student-run investment portfolio. Our goals include educating members on investment strategies and risk management, offering opportunities to apply theoretical knowledge in real-world settings, managing our student-run portfolio, hosting networking events with industry professionals, and encouraging collaboration and discussion on market trends and economic developments. FIRST MEETING: September 8th, 2:30-3:00pm, SU221 (Student Union) For Inquiries Email:  ucfinvestmentclub@gmail.com Join our Discord! https://discord.gg/z6MKJ3HVTv Check out linktree! https://linktr.ee/InvestmentClubAtUCF",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-171966",
+      "originalId": "171966",
+      "name": "Tennis Club @ UCF",
+      "shortName": null,
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/7edaec41-16de-4063-aba3-6a4344ac7ea3bec4f7a0-25e0-4f0c-ada8-8587ba3a0e31.png?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4258",
+          "originalId": "4258",
+          "name": "Sports and Recreation",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-9216",
+          "originalId": "9216",
+          "name": "Sport Club Council",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "If you play tennis at UCF and want to start playing at more competitive level, then Tennis Club at UCF is the place for you. We participate in the USTA Florida Tennis on Campus Series, where every major Florida university hosts a tournament on their campus and we travel to play at these events. Practices will held at the tennis courts near the UCF recreational center and are Monday and Wednesday 5-8pm and Saturdays 9-12 pm. ",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-75280",
+      "originalId": "75280",
+      "name": "Best Buddies ",
+      "shortName": "Best Buddies ",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/9f172974-0b43-4e86-b80f-0f847c19cc71e220b76f-7a9a-4b36-91c4-ac4f9d23314a.png?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4256",
+          "originalId": "4256",
+          "name": "Service",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "Please contact us at UCFBestBuddies@gmail.com for questions regarding membership, upcoming events, or how to get involved!   Best Buddies International is a nonprofit organization dedicated to establishing a global volunteer movement that creates opportunities for one-to-one friendships, integrated employment, leadership development, inclusive living, and family support for individuals with intellectual and developmental disabilities (IDD).   The UCF chapter is a friendship chapter, focused on partnering up our members in one-to-one friendships. Pairs have the opportunity to hang out outside the club like any friends would, as well as attend our weekly socials and over 5 large-scale events, including the Talent Show, Hoedown, and annual Inclusion Week in the spring.    As a part of our mission towards inclusion, we partner with other organizations on campus. Some of our highlights include partnering with Greek life, UCF athletics, ACS, LMSA, CHAARG, Knights Exemplar, the UCF Police Department, Active Minds, and Special Olympics.   Everyone has room for one more friend!",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-75060",
+      "originalId": "75060",
+      "name": "Vietnamese American Student Association",
+      "shortName": "VASA",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/dfa310e7-d380-4ef7-a975-9c0ebfb9795682d9114b-fff3-4127-8510-fad98f3e7d86.jpg?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4256",
+          "originalId": "4256",
+          "name": "Service",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-4257",
+          "originalId": "4257",
+          "name": "Social/Political Awareness",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-12188",
+          "originalId": "12188",
+          "name": "Cultural Organization",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-12672",
+          "originalId": "12672",
+          "name": "APIDA (Asian Pacific Islander Desi American)",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "The Vietnamese American Student Association (VASA) at the University of Central Florida was founded in 1982 with the purpose of fostering the values of leadership for the community, diversity and inclusiveness through Vietnamese-American culture, & lifelong friendships. Along with our traditions, we hope to accomplish this purpose through our community service events, cultural shows, fun-filled meetings, and heart-warming socials. We believe that by understanding our pasts, we can build on stronger foundations for the future, bettering our lives, our community, and our culture together. Add us on Facebook @ 'Va Sa' for updates on our next meetings and be sure to follow our instagram '@vasaucf' ",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-390893",
+      "originalId": "390893",
+      "name": "BlackStone LaunchPad",
+      "shortName": "",
+      "url": "",
+      "logoUrl": "",
+      "categories": [],
+      "description": "RSVP for events by visiting https://ucf.startuptree.co/",
+      "source": "campuslabs"
+    },
+    {
       "id": "campuslabs-org-144193",
       "originalId": "144193",
       "name": "Young Americans for Freedom",
@@ -26068,28 +26147,6 @@
       "source": "campuslabs"
     },
     {
-      "id": "campuslabs-org-409816",
-      "originalId": "409816",
-      "name": "Investment Club",
-      "shortName": "IC",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/1502d41e-84db-4d23-8462-c8c70779c4014cb74791-fcb1-47d2-bf0a-81a097fc2fa2.jpg?preset=small-sq",
-      "categories": [],
-      "description": "Investment Club @UCF is committed to provide students with hands-on experience in financial markets, portfolio management, and investment strategies, while fostering professional development through managing a student-run investment portfolio. Our goals include educating members on investment strategies and risk management, offering opportunities to apply theoretical knowledge in real-world settings, managing our student-run portfolio, hosting networking events with industry professionals, and encouraging collaboration and discussion on market trends and economic developments. FIRST MEETING: September 8th, 2:30-3:00pm, SU221 (Student Union) For Inquiries Email:  ucfinvestmentclub@gmail.com Join our Discord! https://discord.gg/z6MKJ3HVTv Check out linktree! https://linktr.ee/InvestmentClubAtUCF",
-      "source": "campuslabs"
-    },
-    {
-      "id": "campuslabs-org-390893",
-      "originalId": "390893",
-      "name": "BlackStone LaunchPad",
-      "shortName": "",
-      "url": "",
-      "logoUrl": "",
-      "categories": [],
-      "description": "RSVP for events by visiting https://ucf.startuptree.co/",
-      "source": "campuslabs"
-    },
-    {
       "id": "campuslabs-org-291969",
       "originalId": "291969",
       "name": "Palestinian Student Association",
@@ -26120,84 +26177,6 @@
       "source": "campuslabs"
     },
     {
-      "id": "campuslabs-org-75060",
-      "originalId": "75060",
-      "name": "Vietnamese American Student Association",
-      "shortName": "VASA",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/dfa310e7-d380-4ef7-a975-9c0ebfb9795682d9114b-fff3-4127-8510-fad98f3e7d86.jpg?preset=small-sq",
-      "categories": [
-        {
-          "id": "campuslabs-cat-4256",
-          "originalId": "4256",
-          "name": "Service",
-          "source": "campuslabs"
-        },
-        {
-          "id": "campuslabs-cat-4257",
-          "originalId": "4257",
-          "name": "Social/Political Awareness",
-          "source": "campuslabs"
-        },
-        {
-          "id": "campuslabs-cat-12188",
-          "originalId": "12188",
-          "name": "Cultural Organization",
-          "source": "campuslabs"
-        },
-        {
-          "id": "campuslabs-cat-12672",
-          "originalId": "12672",
-          "name": "APIDA (Asian Pacific Islander Desi American)",
-          "source": "campuslabs"
-        }
-      ],
-      "description": "The Vietnamese American Student Association (VASA) at the University of Central Florida was founded in 1982 with the purpose of fostering the values of leadership for the community, diversity and inclusiveness through Vietnamese-American culture, & lifelong friendships. Along with our traditions, we hope to accomplish this purpose through our community service events, cultural shows, fun-filled meetings, and heart-warming socials. We believe that by understanding our pasts, we can build on stronger foundations for the future, bettering our lives, our community, and our culture together. Add us on Facebook @ 'Va Sa' for updates on our next meetings and be sure to follow our instagram '@vasaucf' ",
-      "source": "campuslabs"
-    },
-    {
-      "id": "campuslabs-org-171966",
-      "originalId": "171966",
-      "name": "Tennis Club @ UCF",
-      "shortName": null,
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/7edaec41-16de-4063-aba3-6a4344ac7ea3bec4f7a0-25e0-4f0c-ada8-8587ba3a0e31.png?preset=small-sq",
-      "categories": [
-        {
-          "id": "campuslabs-cat-4258",
-          "originalId": "4258",
-          "name": "Sports and Recreation",
-          "source": "campuslabs"
-        },
-        {
-          "id": "campuslabs-cat-9216",
-          "originalId": "9216",
-          "name": "Sport Club Council",
-          "source": "campuslabs"
-        }
-      ],
-      "description": "If you play tennis at UCF and want to start playing at more competitive level, then Tennis Club at UCF is the place for you. We participate in the USTA Florida Tennis on Campus Series, where every major Florida university hosts a tournament on their campus and we travel to play at these events. Practices will held at the tennis courts near the UCF recreational center and are Monday and Wednesday 5-8pm and Saturdays 9-12 pm. ",
-      "source": "campuslabs"
-    },
-    {
-      "id": "campuslabs-org-75280",
-      "originalId": "75280",
-      "name": "Best Buddies ",
-      "shortName": "Best Buddies ",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/9f172974-0b43-4e86-b80f-0f847c19cc71e220b76f-7a9a-4b36-91c4-ac4f9d23314a.png?preset=small-sq",
-      "categories": [
-        {
-          "id": "campuslabs-cat-4256",
-          "originalId": "4256",
-          "name": "Service",
-          "source": "campuslabs"
-        }
-      ],
-      "description": "Please contact us at UCFBestBuddies@gmail.com for questions regarding membership, upcoming events, or how to get involved!   Best Buddies International is a nonprofit organization dedicated to establishing a global volunteer movement that creates opportunities for one-to-one friendships, integrated employment, leadership development, inclusive living, and family support for individuals with intellectual and developmental disabilities (IDD).   The UCF chapter is a friendship chapter, focused on partnering up our members in one-to-one friendships. Pairs have the opportunity to hang out outside the club like any friends would, as well as attend our weekly socials and over 5 large-scale events, including the Talent Show, Hoedown, and annual Inclusion Week in the spring.    As a part of our mission towards inclusion, we partner with other organizations on campus. Some of our highlights include partnering with Greek life, UCF athletics, ACS, LMSA, CHAARG, Knights Exemplar, the UCF Police Department, Active Minds, and Special Olympics.   Everyone has room for one more friend!",
-      "source": "campuslabs"
-    },
-    {
       "id": "campuslabs-org-75279",
       "originalId": "75279",
       "name": "American Red Cross Club",
@@ -26219,24 +26198,6 @@
         }
       ],
       "description": "To be a member of our club, you must use  THIS LINK   to create an account with Red Cross, thus becoming a member of our club. Please follow our Instagram for updates: @ucf_redcrossclub   The American Red Cross Club at the University of Central Florida is a service-based club that encourages students to tak e part in charitable work by supporting the mission and lines of service of the American Red Cross. The ARCC@UCF provides young professionals with meaningful opportunities for education, training, and volunteer/community service. ARCC@UCF volunteers can remain a part of the Red Cross family throughout their lives, learn new skills, and network with service-oriented individuals.",
-      "source": "campuslabs"
-    },
-    {
-      "id": "campuslabs-org-88189",
-      "originalId": "88189",
-      "name": "Nepalese Student Association",
-      "shortName": "NeSA, UCF",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/098d5860-16ec-4976-aed9-5757e906530b6adb35b9-1dce-448e-af7d-117e8679fdd0.png?preset=small-sq",
-      "categories": [
-        {
-          "id": "campuslabs-cat-12188",
-          "originalId": "12188",
-          "name": "Cultural Organization",
-          "source": "campuslabs"
-        }
-      ],
-      "description": "To develop the identity of Nepal and Nepalese students in UCF. To promote and publicize UCF in the Nepalese communities in Nepal and USA. To introduce and promote the Nepalese culture in UCF. To assist new Nepalese students. To host meetings, shows, seminars, talks and sports.",
       "source": "campuslabs"
     },
     {
@@ -26312,6 +26273,24 @@
       "source": "campuslabs"
     },
     {
+      "id": "campuslabs-org-88189",
+      "originalId": "88189",
+      "name": "Nepalese Student Association",
+      "shortName": "NeSA, UCF",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/098d5860-16ec-4976-aed9-5757e906530b6adb35b9-1dce-448e-af7d-117e8679fdd0.png?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-12188",
+          "originalId": "12188",
+          "name": "Cultural Organization",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "To develop the identity of Nepal and Nepalese students in UCF. To promote and publicize UCF in the Nepalese communities in Nepal and USA. To introduce and promote the Nepalese culture in UCF. To assist new Nepalese students. To host meetings, shows, seminars, talks and sports.",
+      "source": "campuslabs"
+    },
+    {
       "id": "campuslabs-org-385143",
       "originalId": "385143",
       "name": "Women Veterans Association ",
@@ -26333,41 +26312,6 @@
         }
       ],
       "description": "\"As women, we have to start appreciating our own worth and each other's worth. Seek out strong women to befriend, to align yourself with, to learn from, to collaborate with, to be inspired by, to support, and enlightened by.\" – Madonna The Women Veterans Association's mission is to create a safe space for women veterans to grow academically, professionally, and personally. Our team is dedicated to fostering genuine community and ensuring that women veterans at UCF have the best college experience possible. For Fall 2025, we're planning 2–3 engaging events and are also looking for women interested in stepping into leadership roles. Please email us if interested  If you're a woman veteran attending UCF this semester, we're here to serve you ! ✨ Join us to meet amazing women, help shape upcoming events, and create unforgettable memories. 📧 Contact us by email to get connected to our Discord. 📲 Follow us on Instagram: @wva_ucf",
-      "source": "campuslabs"
-    },
-    {
-      "id": "campuslabs-org-417440",
-      "originalId": "417440",
-      "name": "Asian Women Healthcare Alliance",
-      "shortName": "AWHA",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/75db634d-9bc3-455c-b52d-288b7bab374a8d245060-615b-4198-b53b-cd9ba13914a8.jpeg?preset=small-sq",
-      "categories": [],
-      "description": "Membership Form: https://docs.google.com/forms/d/e/1FAIpQLSfLf6k9PWcUGFJeOFAUfgIO3eCzgFFPPvMspKb2nGiO4PZWuw/viewform?usp=sharing&ouid=104816070512634335030  GroupMe:  https://groupme.com/join_group/110481737/B3fWZ9nC  Instagram:  @awha.ucf ",
-      "source": "campuslabs"
-    },
-    {
-      "id": "campuslabs-org-74856",
-      "originalId": "74856",
-      "name": "Student Personnel Association",
-      "shortName": "SPA",
-      "url": "",
-      "logoUrl": "https://se-images.campuslabs.com/clink/images/85942162-21c9-4b8a-9263-54c9e0f179cebba196e6-fcf1-4a4c-bd5f-2028ffbfbc55.png?preset=small-sq",
-      "categories": [
-        {
-          "id": "campuslabs-cat-4238",
-          "originalId": "4238",
-          "name": "Community Innovation and Education",
-          "source": "campuslabs"
-        },
-        {
-          "id": "campuslabs-cat-4247",
-          "originalId": "4247",
-          "name": "Graduate Studies",
-          "source": "campuslabs"
-        }
-      ],
-      "description": "The Student Personnel Association is a student organization for undergraduate, graduate, and doctoral students who are inter ested in studying and/or working in student affairs. It offers professional development, networking, academic, and social opportunities for its members and people affiliated with the Higher Education and Student Personnel (HESP) program. It is  designed specifically to address the concerns and needs of students currently enrolled in the HESP Program at UCF, as well as undergraduates at UCF who are interested in Student Affairs graduate programs. Our Instagram will keep you updated with general SPA meeting times and fun events that will be held throughout the year. We look forward to serving you and making the HESP experience an amazing one! Check out our website here!    ",
       "source": "campuslabs"
     },
     {
@@ -26413,6 +26357,30 @@
       "source": "campuslabs"
     },
     {
+      "id": "campuslabs-org-74856",
+      "originalId": "74856",
+      "name": "Student Personnel Association",
+      "shortName": "SPA",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/85942162-21c9-4b8a-9263-54c9e0f179cebba196e6-fcf1-4a4c-bd5f-2028ffbfbc55.png?preset=small-sq",
+      "categories": [
+        {
+          "id": "campuslabs-cat-4238",
+          "originalId": "4238",
+          "name": "Community Innovation and Education",
+          "source": "campuslabs"
+        },
+        {
+          "id": "campuslabs-cat-4247",
+          "originalId": "4247",
+          "name": "Graduate Studies",
+          "source": "campuslabs"
+        }
+      ],
+      "description": "The Student Personnel Association is a student organization for undergraduate, graduate, and doctoral students who are inter ested in studying and/or working in student affairs. It offers professional development, networking, academic, and social opportunities for its members and people affiliated with the Higher Education and Student Personnel (HESP) program. It is  designed specifically to address the concerns and needs of students currently enrolled in the HESP Program at UCF, as well as undergraduates at UCF who are interested in Student Affairs graduate programs. Our Instagram will keep you updated with general SPA meeting times and fun events that will be held throughout the year. We look forward to serving you and making the HESP experience an amazing one! Check out our website here!    ",
+      "source": "campuslabs"
+    },
+    {
       "id": "campuslabs-org-75253",
       "originalId": "75253",
       "name": "Student Nurses Association - Daytona",
@@ -26434,6 +26402,17 @@
         }
       ],
       "description": "The mission of SNA-Daytona is to assume responsibility for contributing to nursing education in order to provide for the highest quality health care; To provide programs representative of fundamental and current professional interest and concerns and; To aid in the development of the whole person and his/her professional responsibility for the health care of people in all walks of life.",
+      "source": "campuslabs"
+    },
+    {
+      "id": "campuslabs-org-417440",
+      "originalId": "417440",
+      "name": "Asian Women Healthcare Alliance",
+      "shortName": "AWHA",
+      "url": "",
+      "logoUrl": "https://se-images.campuslabs.com/clink/images/75db634d-9bc3-455c-b52d-288b7bab374a8d245060-615b-4198-b53b-cd9ba13914a8.jpeg?preset=small-sq",
+      "categories": [],
+      "description": "Membership Form: https://docs.google.com/forms/d/e/1FAIpQLSfLf6k9PWcUGFJeOFAUfgIO3eCzgFFPPvMspKb2nGiO4PZWuw/viewform?usp=sharing&ouid=104816070512634335030  GroupMe:  https://groupme.com/join_group/110481737/B3fWZ9nC  Instagram:  @awha.ucf ",
       "source": "campuslabs"
     },
     {

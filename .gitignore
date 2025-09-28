@@ -22,3 +22,7 @@ logs
 .env
 .env.*
 !.env.example
+.venv
+.env
+
+analyze-*.ts

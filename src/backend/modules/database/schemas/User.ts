@@ -1,4 +1,5 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import type { Document } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import validator from 'validator';
 
@@ -9,6 +10,7 @@ export interface IUser extends Document {
 	username: string;
 	email: string;
 	password: string; // hashed password
+	role: string; // user role: 'user' | 'admin' | 'moderator'
 
 	lastLogin?: Date;
 	createdAt: Date;
@@ -51,6 +53,12 @@ const UserSchema: Schema = new Schema<IUser>({
 		validate: [validator.isEmail, 'Please provide a valid email address'],
 	},
 	password: { type: String, required: true, minlength: 6 },
+	role: {
+		type: String,
+		required: true,
+		default: 'user',
+		enum: ['user', 'admin', 'moderator'],
+	},
 
 	lastLogin: { type: Date },
 	createdAt: { type: Date, default: Date.now },
@@ -60,16 +68,16 @@ const UserSchema: Schema = new Schema<IUser>({
 });
 
 // Instance method to compare passwords
-UserSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
+UserSchema.methods.comparePassword = async function(this: IUser, candidatePassword: string): Promise<boolean> {
 	try {
 		return await bcrypt.compare(candidatePassword, this.password);
 	} catch (error) {
-		throw new Error('Error comparing passwords');
+		throw new Error('Error comparing passwords: ' + (error as Error).message);
 	}
 };
 
 // Pre-save middleware for password hashing
-UserSchema.pre('save', async function(next) {
+UserSchema.pre('save', async function(this: IUser, next) {
 	// Only hash password if it's modified
 	if (!this.isModified('password')) return next();
 
@@ -83,13 +91,13 @@ UserSchema.pre('save', async function(next) {
 });
 
 // Pre-save middleware to update timestamps
-UserSchema.pre('save', function(next) {
+UserSchema.pre('save', function(this: IUser, next) {
 	this.updatedAt = new Date();
 	next();
 });
 
 // Instance method to add an interest
-UserSchema.methods.addInterest = async function(interestId: number): Promise<void> {
+UserSchema.methods.addInterest = async function(this: IUser, interestId: number): Promise<void> {
 	if (!this.interests.includes(interestId)) {
 		this.interests.push(interestId);
 		await this.save();
@@ -97,7 +105,7 @@ UserSchema.methods.addInterest = async function(interestId: number): Promise<voi
 };
 
 // Instance method to remove an interest
-UserSchema.methods.removeInterest = async function(interestId: number): Promise<void> {
+UserSchema.methods.removeInterest = async function(this: IUser, interestId: number): Promise<void> {
 	const index = this.interests.indexOf(interestId);
 	if (index > -1) {
 		this.interests.splice(index, 1);
@@ -106,13 +114,12 @@ UserSchema.methods.removeInterest = async function(interestId: number): Promise<
 };
 
 // Indexes for performance
-UserSchema.index({ username: 1 }); // Username lookups
-UserSchema.index({ email: 1 }); // Email lookups
+// Indexes for performance
+// Note: id, username, and email already have unique indexes from field definitions
 UserSchema.index({ interests: 1 }); // Interest-based queries
 UserSchema.index({ lastLogin: -1 }); // Recent logins
 UserSchema.index({ createdAt: -1 }); // Recently registered users
 UserSchema.index({ name: 1 }); // Name searches
-UserSchema.index({ id: 1 }); // ID lookups
 
 export const User = mongoose.model<IUser>('User', UserSchema);
 

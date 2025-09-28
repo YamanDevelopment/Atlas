@@ -1,10 +1,24 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import type { Document } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
+
+interface IWeightedTag {
+	tagId: number;
+	weight: number; // 0-1 confidence score
+	category: 'primary' | 'secondary';
+	parentTagId?: number; // References parent tag for secondary tags
+}
+
+interface IAIProcessing {
+	lastAnalyzed: Date;
+	geminiModel: string;
+}
 
 export interface ILab extends Document {
 	id: number;
 	name: string;
 	url?: string;
-	tags: number[]; // array of Tag IDs
+	tags: IWeightedTag[]; // array of weighted Tag assignments
+	aiProcessing?: IAIProcessing;
 	description: string;
 	department: string;
 	principalInvestigator: string;
@@ -15,6 +29,33 @@ export interface ILab extends Document {
 	createdAt: Date;
 	updatedAt: Date;
 }
+
+const WeightedTagSchema: Schema<IWeightedTag> = new Schema<IWeightedTag>(
+	{
+		tagId: { type: Number, ref: 'Tag', required: true },
+		weight: {
+			type: Number,
+			required: true,
+			min: [0, 'Weight must be at least 0'],
+			max: [1, 'Weight cannot exceed 1'],
+		},
+		category: {
+			type: String,
+			required: true,
+			enum: ['primary', 'secondary'],
+		},
+		parentTagId: { type: Number, ref: 'Tag', required: false },
+	},
+	{ _id: false },
+);
+
+const AIProcessingSchema: Schema<IAIProcessing> = new Schema<IAIProcessing>(
+	{
+		lastAnalyzed: { type: Date, required: true },
+		geminiModel: { type: String, required: true },
+	},
+	{ _id: false },
+);
 
 const LabSchema: Schema<ILab> = new Schema<ILab>({
 	id: { type: Number, required: true, unique: true },
@@ -33,7 +74,8 @@ const LabSchema: Schema<ILab> = new Schema<ILab>({
 		lowercase: true,
 		match: [/^(https?:\/\/)?([\w-]+(\.[\w-]+)+)(\/[\w-./?%&=]*)?$/, 'Please provide a valid URL'],
 	},
-	tags: { type: [Number], ref: 'Tag', default: [] },
+	tags: { type: [WeightedTagSchema], default: [] },
+	aiProcessing: { type: AIProcessingSchema, required: false },
 	description: {
 		type: String,
 		required: true,
@@ -99,11 +141,15 @@ LabSchema.index({
 }); // Text search
 LabSchema.index({ department: 1 }); // Department filtering
 LabSchema.index({ acceptingStudents: 1 }); // Student opportunity filtering
-LabSchema.index({ tags: 1 }); // Tag-based filtering
+LabSchema.index({ 'tags.tagId': 1 }); // Tag-based filtering
+LabSchema.index({ 'tags.weight': -1 }); // Weight-based sorting
+LabSchema.index({ 'tags.category': 1 }); // Category filtering
+LabSchema.index({ 'tags.parentTagId': 1 }); // Hierarchical tag queries
+LabSchema.index({ 'aiProcessing.lastAnalyzed': -1 }); // AI processing tracking
 LabSchema.index({ principalInvestigator: 1 }); // PI lookups
 LabSchema.index({ department: 1, acceptingStudents: 1 }); // Compound filtering
 LabSchema.index({ createdAt: -1 }); // Recently added labs
 LabSchema.index({ updatedAt: -1 }); // Recently updated labs
-LabSchema.index({ id: 1 }); // ID lookups
+// Note: id already has unique index from field definition
 
-export default mongoose.model<ILab>('Lab', LabSchema);
+export const Lab = mongoose.model<ILab>('Lab', LabSchema);
