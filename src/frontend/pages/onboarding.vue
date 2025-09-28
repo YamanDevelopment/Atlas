@@ -438,8 +438,8 @@ const completeOnboarding = async () => {
     
     console.log('Onboarding completed:', onboardingData);
     
-    // Redirect to dashboard
-    await navigateTo('/dashboard');
+    // Redirect to dashboard with flag for starter plan modal
+    await navigateTo('/dashboard?from=onboarding');
   } catch (error) {
     console.error('Onboarding failed:', error);
   } finally {

@@ -399,7 +399,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Interest } from '../types';
+import type { Interest } from '~/types';
 
 // State
 const activeSection = ref('basic');
