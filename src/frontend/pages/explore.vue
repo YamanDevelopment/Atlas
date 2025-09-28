@@ -1,26 +1,27 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b">
+    <nav class="bg-white/80 backdrop-blur-lg shadow-sm border-b border-white/20">
       <div class="max-w-7xl mx-auto px-4">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center space-x-8">
             <div class="text-2xl font-bold text-indigo-600">OppTrack</div>
             <div class="hidden md:flex space-x-6">
-              <NuxtLink to="/dashboard" class="text-gray-500 hover:text-gray-700">
+              <NuxtLink to="/dashboard" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">
                 Dashboard
               </NuxtLink>
-              <NuxtLink to="/explore" class="text-indigo-600 font-medium border-b-2 border-indigo-600 pb-1">
+              <NuxtLink to="/explore" class="text-indigo-600 font-medium relative">
                 Explore
+                <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full"></div>
               </NuxtLink>
-              <NuxtLink to="/profile" class="text-gray-500 hover:text-gray-700">
+              <NuxtLink to="/profile" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">
                 Profile
               </NuxtLink>
             </div>
           </div>
           
           <div class="flex items-center space-x-4">
-            <button class="text-gray-500 hover:text-gray-700">
+            <button class="text-gray-500 hover:text-gray-700 transition-colors duration-200">
               <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -28,7 +29,7 @@
             </button>
             <NuxtLink 
               to="/profile"
-              class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-medium hover:bg-indigo-700 transition-colors cursor-pointer"
+              class="w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-medium hover:shadow-lg transform hover:scale-105 transition-all duration-200 cursor-pointer"
             >
               JD
             </NuxtLink>
@@ -38,7 +39,7 @@
     </nav>
 
     <!-- Search Section -->
-    <div class="bg-white border-b px-4 py-6">
+    <div class="bg-white/70 backdrop-blur-lg border-b border-white/20 px-4 py-6">
       <div class="max-w-7xl mx-auto">
         <div class="flex flex-col md:flex-row gap-4">
           <!-- Search Input -->
@@ -51,7 +52,7 @@
             <input
               v-model="searchQuery"
               type="text"
-              class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+              class="block w-full pl-10 pr-3 py-3 bg-white/50 backdrop-blur-sm border border-white/30 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 shadow-lg placeholder-gray-500 transition-all duration-300"
               placeholder="Search clubs, events, professors..."
             />
           </div>
@@ -62,10 +63,10 @@
               v-for="filter in quickFilters"
               :key="filter.key"
               @click="toggleFilter(filter.key)"
-              class="px-4 py-2 rounded-full text-sm border transition-colors"
+              class="px-4 py-2 rounded-full text-sm transition-all duration-300 backdrop-blur-sm"
               :class="activeFilters.includes(filter.key) 
-                ? 'bg-indigo-600 text-white border-indigo-600' 
-                : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-300'"
+                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg transform scale-105' 
+                : 'bg-white/50 text-gray-700 border border-white/30 hover:bg-white/70 hover:shadow-md hover:scale-105'"
             >
               {{ filter.label }}
             </button>
@@ -80,34 +81,37 @@
       <section class="mb-12">
         <h2 class="text-2xl font-bold text-gray-900 mb-6">Upcoming Events</h2>
         <div class="relative">
-          <div class="flex gap-6 overflow-x-auto pb-4">
+          <div class="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
             <div
-              v-for="event in upcomingEvents"
+              v-for="(event, index) in upcomingEvents"
               :key="event.id"
               @click="openModal('event', event)"
-              class="flex-shrink-0 w-80 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow cursor-pointer"
+              class="event-card flex-shrink-0 w-96 bg-white/70 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 hover:shadow-xl cursor-pointer transform hover:scale-105 hover:-translate-y-2"
+              :style="{ animationDelay: `${index * 100}ms` }"
             >
-              <div class="p-6">
-                <h3 class="font-semibold text-gray-900 mb-2">{{ event.title }}</h3>
-                <p class="text-gray-600 text-sm mb-3">{{ event.shortDescription }}</p>
-                <p class="text-indigo-600 text-xs mb-3">{{ event.whyRecommended }}</p>
+              <div class="p-8">
+                <div class="mb-4">
+                  <h3 class="font-semibold text-gray-900 mb-3 text-lg">{{ event.title }}</h3>
+                  <p class="text-gray-600 text-sm mb-4 leading-relaxed">{{ event.shortDescription }}</p>
+                  <p class="text-indigo-600 text-xs mb-4 font-medium">{{ event.whyRecommended }}</p>
+                </div>
                 
-                <div class="space-y-2 text-sm text-gray-500 mb-4">
+                <div class="space-y-3 text-sm text-gray-500 mb-6">
                   <div class="flex items-center">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     {{ formatEventDate(event.date) }}
                   </div>
                   <div class="flex items-center">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     </svg>
                     {{ event.location }}
                   </div>
-                  <div class="flex items-center space-x-4">
-                    <span v-if="event.isFree" class="text-green-600">Free</span>
-                    <span>👥 {{ event.attendeeCount }} going</span>
+                  <div class="flex items-center justify-between pt-2">
+                    <span v-if="event.isFree" class="px-3 py-1 text-xs bg-green-100/80 backdrop-blur-sm text-green-700 rounded-full font-medium">Free</span>
+                    <span class="text-gray-600">👥 {{ event.attendeeCount }} going</span>
                   </div>
                 </div>
               </div>
@@ -124,40 +128,51 @@
       >
         <h2 class="text-2xl font-bold text-gray-900 mb-6">{{ category.title }}</h2>
         <div class="relative">
-          <div class="flex gap-6 overflow-x-auto pb-4">
+          <div class="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
             <div
-              v-for="club in category.clubs"
+              v-for="(club, index) in category.clubs"
               :key="club.id"
               @click="openModal('club', club)"
-              class="flex-shrink-0 w-80 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow cursor-pointer"
+              class="club-card flex-shrink-0 w-96 bg-white/70 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 hover:shadow-xl cursor-pointer transform hover:scale-105 hover:-translate-y-2"
+              :style="{ animationDelay: `${index * 100}ms` }"
             >
-              <div class="p-6">
-                <div class="flex items-start justify-between mb-4">
+              <div class="p-8">
+                <div class="flex items-start justify-between mb-6">
                   <div class="flex-1">
-                    <div class="flex items-center mb-2">
-                      <h3 class="font-semibold text-gray-900">{{ club.name }}</h3>
+                    <div class="flex items-center mb-3">
+                      <h3 class="font-semibold text-gray-900 text-lg">{{ club.name }}</h3>
                       <span
                         v-if="club.isProfessional"
-                        class="ml-2 px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full"
+                        class="ml-3 px-3 py-1 text-xs bg-green-100/80 backdrop-blur-sm text-green-700 rounded-full font-medium"
                       >
                         Professional
                       </span>
                     </div>
-                    <p class="text-gray-600 text-sm mb-3">{{ club.shortDescription }}</p>
-                    <p class="text-indigo-600 text-xs mb-3">{{ club.whyRecommended }}</p>
+                    <p class="text-gray-600 text-sm mb-4 leading-relaxed">{{ club.shortDescription }}</p>
+                    <p class="text-indigo-600 text-xs mb-4 font-medium">{{ club.whyRecommended }}</p>
                   </div>
                 </div>
                 
-                <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
-                  <span>⏱️ {{ club.timeCommitment }}</span>
-                  <span>👥 {{ club.memberCount }} members</span>
+                <div class="flex items-center justify-between text-sm text-gray-500 mb-6">
+                  <div class="flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {{ club.timeCommitment }}
+                  </div>
+                  <div class="flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                    </svg>
+                    {{ club.memberCount }} members
+                  </div>
                 </div>
                 
-                <div class="flex flex-wrap gap-1">
+                <div class="flex flex-wrap gap-2">
                   <span
                     v-for="tag in club.tags.slice(0, 3)"
                     :key="tag"
-                    class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full"
+                    class="px-3 py-1 text-xs bg-gray-100/80 backdrop-blur-sm text-gray-600 rounded-full font-medium"
                   >
                     {{ tag }}
                   </span>
@@ -172,33 +187,36 @@
       <section class="mb-12">
         <h2 class="text-2xl font-bold text-gray-900 mb-6">Professors to Connect With</h2>
         <div class="relative">
-          <div class="flex gap-6 overflow-x-auto pb-4">
+          <div class="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
             <div
-              v-for="professor in professors"
+              v-for="(professor, index) in professors"
               :key="professor.id"
               @click="openModal('professor', professor)"
-              class="flex-shrink-0 w-80 bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow cursor-pointer"
+              class="professor-card flex-shrink-0 w-96 bg-white/70 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 hover:shadow-xl cursor-pointer transform hover:scale-105 hover:-translate-y-2"
+              :style="{ animationDelay: `${index * 100}ms` }"
             >
-              <div class="p-6">
-                <h3 class="font-semibold text-gray-900 mb-1">{{ professor.name }}</h3>
-                <p class="text-gray-600 text-sm mb-2">{{ professor.title }} • {{ professor.department }}</p>
-                <p class="text-indigo-600 text-xs mb-3">{{ professor.whyRecommended }}</p>
-                
+              <div class="p-8">
                 <div class="mb-4">
-                  <h4 class="text-sm font-medium text-gray-900 mb-2">Research Areas:</h4>
-                  <div class="flex flex-wrap gap-1">
+                  <h3 class="font-semibold text-gray-900 mb-2 text-lg">{{ professor.name }}</h3>
+                  <p class="text-gray-600 text-sm mb-3">{{ professor.title }} • {{ professor.department }}</p>
+                  <p class="text-indigo-600 text-xs mb-4 font-medium">{{ professor.whyRecommended }}</p>
+                </div>
+                
+                <div class="mb-6">
+                  <h4 class="text-sm font-medium text-gray-900 mb-3">Research Areas:</h4>
+                  <div class="flex flex-wrap gap-2">
                     <span
                       v-for="area in professor.researchAreas.slice(0, 3)"
                       :key="area"
-                      class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full"
+                      class="px-3 py-1 text-xs bg-blue-100/80 backdrop-blur-sm text-blue-700 rounded-full font-medium"
                     >
                       {{ area }}
                     </span>
                   </div>
                 </div>
                 
-                <div v-if="professor.isAcceptingStudents" class="mb-4">
-                  <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
+                <div v-if="professor.isAcceptingStudents">
+                  <span class="px-3 py-1 text-xs bg-green-100/80 backdrop-blur-sm text-green-700 rounded-full font-medium">
                     Accepting Students
                   </span>
                 </div>
@@ -210,191 +228,239 @@
     </main>
 
     <!-- Modal -->
-    <div
-      v-if="showModal"
-      class="fixed inset-0 bg-[rgba(0,0,0,0.5)] flex items-center justify-center z-50"
-      @click="closeModal"
+    <Transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-all duration-200 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
     >
       <div
-        class="bg-white rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
-        @click.stop
+        v-if="showModal"
+        class="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50 p-4"
+        @click="closeModal"
       >
-        <!-- Club Modal -->
-        <div v-if="modalType === 'club' && modalData" class="p-6">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <div class="flex items-center mb-2">
-                <h2 class="text-2xl font-bold text-gray-900">{{ modalData.name }}</h2>
-                <span
-                  v-if="modalData.isProfessional"
-                  class="ml-3 px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full"
-                >
-                  Professional
-                </span>
-              </div>
-              <p class="text-gray-600">{{ modalData.description }}</p>
-            </div>
-            <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <h3 class="font-semibold text-gray-900 mb-2">Details</h3>
-              <div class="space-y-2 text-sm text-gray-600">
-                <p><span class="font-medium">Time Commitment:</span> {{ modalData.timeCommitment }}</p>
-                <p><span class="font-medium">Meeting Frequency:</span> {{ modalData.meetingFrequency }}</p>
-                <p><span class="font-medium">Members:</span> {{ modalData.memberCount }}</p>
-              </div>
-            </div>
-            <div>
-              <h3 class="font-semibold text-gray-900 mb-2">Tags</h3>
-              <div class="flex flex-wrap gap-1">
-                <span
-                  v-for="tag in modalData.tags"
-                  :key="tag"
-                  class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full"
-                >
-                  {{ tag }}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex gap-3">
-            <button
-              @click="getInvolved(modalData)"
-              class="flex-1 py-3 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
-            >
-              Get Involved
-            </button>
-            <button
-              @click="closeModal"
-              class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:border-gray-400 transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-
-        <!-- Event Modal -->
-        <div v-if="modalType === 'event' && modalData" class="p-6">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ modalData.title }}</h2>
-              <p class="text-gray-600">{{ modalData.description }}</p>
-            </div>
-            <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <h3 class="font-semibold text-gray-900 mb-2">Event Details</h3>
-              <div class="space-y-2 text-sm text-gray-600">
-                <div class="flex items-center">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <Transition
+          enter-active-class="transition-all duration-300 ease-out"
+          enter-from-class="opacity-0 transform scale-95 translate-y-4"
+          enter-to-class="opacity-100 transform scale-100 translate-y-0"
+          leave-active-class="transition-all duration-200 ease-in"
+          leave-from-class="opacity-100 transform scale-100 translate-y-0"
+          leave-to-class="opacity-0 transform scale-95 translate-y-4"
+        >
+          <div
+            v-if="showModal"
+            class="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl max-w-3xl w-full mx-4 max-h-[85vh] overflow-y-auto border border-white/20"
+            @click.stop
+          >
+            <!-- Club Modal -->
+            <div v-if="modalType === 'club' && modalData" class="p-8">
+              <div class="flex justify-between items-start mb-8">
+                <div class="flex-1 pr-6">
+                  <div class="flex items-center mb-4">
+                    <h2 class="text-3xl font-bold text-gray-900">{{ modalData.name }}</h2>
+                    <span
+                      v-if="modalData.isProfessional"
+                      class="ml-4 px-3 py-1 text-sm bg-green-100 text-green-700 rounded-full font-medium"
+                    >
+                      Professional
+                    </span>
+                  </div>
+                  <p class="text-gray-600 text-lg leading-relaxed">{{ modalData.description }}</p>
+                  <p class="text-indigo-600 text-sm mt-3 font-medium">{{ modalData.whyRecommended }}</p>
+                </div>
+                <button @click="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                  {{ formatEventDate(modalData.date) }}
+                </button>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="space-y-4">
+                  <h3 class="font-semibold text-gray-900 text-lg mb-4">Details</h3>
+                  <div class="space-y-3 text-gray-600">
+                    <div class="flex items-center">
+                      <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span class="font-medium">Time Commitment:</span>
+                      <span class="ml-2">{{ modalData.timeCommitment }}</span>
+                    </div>
+                    <div class="flex items-center">
+                      <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-4 8V9m-4 8h8" />
+                      </svg>
+                      <span class="font-medium">Meetings:</span>
+                      <span class="ml-2">{{ modalData.meetingFrequency }}</span>
+                    </div>
+                    <div class="flex items-center">
+                      <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                      </svg>
+                      <span class="font-medium">Members:</span>
+                      <span class="ml-2">{{ modalData.memberCount }}</span>
+                    </div>
+                  </div>
                 </div>
-                <div class="flex items-center">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  </svg>
-                  {{ modalData.location }}
-                </div>
-                <div class="flex items-center">
-                  <span v-if="modalData.isFree" class="text-green-600 font-medium">Free Event</span>
-                  <span class="ml-2">👥 {{ modalData.attendeeCount }} going</span>
+                <div>
+                  <h3 class="font-semibold text-gray-900 text-lg mb-4">Tags</h3>
+                  <div class="flex flex-wrap gap-2">
+                    <span
+                      v-for="tag in modalData.tags"
+                      :key="tag"
+                      class="px-3 py-2 text-sm bg-gray-200 text-gray-800 rounded-lg font-medium"
+                    >
+                      {{ tag }}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div>
-              <h3 class="font-semibold text-gray-900 mb-2">Organizer</h3>
-              <p class="text-gray-600">{{ modalData.organizer }}</p>
-            </div>
-          </div>
 
-          <div class="flex gap-3">
-            <button
-              @click="rsvpEvent(modalData, 'going')"
-              class="flex-1 py-3 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
-              :class="{ 'bg-green-600': modalData.rsvpStatus === 'going' }"
-            >
-              {{ modalData.rsvpStatus === 'going' ? 'Going ✓' : 'RSVP' }}
-            </button>
-            <button
-              @click="rsvpEvent(modalData, 'interested')"
-              class="flex-1 py-3 px-4 border border-gray-300 text-gray-700 rounded-lg hover:border-indigo-300 transition-colors"
-              :class="{ 'border-indigo-600 text-indigo-600': modalData.rsvpStatus === 'interested' }"
-            >
-              {{ modalData.rsvpStatus === 'interested' ? 'Interested ✓' : 'Interested' }}
-            </button>
-            <button
-              @click="closeModal"
-              class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:border-gray-400 transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-
-        <!-- Professor Modal -->
-        <div v-if="modalType === 'professor' && modalData" class="p-6">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <h2 class="text-2xl font-bold text-gray-900">{{ modalData.name }}</h2>
-              <p class="text-gray-600">{{ modalData.title }} • {{ modalData.department }}</p>
+              <div class="flex gap-4 pt-6 border-t border-gray-200/50">
+                <button
+                  @click="getInvolved(modalData)"
+                  class="flex-1 py-4 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-medium text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105"
+                >
+                  Get Involved
+                </button>
+                <button
+                  @click="closeModal"
+                  class="px-8 py-4 bg-gray-100 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-200 hover:border-gray-300 transition-all duration-300 font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
-            <button @click="closeModal" class="text-gray-400 hover:text-gray-600">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
 
-          <div class="mb-6">
-            <h3 class="font-semibold text-gray-900 mb-2">Research Areas</h3>
-            <div class="flex flex-wrap gap-2 mb-4">
-              <span
-                v-for="area in modalData.researchAreas"
-                :key="area"
-                class="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full"
-              >
-                {{ area }}
-              </span>
-            </div>
-            <div v-if="modalData.isAcceptingStudents" class="mb-4">
-              <span class="px-3 py-1 text-sm bg-green-100 text-green-800 rounded-full">
-                Currently Accepting Students
-              </span>
-            </div>
-          </div>
+            <!-- Event Modal -->
+            <div v-if="modalType === 'event' && modalData" class="p-8">
+              <div class="flex justify-between items-start mb-8">
+                <div class="flex-1 pr-6">
+                  <h2 class="text-3xl font-bold text-gray-900 mb-4">{{ modalData.title }}</h2>
+                  <p class="text-gray-600 text-lg leading-relaxed">{{ modalData.description }}</p>
+                  <p class="text-indigo-600 text-sm mt-3 font-medium">{{ modalData.whyRecommended }}</p>
+                </div>
+                <button @click="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
 
-          <div class="flex gap-3">
-            <button
-              @click="connectWithProfessor(modalData)"
-              class="flex-1 py-3 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
-            >
-              View Contact Info
-            </button>
-            <button
-              @click="closeModal"
-              class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:border-gray-400 transition-colors"
-            >
-              Cancel
-            </button>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div>
+                  <h3 class="font-semibold text-gray-900 text-lg mb-4">Event Details</h3>
+                  <div class="space-y-4 text-gray-600">
+                    <div class="flex items-center">
+                      <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>{{ formatEventDate(modalData.date) }}</span>
+                    </div>
+                    <div class="flex items-center">
+                      <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      </svg>
+                      <span>{{ modalData.location }}</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                      <span v-if="modalData.isFree" class="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-full font-medium">Free Event</span>
+                      <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                        </svg>
+                        {{ modalData.attendeeCount }} going
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-gray-900 text-lg mb-4">Organizer</h3>
+                  <p class="text-gray-600 text-lg">{{ modalData.organizer }}</p>
+                </div>
+              </div>
+
+              <div class="flex gap-4 pt-6 border-t border-gray-200/50">
+                <button
+                  @click="rsvpEvent(modalData, 'going')"
+                  class="flex-1 py-4 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-medium text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105"
+                  :class="{ 'from-green-600 to-green-700 hover:from-green-700 hover:to-green-800': modalData.rsvpStatus === 'going' }"
+                >
+                  {{ modalData.rsvpStatus === 'going' ? 'Going ✓' : 'RSVP' }}
+                </button>
+                <button
+                  @click="rsvpEvent(modalData, 'interested')"
+                  class="flex-1 py-4 px-6 bg-gray-100 border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-200 hover:border-indigo-300 transition-all duration-300 font-medium"
+                  :class="{ 'border-indigo-600 text-indigo-600 bg-indigo-50': modalData.rsvpStatus === 'interested' }"
+                >
+                  {{ modalData.rsvpStatus === 'interested' ? 'Interested ✓' : 'Interested' }}
+                </button>
+                <button
+                  @click="closeModal"
+                  class="px-8 py-4 bg-gray-100 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-200 hover:border-gray-300 transition-all duration-300 font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+
+            <!-- Professor Modal -->
+            <div v-if="modalType === 'professor' && modalData" class="p-8">
+              <div class="flex justify-between items-start mb-8">
+                <div class="flex-1 pr-6">
+                  <h2 class="text-3xl font-bold text-gray-900 mb-2">{{ modalData.name }}</h2>
+                  <p class="text-gray-600 text-lg">{{ modalData.title }} • {{ modalData.department }}</p>
+                  <p class="text-indigo-600 text-sm mt-3 font-medium">{{ modalData.whyRecommended }}</p>
+                </div>
+                <button @click="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div class="mb-8">
+                <h3 class="font-semibold text-gray-900 text-lg mb-4">Research Areas</h3>
+                <div class="flex flex-wrap gap-3 mb-6">
+                  <span
+                    v-for="area in modalData.researchAreas"
+                    :key="area"
+                    class="px-4 py-2 text-sm bg-blue-100 text-blue-700 rounded-xl font-medium"
+                  >
+                    {{ area }}
+                  </span>
+                </div>
+                <div v-if="modalData.isAcceptingStudents" class="mb-6">
+                  <span class="px-4 py-2 text-sm bg-green-100 text-green-700 rounded-xl font-medium inline-flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Currently Accepting Students
+                  </span>
+                </div>
+              </div>
+
+              <div class="flex gap-4 pt-6 border-t border-gray-200/50">
+                <button
+                  @click="connectWithProfessor(modalData)"
+                  class="flex-1 py-4 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-medium text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105"
+                >
+                  View Contact Info
+                </button>
+                <button
+                  @click="closeModal"
+                  class="px-8 py-4 bg-gray-100 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-200 hover:border-gray-300 transition-all duration-300 font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
+        </Transition>
       </div>
-    </div>
+    </Transition>
   </div>
 </template>
 
@@ -554,6 +620,91 @@ const allClubs = ref<Club[]>([
     categories: [{ id: 'business', name: 'Business' }],
     isFollowing: false,
     upcomingEvents: []
+  },
+  {
+    id: 'club-9',
+    name: 'Debate Society',
+    description: 'Develop your public speaking and argumentation skills through competitive debate.',
+    shortDescription: 'Enhance critical thinking and public speaking',
+    tags: ['Debate', 'Public Speaking', 'Leadership'],
+    category: 'academic',
+    timeCommitment: '4-5 hours/week',
+    meetingFrequency: 'Twice weekly',
+    contactInfo: { email: 'debate@ucf.edu' },
+    whyRecommended: 'Perfect for developing leadership and communication skills',
+    memberCount: 67,
+    isProfessional: true,
+    categories: [{ id: 'academic', name: 'Academic' }],
+    isFollowing: false,
+    upcomingEvents: []
+  },
+  {
+    id: 'club-10',
+    name: 'Gaming Club',
+    description: 'Connect with fellow gamers and compete in esports tournaments.',
+    shortDescription: 'Competitive gaming and esports community',
+    tags: ['Gaming', 'Esports', 'Competition'],
+    category: 'hobby',
+    timeCommitment: '3-6 hours/week',
+    meetingFrequency: 'Daily sessions',
+    contactInfo: { email: 'gaming@ucf.edu' },
+    whyRecommended: 'Great for stress relief and building teamwork skills',
+    memberCount: 234,
+    isProfessional: false,
+    categories: [{ id: 'hobby', name: 'Hobby' }],
+    isFollowing: false,
+    upcomingEvents: []
+  },
+  {
+    id: 'club-11',
+    name: 'Environmental Club',
+    description: 'Make a positive impact on campus sustainability and environmental awareness.',
+    shortDescription: 'Promote sustainability and environmental action',
+    tags: ['Environment', 'Sustainability', 'Activism'],
+    category: 'service',
+    timeCommitment: '2-4 hours/week',
+    meetingFrequency: 'Weekly meetings',
+    contactInfo: { email: 'environment@ucf.edu' },
+    whyRecommended: 'Perfect for making a meaningful impact',
+    memberCount: 89,
+    isProfessional: false,
+    categories: [{ id: 'service', name: 'Service' }],
+    isFollowing: false,
+    upcomingEvents: []
+  },
+  {
+    id: 'club-12',
+    name: 'Music Production Club',
+    description: 'Learn music production, mixing, and collaborate with other musicians.',
+    shortDescription: 'Create and produce music collaboratively',
+    tags: ['Music', 'Production', 'Creative'],
+    category: 'hobby',
+    timeCommitment: '3-5 hours/week',
+    meetingFrequency: 'Bi-weekly sessions',
+    contactInfo: { email: 'music@ucf.edu' },
+    whyRecommended: 'Excellent creative outlet and networking opportunity',
+    memberCount: 78,
+    isProfessional: false,
+    categories: [{ id: 'creative', name: 'Creative' }],
+    isFollowing: false,
+    upcomingEvents: []
+  },
+  {
+    id: 'club-13',
+    name: 'Pre-Med Society',
+    description: 'Support and resources for students pursuing medical careers.',
+    shortDescription: 'Medical career preparation and networking',
+    tags: ['Medicine', 'Healthcare', 'Pre-Med'],
+    category: 'professional',
+    timeCommitment: '3-4 hours/week',
+    meetingFrequency: 'Weekly meetings',
+    contactInfo: { email: 'premed@ucf.edu' },
+    whyRecommended: 'Essential for medical school preparation',
+    memberCount: 156,
+    isProfessional: true,
+    categories: [{ id: 'professional', name: 'Professional' }],
+    isFollowing: false,
+    upcomingEvents: []
   }
 ]);
 
@@ -619,6 +770,72 @@ const upcomingEvents = ref<Event[]>([
     category: 'competition',
     whyRecommended: 'Great way to test and improve your security skills',
     attendeeCount: 67,
+    isVirtual: false,
+    isFree: true,
+    isBookmarked: false,
+    url: ''
+  },
+  {
+    id: 'event-4',
+    name: 'Startup Pitch Competition',
+    title: 'Startup Pitch Competition',
+    description: 'Present your business idea to a panel of investors and entrepreneurs.',
+    shortDescription: 'Pitch your startup idea for prizes and funding',
+    startTime: new Date('2025-10-15T17:00:00'),
+    endTime: new Date('2025-10-15T20:00:00'),
+    date: new Date('2025-10-15T17:00:00'),
+    endDate: new Date('2025-10-15T20:00:00'),
+    location: 'Student Union Pegasus Ballroom',
+    organizer: 'Entrepreneurship Society',
+    tags: ['Business', 'Startup', 'Competition'],
+    categories: [{ id: 'competition', name: 'Competition' }],
+    category: 'competition',
+    whyRecommended: 'Perfect opportunity to showcase your business ideas',
+    attendeeCount: 89,
+    isVirtual: false,
+    isFree: true,
+    isBookmarked: false,
+    url: ''
+  },
+  {
+    id: 'event-5',
+    name: 'Photography Workshop',
+    title: 'Photography Workshop',
+    description: 'Learn advanced photography techniques and portfolio building.',
+    shortDescription: 'Master photography fundamentals and techniques',
+    startTime: new Date('2025-10-18T16:00:00'),
+    endTime: new Date('2025-10-18T19:00:00'),
+    date: new Date('2025-10-18T16:00:00'),
+    endDate: new Date('2025-10-18T19:00:00'),
+    location: 'Visual Arts Building, Studio A',
+    organizer: 'Photography Club',
+    tags: ['Photography', 'Workshop', 'Creative'],
+    categories: [{ id: 'workshop', name: 'Workshop' }],
+    category: 'workshop',
+    whyRecommended: 'Great for developing your creative portfolio',
+    attendeeCount: 32,
+    isVirtual: false,
+    isFree: true,
+    isBookmarked: false,
+    url: ''
+  },
+  {
+    id: 'event-6',
+    name: 'Medical School Info Session',
+    title: 'Medical School Info Session',
+    description: 'Learn about medical school applications, MCAT prep, and career paths.',
+    shortDescription: 'Essential info for aspiring medical students',
+    startTime: new Date('2025-10-20T18:30:00'),
+    endTime: new Date('2025-10-20T20:00:00'),
+    date: new Date('2025-10-20T18:30:00'),
+    endDate: new Date('2025-10-20T20:00:00'),
+    location: 'College of Medicine Auditorium',
+    organizer: 'Pre-Med Society',
+    tags: ['Medicine', 'Career', 'Information'],
+    categories: [{ id: 'professional', name: 'Professional' }],
+    category: 'professional',
+    whyRecommended: 'Critical for medical school preparation',
+    attendeeCount: 145,
     isVirtual: false,
     isFree: true,
     isBookmarked: false,
@@ -721,3 +938,98 @@ const formatEventDate = (date: Date) => {
   }).format(new Date(date));
 };
 </script>
+
+<style scoped>
+/* Hide scrollbar for cleaner look */
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Card entrance animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Apply staggered animation to cards */
+.event-card,
+.club-card,
+.professor-card {
+  animation: slideInUp 0.6s ease-out forwards;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced hover effects */
+.event-card:hover,
+.club-card:hover,
+.professor-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+/* Glassmorphism effects */
+.backdrop-blur-lg {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Smooth transitions for all interactive elements */
+button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced gradient backgrounds */
+.bg-gradient-to-br {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+}
+
+.bg-gradient-to-r {
+  background: linear-gradient(90deg, var(--tw-gradient-stops));
+}
+
+/* Modal animations */
+.modal-enter-active,
+.modal-leave-active {
+  transition: all 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+/* Button hover animations */
+.transform:hover {
+  transform: translateY(-1px) scale(1.05);
+}
+
+/* Card content animations */
+.event-card .p-8,
+.club-card .p-8,
+.professor-card .p-8 {
+  transition: all 0.3s ease;
+}
+
+.event-card:hover .p-8,
+.club-card:hover .p-8,
+.professor-card:hover .p-8 {
+  transform: translateY(-2px);
+}
+</style>

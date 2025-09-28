@@ -1,26 +1,27 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b">
+    <nav class="bg-white/80 backdrop-blur-lg shadow-sm border-b border-white/20">
       <div class="max-w-7xl mx-auto px-4">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center space-x-8">
             <div class="text-2xl font-bold text-indigo-600">OppTrack</div>
             <div class="hidden md:flex space-x-6">
-              <NuxtLink to="/dashboard" class="text-gray-500 hover:text-gray-700">
+              <NuxtLink to="/dashboard" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">
                 Dashboard
               </NuxtLink>
-              <NuxtLink to="/explore" class="text-gray-500 hover:text-gray-700">
+              <NuxtLink to="/explore" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">
                 Explore
               </NuxtLink>
-              <NuxtLink to="/profile" class="text-indigo-600 font-medium border-b-2 border-indigo-600 pb-1">
+              <NuxtLink to="/profile" class="text-indigo-600 font-medium relative">
                 Profile
+                <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full"></div>
               </NuxtLink>
             </div>
           </div>
           
           <div class="flex items-center space-x-4">
-            <button class="text-gray-500 hover:text-gray-700">
+            <button class="text-gray-500 hover:text-gray-700 transition-colors duration-200">
               <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -28,7 +29,7 @@
             </button>
             <NuxtLink 
               to="/profile"
-              class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-medium hover:bg-indigo-700 transition-colors cursor-pointer"
+              class="w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-medium hover:shadow-lg transform hover:scale-105 transition-all duration-200 cursor-pointer"
             >
               JD
             </NuxtLink>
