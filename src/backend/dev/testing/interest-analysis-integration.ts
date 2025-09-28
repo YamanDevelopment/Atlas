@@ -47,7 +47,7 @@ async function createUserInterestProfile(userId: string, interestInputs: string[
 async function findMatchingContent(userInterests: any[]) {
 	// Extract high-weight user tags
 	const userTagWeights = new Map<number, number>();
-	
+
 	userInterests.forEach(interest => {
 		interest.linkedTags.forEach((linkedTag: any) => {
 			const currentWeight = userTagWeights.get(linkedTag.tagId) || 0;
@@ -62,7 +62,7 @@ async function findMatchingContent(userInterests: any[]) {
 		.map(([tagId]) => tagId);
 
 	console.log(`🎯 User has high interest in ${primaryTagIds.length} primary categories`);
-	
+
 	// This would be used in database queries like the ones in our handler
 	const matchQuery = {
 		$or: [
@@ -90,24 +90,24 @@ export async function demonstrateInterestAnalysis() {
 
 	const sampleInterests = [
 		'machine learning',
-		'game development', 
+		'game development',
 		'environmental sustainability',
 		'music production',
 	];
 
 	console.log('📝 Sample user interests:', sampleInterests);
-	
+
 	// Step 1: Create AI-powered interest profile
 	console.log('\n🧠 Step 1: Analyzing interests with AI...');
 	const userInterests = await createUserInterestProfile('user123', sampleInterests);
-	
+
 	// Step 2: Generate matching query
 	console.log('\n🔍 Step 2: Generating content matching query...');
 	const matchQuery = await findMatchingContent(userInterests);
-	
+
 	console.log('📊 Generated MongoDB query for recommendations:');
 	console.log(JSON.stringify(matchQuery, null, 2));
-	
+
 	// Step 3: Show interest profile summary
 	console.log('\n👤 User Interest Profile Summary:');
 	userInterests.forEach((interest, index) => {

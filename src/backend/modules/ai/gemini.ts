@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { IWeightedTag } from '../database/schemas/Event';
 import config from '../../../config';
-import { COMPREHENSIVE_TAGS, getPrimaryTags, getSecondaryTags, getSecondaryTagsByParent } from '../database/services/defaults';
+import { getPrimaryTags, getSecondaryTags, getSecondaryTagsByParent } from '../database/services/defaults';
 
 interface GeminiAnalysisResult {
 	tags: IWeightedTag[];
@@ -87,10 +87,44 @@ export class GeminiService {
 	}
 
 	/**
-	 * Analyze content and return weighted hierarchical tags
+	 * Extract retry delay from API error response
+	 */
+	private extractRetryDelay(error: any): number | null {
+		try {
+			// Try to extract from error message or details
+			if (error.message && typeof error.message === 'string') {
+				const match = error.message.match(/retry in (\d+(?:\.\d+)?)[s]?\./);
+				if (match) {
+					return parseFloat(match[1]);
+				}
+			}
+			
+			// Try to extract from error details (Google API format)
+			if (error.error?.details) {
+				for (const detail of error.error.details) {
+					if (detail['@type'] === 'type.googleapis.com/google.rpc.RetryInfo' && detail.retryDelay) {
+						// Parse duration string like "27s"
+						const retryDelay = detail.retryDelay;
+						if (typeof retryDelay === 'string') {
+							const seconds = parseInt(retryDelay.replace(/[^0-9]/g, ''));
+							return isNaN(seconds) ? null : seconds;
+						}
+					}
+				}
+			}
+			
+			return null;
+		} catch {
+			return null;
+		}
+	}
+
+	/**
+	 * Analyze content and return weighted hierarchical tags with intelligent retry logic
 	 * Implements two-phase weighting as specified
 	 */
-	async analyzeContent(content: ContentAnalysisRequest): Promise<GeminiAnalysisResult> {
+	async analyzeContent(content: ContentAnalysisRequest, retryCount: number = 0): Promise<GeminiAnalysisResult> {
+		const maxRetries = 3;
 		try {
 			const prompt = this.buildAnalysisPrompt(content);
 
@@ -124,10 +158,25 @@ export class GeminiService {
 				},
 			});
 
-			const analysisResult = JSON.parse(response.text || '{}');
+			console.log('Raw Gemini response:', response.text);
+			
+			// Handle empty or invalid responses
+			if (!response.text || response.text.trim() === '') {
+				console.log('Empty response from Gemini, retrying...');
+				throw new Error('Empty response from Gemini API');
+			}
+
+			let analysisResult;
+			try {
+				analysisResult = JSON.parse(response.text);
+			} catch (parseError) {
+				console.error('JSON parse failed, raw response:', response.text);
+				throw new Error(`Invalid JSON response from Gemini: ${parseError}`);
+			}
 
 			// Validate the analysis results
 			if (!analysisResult.tags || !Array.isArray(analysisResult.tags)) {
+				console.error('Invalid analysis result structure:', analysisResult);
 				throw new Error('Invalid response format: tags array is required');
 			}
 
@@ -144,8 +193,19 @@ export class GeminiService {
 				confidence: analysisResult.overallConfidence || 0.8,
 				modelUsed: config.ai.gemini.model,
 			};
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Gemini analysis error:', error);
+			
+			// Handle rate limiting with exponential backoff
+			if (error.status === 429 && retryCount < maxRetries) {
+				// Extract retry delay from error if available
+				const retryDelaySeconds = this.extractRetryDelay(error) || Math.pow(2, retryCount) * 30;
+				console.log(`Rate limited. Retrying in ${retryDelaySeconds} seconds... (attempt ${retryCount + 1}/${maxRetries})`);
+				
+				await new Promise(resolve => setTimeout(resolve, retryDelaySeconds * 1000));
+				return this.analyzeContent(content, retryCount + 1);
+			}
+			
 			throw new Error(`Failed to analyze content with Gemini: ${error}`);
 		}
 	}
@@ -189,10 +249,25 @@ export class GeminiService {
 				},
 			});
 
-			const analysisResult = JSON.parse(response.text || '{}');
+			console.log('Raw Gemini interest response:', response.text);
+			
+			// Handle empty or invalid responses
+			if (!response.text || response.text.trim() === '') {
+				console.log('Empty response from Gemini for interest analysis, retrying...');
+				throw new Error('Empty response from Gemini API');
+			}
+
+			let analysisResult;
+			try {
+				analysisResult = JSON.parse(response.text);
+			} catch (parseError) {
+				console.error('JSON parse failed for interest analysis, raw response:', response.text);
+				throw new Error(`Invalid JSON response from Gemini: ${parseError}`);
+			}
 
 			// Validate the analysis results
 			if (!analysisResult.tags || !Array.isArray(analysisResult.tags)) {
+				console.error('Invalid interest analysis result structure:', analysisResult);
 				throw new Error('Invalid response format: tags array is required');
 			}
 
@@ -352,51 +427,39 @@ INSTRUCTIONS:
 
 	/**
 	 * Batch analyze multiple content items with intelligent rate limiting
+	 * Optimized for Gemini free tier: 10 requests per minute
 	 */
 	async batchAnalyze(contentItems: ContentAnalysisRequest[]): Promise<GeminiAnalysisResult[]> {
 		const results: GeminiAnalysisResult[] = [];
 
-		// Use smaller batch size for more reliable processing
-		const batchSize = Math.min(3, contentItems.length);
-		const delayMs = 1500; // Conservative rate limiting
+		// Free tier: 10 requests per minute = 1 request every 6 seconds minimum
+		// Use 8 seconds to be safe with network delays
+		const delayBetweenRequests = 8000; // 8 seconds
 
-		for (let i = 0; i < contentItems.length; i += batchSize) {
-			const batch = contentItems.slice(i, i + batchSize);
-			console.log(`Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(contentItems.length / batchSize)}`);
+		console.log('🐌 Using conservative rate limiting for Gemini free tier');
+		console.log(`📊 Processing ${contentItems.length} items, ~${Math.ceil(contentItems.length * delayBetweenRequests / 1000 / 60)} minutes estimated`);
 
-			const batchPromises = batch.map(async (content, index) => {
-				try {
-					// Add small delay between items in the same batch
-					if (index > 0) {
-						await new Promise(resolve => setTimeout(resolve, 300));
-					}
-					return await this.analyzeContent(content);
-				} catch (error) {
-					console.error(`Failed to analyze content "${content.title}":`, error);
-					return null; // Return null for failed items
-				}
-			});
+		for (let i = 0; i < contentItems.length; i++) {
+			const content = contentItems[i];
+			console.log(`Processing item ${i + 1}/${contentItems.length}: "${content.title.substring(0, 50)}..."`);
 
 			try {
-				const batchResults = await Promise.all(batchPromises);
-				// Filter out null results from failed analyses
-				const successfulResults = batchResults.filter((result): result is GeminiAnalysisResult => result !== null);
-				results.push(...successfulResults);
-
-				console.log(`Batch completed: ${successfulResults.length}/${batch.length} successful`);
+				const result = await this.analyzeContent(content);
+				results.push(result);
+				console.log(`✅ Success: ${result.tags.length} tags assigned`);
 			} catch (error) {
-				console.error(`Batch processing failed for batch starting at index ${i}:`, error);
-				// Continue with next batch rather than failing entirely
+				console.error(`❌ Failed to analyze "${content.title}":`, error);
+				// Continue with next item rather than failing entirely
 			}
 
-			// Rate limiting delay between batches
-			if (i + batchSize < contentItems.length) {
-				console.log(`Waiting ${delayMs}ms before next batch...`);
-				await new Promise(resolve => setTimeout(resolve, delayMs));
+			// Rate limiting delay between requests (except for the last item)
+			if (i < contentItems.length - 1) {
+				console.log(`⏳ Waiting ${delayBetweenRequests / 1000}s before next request...`);
+				await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
 			}
 		}
 
-		console.log(`Batch analysis complete: ${results.length}/${contentItems.length} items processed successfully`);
+		console.log(`🎯 Batch analysis complete: ${results.length}/${contentItems.length} items processed successfully`);
 		return results;
 	}
 

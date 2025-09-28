@@ -4,9 +4,9 @@
  * Test script to verify GeminiService is using correct tag data from defaults.ts
  */
 
-import { GeminiService } from '../modules/ai/gemini';
-import { getPrimaryTags, getSecondaryTags } from '../modules/database/services/defaults';
-import config from '../../config';
+import { GeminiService } from '../../modules/ai/gemini';
+import { getPrimaryTags, getSecondaryTags } from '../../modules/database/services/defaults';
+import config from '../../../config';
 
 async function testTagMapping() {
 	console.log('🔍 Testing GeminiService Tag Mapping with Real Data\n');

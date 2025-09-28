@@ -165,13 +165,13 @@ export class DatabaseInitializer {
 				}
 
 				// Find related tags by name matching and create linkedTags structure
-				const linkedTags: { tagId: number; confidence: number }[] = [];
+				const linkedTags: { tagId: number; weight: number }[] = [];
 				for (const tagName of interestData.relatedTags) {
 					const tag = await Tag.findOne({ name: tagName });
 					if (tag) {
 						linkedTags.push({
 							tagId: tag.id, // Use the sequential ID instead of ObjectId
-							confidence: 0.8, // Default confidence for pre-defined relationships
+							weight: 0.8, // Default weight for pre-defined relationships
 						});
 					}
 				}
