@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from '@google/genai';
-import { IWeightedTag } from '../database/schemas/Event';
+import type { IWeightedTag } from '../database/schemas/Event';
 import config from '../../../config';
-import { getPrimaryTags, getSecondaryTags, getSecondaryTagsByParent } from '../database/services/defaults';
+import { getPrimaryTags, getSecondaryTags } from '../database/services/defaults';
 
 interface GeminiAnalysisResult {
 	tags: IWeightedTag[];
@@ -98,7 +98,7 @@ export class GeminiService {
 					return parseFloat(match[1]);
 				}
 			}
-			
+
 			// Try to extract from error details (Google API format)
 			if (error.error?.details) {
 				for (const detail of error.error.details) {
@@ -112,7 +112,7 @@ export class GeminiService {
 					}
 				}
 			}
-			
+
 			return null;
 		} catch {
 			return null;
@@ -159,7 +159,7 @@ export class GeminiService {
 			});
 
 			console.log('Raw Gemini response:', response.text);
-			
+
 			// Handle empty or invalid responses
 			if (!response.text || response.text.trim() === '') {
 				console.log('Empty response from Gemini, retrying...');
@@ -180,8 +180,55 @@ export class GeminiService {
 				throw new Error('Invalid response format: tags array is required');
 			}
 
+			// Validate and filter out invalid tag IDs
+			const { primaryTags, secondaryTags } = this.buildTagMapping();
+			const maxValidTagId = primaryTags.size + secondaryTags.size;
+
+			const validTags = analysisResult.tags.filter((tag: any) => {
+				// Check for valid integer tag ID
+				if (!Number.isInteger(tag.tagId) || tag.tagId < 1 || tag.tagId > maxValidTagId) {
+					console.warn(`🚨 Rejecting invalid tag ID: ${tag.tagId} (must be integer 1-${maxValidTagId})`);
+					return false;
+				}
+
+				// Check for valid weight
+				if (typeof tag.weight !== 'number' || tag.weight < 0 || tag.weight > 1) {
+					console.warn(`🚨 Rejecting invalid weight: ${tag.weight} for tag ${tag.tagId}`);
+					return false;
+				}
+
+				// Check for valid category
+				if (!['primary', 'secondary'].includes(tag.category)) {
+					console.warn(`🚨 Rejecting invalid category: ${tag.category} for tag ${tag.tagId}`);
+					return false;
+				}
+
+				return true;
+			});
+
+			console.log(`✅ Content analysis validated ${validTags.length}/${analysisResult.tags.length} tags`);
+
+			// CRITICAL: Ensure at least one tag is assigned (mandatory requirement)
+			if (validTags.length === 0) {
+				console.error(`🚨 CRITICAL: No valid tags found for content "${content.title.substring(0, 50)}..."`);
+				console.error('Assigning default "general" tag to prevent empty tag array');
+
+				// Assign a default general tag (assuming ID 1 is a general category)
+				validTags.push({
+					tagId: 1, // Assuming first primary tag is general
+					weight: 0.3,
+					category: 'primary',
+					reasoning: 'Default assignment - no valid tags detected',
+				});
+			}
+
 			// Enforce maximum tags limit from config
-			const limitedTags = analysisResult.tags.slice(0, config.ai.tagging.maxTagsPerItem);
+			if (validTags.length !== analysisResult.tags.length) {
+				console.warn(`⚠️ Filtered out ${analysisResult.tags.length - validTags.length} invalid tags`);
+			}
+
+			// Enforce maximum tags limit from config using validated tags
+			const limitedTags = validTags.slice(0, config.ai.tagging.maxTagsPerItem);
 
 			// Filter out tags below confidence threshold
 			const filteredTags = limitedTags.filter((tag: any) =>
@@ -195,17 +242,17 @@ export class GeminiService {
 			};
 		} catch (error: any) {
 			console.error('Gemini analysis error:', error);
-			
+
 			// Handle rate limiting with exponential backoff
 			if (error.status === 429 && retryCount < maxRetries) {
 				// Extract retry delay from error if available
 				const retryDelaySeconds = this.extractRetryDelay(error) || Math.pow(2, retryCount) * 30;
 				console.log(`Rate limited. Retrying in ${retryDelaySeconds} seconds... (attempt ${retryCount + 1}/${maxRetries})`);
-				
+
 				await new Promise(resolve => setTimeout(resolve, retryDelaySeconds * 1000));
 				return this.analyzeContent(content, retryCount + 1);
 			}
-			
+
 			throw new Error(`Failed to analyze content with Gemini: ${error}`);
 		}
 	}
@@ -250,7 +297,7 @@ export class GeminiService {
 			});
 
 			console.log('Raw Gemini interest response:', response.text);
-			
+
 			// Handle empty or invalid responses
 			if (!response.text || response.text.trim() === '') {
 				console.log('Empty response from Gemini for interest analysis, retrying...');
@@ -271,9 +318,49 @@ export class GeminiService {
 				throw new Error('Invalid response format: tags array is required');
 			}
 
+			// Validate and filter out invalid tag IDs for interests
+			const { primaryTags, secondaryTags } = this.buildTagMapping();
+			const maxValidTagId = primaryTags.size + secondaryTags.size;
+
+			const validTags = analysisResult.tags.filter((tag: any) => {
+				// Check for valid integer tag ID
+				if (!Number.isInteger(tag.tagId) || tag.tagId < 1 || tag.tagId > maxValidTagId) {
+					console.warn(`🚨 Interest analysis - rejecting invalid tag ID: ${tag.tagId}`);
+					return false;
+				}
+
+				// Check for valid weight and category
+				if (typeof tag.weight !== 'number' || tag.weight < 0 || tag.weight > 1) {
+					console.warn(`🚨 Interest analysis - rejecting invalid weight: ${tag.weight}`);
+					return false;
+				}
+
+				if (!['primary', 'secondary'].includes(tag.category)) {
+					console.warn(`🚨 Interest analysis - rejecting invalid category: ${tag.category}`);
+					return false;
+				}
+
+				return true;
+			});
+
+			console.log(`✅ Interest analysis validated ${validTags.length}/${analysisResult.tags.length} tags`);
+
+			// CRITICAL: Ensure at least one tag is assigned (mandatory requirement)
+			if (validTags.length === 0) {
+				console.error(`🚨 CRITICAL: No valid tags found for interest "${interest.interestKeyword}"`);
+				console.error('Assigning default "general" tag to prevent empty tag array');
+
+				// Assign a default general tag (assuming ID 1 is a general category)
+				validTags.push({
+					tagId: 1, // Assuming first primary tag is general
+					weight: 0.3,
+					category: 'primary',
+				});
+			}
+
 			// Enforce maximum tags limit from config (allow slightly more for interests)
 			const maxInterestTags = Math.min(config.ai.tagging.maxTagsPerItem + 2, 7);
-			const limitedTags = analysisResult.tags.slice(0, maxInterestTags);
+			const limitedTags = validTags.slice(0, maxInterestTags);
 
 			// Filter out tags below confidence threshold
 			const filteredTags = limitedTags.filter((tag: any) =>
@@ -300,62 +387,68 @@ export class GeminiService {
 
 		const { primaryTags, secondaryTags } = this.buildTagMapping();
 
-		// Build primary categories list with real IDs
+		// Build COMPLETE primary tags list with exact IDs
 		const primaryCategoriesList = Array.from(primaryTags.entries())
 			.map(([name, id]) => `${id}. ${name.charAt(0).toUpperCase() + name.slice(1)} (ID: ${id})`)
 			.join('\n');
 
-		// Build more comprehensive secondary tag examples
-		const secondaryExamplesByCategory = Array.from(primaryTags.entries())
-			.map(([parentName]) => {
-				const children = getSecondaryTagsByParent(parentName);
-				if (children.length > 0) {
-					const childExamples = children.slice(0, 4).map(child => {
-						const childData = secondaryTags.get(child.name);
-						return `${child.name} (${childData?.id})`;
-					}).join(', ');
-					return `${parentName.toUpperCase()}: ${childExamples}`;
-				}
-				return null;
-			})
-			.filter(Boolean)
+		// Build COMPLETE secondary tags list with exact IDs and parent relationships
+		const allSecondaryTagsList = Array.from(secondaryTags.entries())
+			.map(([name, data]) => `${data.id}. ${name.charAt(0).toUpperCase() + name.slice(1)} (ID: ${data.id}, Parent: ${data.parentName}, ParentID: ${data.parentId})`)
 			.join('\n');
 
 		return `
-You are an expert AI system that analyzes user interests and maps them to hierarchical university categories.
+You are an expert AI that analyzes user interests using ONLY the predefined university tag system below.
 
-Analyze the following user interest and assign weighted tags using a two-phase approach:
+CRITICAL RULES:
+- MANDATORY: Assign at least 1 tag (never return empty tags array)
+- Recommended: Find 2-7 most relevant tags for comprehensive analysis
+- ONLY use tag IDs from the lists below
+- NEVER create new tag IDs or use decimals (8.1, 7.1, etc.)
+- NEVER use tag IDs above ${primaryTags.size + secondaryTags.size}
+- PRIORITIZE analysis of the INTEREST KEYWORD and DESCRIPTION as they contain the key information
+- For secondary tags, ALWAYS use the exact parentTagId from the list
 
-PHASE 1: Primary Tag Analysis
-- Analyze against ${primaryTags.size} broad primary categories
-- Assign weights (0-1) based on relevance and user interest strength
-- Only consider primary tags with weight >= 0.7 for Phase 2
-
-PHASE 2: Secondary Tag Analysis  
-- For primary tags >= 0.7, analyze against their secondary tags
-- Assign weights for relevant secondary tags based on specificity
-- Secondary tags must include parentTagId
-
-PRIMARY CATEGORIES (with exact IDs):
+=== ALL PRIMARY TAGS (IDs 1-${primaryTags.size}) ===
 ${primaryCategoriesList}
 
-SECONDARY TAGS BY CATEGORY:
-${secondaryExamplesByCategory}
+=== ALL SECONDARY TAGS (IDs ${primaryTags.size + 1}-${primaryTags.size + secondaryTags.size}) ===
+${allSecondaryTagsList}
 
 INTEREST TO ANALYZE:
 Interest Keyword: "${interest.interestKeyword}"
 ${descriptionInfo}
 ${contextInfo}
 
-INSTRUCTIONS:
-- Return structured JSON with tags array, overallConfidence, and suggestedInterestName
-- Include 2-7 weighted tags total (can be multiple categories for broad interests)
-- Primary tags need weight >= ${config.ai.tagging.confidenceThreshold} to include secondary tags
-- Use EXACT tag IDs from the system above (Primary: 1-${primaryTags.size}, Secondary: ${primaryTags.size + 1}+)
-- Weights should reflect interest strength and specificity (0-1 scale)
-- Secondary tags must include parentTagId field (use correct parent ID from primary tags)
-- Provide a refined suggestedInterestName that's clear and specific
-- Consider multiple categories if the interest spans areas (e.g., "game development" = technology + arts & culture)
+ANALYSIS PROCESS:
+1. **CAREFULLY analyze the INTEREST KEYWORD** - this is the primary indicator of what the user cares about
+2. **REVIEW the detailed description** if provided - contains important context and specifics
+3. Consider user context if provided
+4. Find 1-7 most relevant tags from the EXACT lists above (at least 1 is mandatory)
+5. Assign weights (0-1) based on how strongly the interest keyword/description matches the tag
+6. For secondary tags, use the EXACT parentTagId from the list
+
+RESPONSE FORMAT (JSON):
+{
+  "tags": [
+    {
+      "tagId": [USE EXACT ID FROM LISTS ABOVE],
+      "weight": [0.0-1.0],
+      "category": "primary" or "secondary",
+      "parentTagId": [ONLY for secondary tags - use exact ID from parent list]
+    }
+  ],
+  "overallConfidence": [0.0-1.0],
+  "suggestedInterestName": "[refined interest name]"
+}
+
+STRICT REQUIREMENTS:
+- **MUST assign at least 1 tag (this is mandatory)**
+- tagId MUST be an integer from the lists above
+- category MUST be "primary" or "secondary"
+- parentTagId ONLY for secondary tags, using exact parent ID
+- NO decimal tag IDs (8.1, 7.1, etc.)
+- NO made-up tag IDs above ${primaryTags.size + secondaryTags.size}
 - Focus on relevance to university activities and student interests
 `;
 	}
@@ -366,126 +459,159 @@ INSTRUCTIONS:
 
 		const { primaryTags, secondaryTags } = this.buildTagMapping();
 
-		// Build primary categories list with real IDs
+		// Build COMPLETE primary tags list with exact IDs
 		const primaryCategoriesList = Array.from(primaryTags.entries())
 			.map(([name, id]) => `${id}. ${name.charAt(0).toUpperCase() + name.slice(1)} (ID: ${id})`)
 			.join('\n');
 
-		// Build sample secondary tags by category
-		const secondaryExamples = Array.from(primaryTags.entries())
-			.slice(0, 5) // Show examples for first 5 categories
-			.map(([parentName]) => {
-				const children = getSecondaryTagsByParent(parentName);
-				if (children.length > 0) {
-					const childExamples = children.slice(0, 3).map(child => {
-						const childData = secondaryTags.get(child.name);
-						return `${child.name} (${childData?.id})`;
-					}).join(', ');
-					return `${parentName}: ${childExamples}`;
-				}
-				return null;
-			})
-			.filter(Boolean)
+		// Build COMPLETE secondary tags list with exact IDs and parent relationships
+		const allSecondaryTagsList = Array.from(secondaryTags.entries())
+			.map(([name, data]) => `${data.id}. ${name.charAt(0).toUpperCase() + name.slice(1)} (ID: ${data.id}, Parent: ${data.parentName}, ParentID: ${data.parentId})`)
 			.join('\n');
 
 		return `
-You are an expert AI system that categorizes university content using a hierarchical tag system.
+You are an expert AI that categorizes university content using ONLY the predefined tag system below.
 
-Analyze the following content and assign weighted tags using a two-phase approach:
+CRITICAL RULES:
+- MANDATORY: Assign at least 1 tag (never return empty tags array)
+- Maximum: ${config.ai.tagging.maxTagsPerItem} tags per item
+- ONLY use tag IDs from the lists below
+- NEVER create new tag IDs or use decimals (8.1, 7.1, etc.)  
+- NEVER use tag IDs above ${primaryTags.size + secondaryTags.size}
+- PRIORITIZE analysis of TITLE and DESCRIPTION as they contain the most important information
+- For secondary tags, ALWAYS use the exact parentTagId from the list
 
-PHASE 1: Primary Tag Analysis
-- Analyze against ${primaryTags.size} broad primary categories
-- Assign weights (0-1) based on relevance
-- Only consider primary tags with weight >= 0.7 for Phase 2
-
-PHASE 2: Secondary Tag Analysis  
-- For primary tags >= 0.7, analyze against their secondary tags
-- Assign weights for relevant secondary tags
-- Secondary tags must include parentTagId
-
-PRIMARY CATEGORIES (with exact IDs):
+=== ALL PRIMARY TAGS (IDs 1-${primaryTags.size}) ===
 ${primaryCategoriesList}
 
-SECONDARY TAG EXAMPLES:
-${secondaryExamples}
+=== ALL SECONDARY TAGS (IDs ${primaryTags.size + 1}-${primaryTags.size + secondaryTags.size}) ===
+${allSecondaryTagsList}
 
 CONTENT TO ANALYZE:
 Title: "${content.title}"
 Description: "${content.description}"
 ${contextInfo}
 
-INSTRUCTIONS:
-- Return structured JSON with tags array and overallConfidence
-- Include 2-${config.ai.tagging.maxTagsPerItem} weighted tags total
-- Primary tags need weight >= ${config.ai.tagging.confidenceThreshold} to include secondary tags
-- Use EXACT tag IDs from the system above (Primary: 1-${primaryTags.size}, Secondary: ${primaryTags.size + 1}+)
-- Weights must reflect content relevance (0-1 scale)
-- Secondary tags must include parentTagId field
-- Focus on accuracy and relevance over quantity
+ANALYSIS PROCESS:
+1. **CAREFULLY read the TITLE** - this often indicates the primary purpose/topic
+2. **THOROUGHLY analyze the DESCRIPTION** - this contains key themes and details
+3. Consider additional context if provided
+4. Find 1-${config.ai.tagging.maxTagsPerItem} most relevant tags from the EXACT lists above
+5. Assign weights (0-1) based on how well the title/description matches the tag
+6. For secondary tags, use the EXACT parentTagId from the list
+
+RESPONSE FORMAT (JSON):
+{
+  "tags": [
+    {
+      "tagId": [USE EXACT ID FROM LISTS ABOVE],
+      "weight": [0.0-1.0],
+      "category": "primary" or "secondary",
+      "parentTagId": [ONLY for secondary tags - use exact ID from parent list]
+    }
+  ],
+  "overallConfidence": [0.0-1.0]
+}
+
+STRICT REQUIREMENTS:
+- **MUST assign at least 1 tag (this is mandatory)**
+- tagId MUST be an integer from the lists above
+- category MUST be "primary" or "secondary" 
+- parentTagId ONLY for secondary tags, using exact parent ID
+- NO decimal tag IDs (8.1, 7.1, etc.)
+- Base your analysis primarily on the title and description content
 `;
 	}
 
 	/**
-	 * Batch analyze multiple content items with intelligent rate limiting
-	 * Optimized for Gemini free tier: 10 requests per minute
+	 * Batch analyze multiple content items with aggressive rate limiting for Tier 1
+	 * Tier 1: 4,000 RPM, 4M TPM - can handle much larger batches!
 	 */
 	async batchAnalyze(contentItems: ContentAnalysisRequest[]): Promise<GeminiAnalysisResult[]> {
 		const results: GeminiAnalysisResult[] = [];
 
-		// Free tier: 10 requests per minute = 1 request every 6 seconds minimum
-		// Use 8 seconds to be safe with network delays
-		const delayBetweenRequests = 8000; // 8 seconds
+		// Tier 1: 4000 requests per minute = ~67 requests per second
+		// ULTRA AGGRESSIVE: Use batch size of 50 with 50ms delays for 10x speedup!
+		const batchSize = 50; // 10x more aggressive batching
+		const delayBetweenBatches = 50; // Minimal delay for MAXIMUM SPEED
 
-		console.log('🐌 Using conservative rate limiting for Gemini free tier');
-		console.log(`📊 Processing ${contentItems.length} items, ~${Math.ceil(contentItems.length * delayBetweenRequests / 1000 / 60)} minutes estimated`);
+		console.log('🚀🚀🚀 ULTRA AGGRESSIVE Tier 1 batching - FULL THROTTLE MODE!');
+		console.log(`📊 Processing ${contentItems.length} items in MEGA batches of ${batchSize}`);
+		console.log(`⚡ Estimated completion: ~${Math.ceil(contentItems.length / batchSize * delayBetweenBatches / 1000)} seconds`);
 
-		for (let i = 0; i < contentItems.length; i++) {
-			const content = contentItems[i];
-			console.log(`Processing item ${i + 1}/${contentItems.length}: "${content.title.substring(0, 50)}..."`);
+		for (let i = 0; i < contentItems.length; i += batchSize) {
+			const batch = contentItems.slice(i, i + batchSize);
+			const batchNum = Math.floor(i / batchSize) + 1;
+			const totalBatches = Math.ceil(contentItems.length / batchSize);
+
+			console.log(`� Processing MEGA batch ${batchNum}/${totalBatches} (${batch.length} items)`);
+
+			// Process entire batch in parallel - MAXIMUM THROUGHPUT
+			const batchPromises = batch.map(async (content, index) => {
+				try {
+					// Minimal stagger to avoid exact same timestamp
+					if (index > 0) {
+						await new Promise(resolve => setTimeout(resolve, index * 2)); // Only 2ms stagger!
+					}
+					return await this.analyzeContent(content);
+				} catch (error: any) {
+					console.error(`❌ Failed "${content.title.substring(0, 30)}":`, error?.message?.substring(0, 100) || error);
+					return null;
+				}
+			});
 
 			try {
-				const result = await this.analyzeContent(content);
-				results.push(result);
-				console.log(`✅ Success: ${result.tags.length} tags assigned`);
+				const batchResults = await Promise.all(batchPromises);
+				// Filter out null results from failed analyses
+				const successfulResults = batchResults.filter((result): result is GeminiAnalysisResult => result !== null);
+				results.push(...successfulResults);
+
+				console.log(`🎯 MEGA batch ${batchNum} completed: ${successfulResults.length}/${batch.length} successful (${Math.round(successfulResults.length / batch.length * 100)}%)`);
 			} catch (error) {
-				console.error(`❌ Failed to analyze "${content.title}":`, error);
-				// Continue with next item rather than failing entirely
+				console.error(`💥 MEGA batch ${batchNum} failed:`, error);
+				// Continue with next batch rather than failing entirely
 			}
 
-			// Rate limiting delay between requests (except for the last item)
-			if (i < contentItems.length - 1) {
-				console.log(`⏳ Waiting ${delayBetweenRequests / 1000}s before next request...`);
-				await new Promise(resolve => setTimeout(resolve, delayBetweenRequests));
+			// Short delay between batches to respect rate limits
+			if (i + batchSize < contentItems.length) {
+				await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
 			}
 		}
 
-		console.log(`🎯 Batch analysis complete: ${results.length}/${contentItems.length} items processed successfully`);
+		console.log(`🚀 ULTRA FAST batch analysis complete: ${results.length}/${contentItems.length} items processed`);
+		console.log(`📈 Success rate: ${Math.round((results.length / contentItems.length) * 100)}%`);
 		return results;
 	}
 
 	/**
-	 * Batch analyze multiple user interests
+	 * Batch analyze multiple user interests with Tier 1 optimization
 	 */
 	async batchAnalyzeInterests(interests: InterestAnalysisRequest[]): Promise<InterestAnalysisResult[]> {
 		const results: InterestAnalysisResult[] = [];
 
-		// Use smaller batch size for more reliable processing
-		const batchSize = Math.min(3, interests.length);
-		const delayMs = 1500; // Conservative rate limiting
+		// Use same aggressive batching for interests
+		const batchSize = 10; // Slightly smaller for interests (more complex analysis)
+		const delayBetweenBatches = 250; // Slightly more conservative
+
+		console.log('🎯 Processing interests with Tier 1 optimization');
+		console.log(`📊 Processing ${interests.length} interests in batches of ${batchSize}`);
 
 		for (let i = 0; i < interests.length; i += batchSize) {
 			const batch = interests.slice(i, i + batchSize);
-			console.log(`Processing interest batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(interests.length / batchSize)}`);
+			const batchNum = Math.floor(i / batchSize) + 1;
+			const totalBatches = Math.ceil(interests.length / batchSize);
+
+			console.log(`🔄 Processing interest batch ${batchNum}/${totalBatches} (${batch.length} items)`);
 
 			const batchPromises = batch.map(async (interest, index) => {
 				try {
-					// Add small delay between items in the same batch
+					// Small stagger within batch
 					if (index > 0) {
-						await new Promise(resolve => setTimeout(resolve, 300));
+						await new Promise(resolve => setTimeout(resolve, index * 25));
 					}
 					return await this.analyzeInterest(interest);
-				} catch (error) {
-					console.error(`Failed to analyze interest "${interest.interestKeyword}":`, error);
+				} catch (error: any) {
+					console.error(`❌ Failed to analyze interest "${interest.interestKeyword}":`, error?.message || error);
 					return null; // Return null for failed items
 				}
 			});
@@ -496,20 +622,19 @@ INSTRUCTIONS:
 				const successfulResults = batchResults.filter((result): result is InterestAnalysisResult => result !== null);
 				results.push(...successfulResults);
 
-				console.log(`Interest batch completed: ${successfulResults.length}/${batch.length} successful`);
+				console.log(`✅ Interest batch ${batchNum} completed: ${successfulResults.length}/${batch.length} successful`);
 			} catch (error) {
-				console.error(`Interest batch processing failed for batch starting at index ${i}:`, error);
+				console.error(`❌ Interest batch ${batchNum} processing failed:`, error);
 				// Continue with next batch rather than failing entirely
 			}
 
 			// Rate limiting delay between batches
 			if (i + batchSize < interests.length) {
-				console.log(`Waiting ${delayMs}ms before next interest batch...`);
-				await new Promise(resolve => setTimeout(resolve, delayMs));
+				await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
 			}
 		}
 
-		console.log(`Interest batch analysis complete: ${results.length}/${interests.length} items processed successfully`);
+		console.log(`🎯 Interest batch analysis complete: ${results.length}/${interests.length} items processed successfully`);
 		return results;
 	}
 

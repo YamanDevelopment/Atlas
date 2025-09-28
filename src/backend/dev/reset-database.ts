@@ -6,7 +6,7 @@
 
 import { config as loadEnv } from 'dotenv';
 import mongoose from 'mongoose';
-import config from './src/config';
+import config from '../../config';
 
 // Load environment variables
 loadEnv();
@@ -21,7 +21,7 @@ async function resetDatabase() {
 
 		// Drop collections that need to be reset
 		const collections = ['tags', 'interests', 'events', 'organizations', 'labs'];
-		
+
 		for (const collectionName of collections) {
 			try {
 				if (mongoose.connection.db) {

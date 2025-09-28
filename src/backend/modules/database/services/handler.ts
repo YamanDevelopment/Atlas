@@ -1,11 +1,26 @@
 import mongoose from 'mongoose';
 
-import { User, IUser } from '../schemas/User';
-import { Tag, ITag } from '../schemas/Tag';
-import { Interest, IInterest } from '../schemas/Interest';
-import { Organization, IOrganization } from '../schemas/Organization';
-import { Event, IEvent } from '../schemas/Event';
-import { Lab, ILab } from '../schemas/Lab';
+import type { IUser } from '../schemas/User';
+import { User } from '../schemas/User';
+import type { ITag } from '../schemas/Tag';
+import { Tag } from '../schemas/Tag';
+import type { IInterest } from '../schemas/Interest';
+import { Interest } from '../schemas/Interest';
+import type { IOrganization } from '../schemas/Organization';
+import { Organization } from '../schemas/Organization';
+import type { IEvent } from '../schemas/Event';
+import { Event } from '../schemas/Event';
+import type { ILab } from '../schemas/Lab';
+import { Lab } from '../schemas/Lab';
+import type {
+	EventRecommendation,
+	OrganizationRecommendation,
+	LabRecommendation,
+	RecommendationOptions,
+	RecommendationMetrics } from './recommendations';
+import {
+	RecommendationService,
+} from './recommendations';
 
 interface DatabaseStats {
 	users: number;
@@ -27,9 +42,11 @@ interface SearchOptions {
 class Handler {
 	private connectionStartTime: Date;
 	private isConnected: boolean = false;
+	private recommendationService: RecommendationService;
 
 	constructor(dbUrl: string) {
 		this.connectionStartTime = new Date();
+		this.recommendationService = new RecommendationService();
 		this.loadDatabase(dbUrl);
 	}
 
@@ -405,38 +422,293 @@ class Handler {
 
 	/**
 	 * BULK OPERATIONS
-	 * Efficient bulk insert/update operations for data scraping
+	 * Efficient bulk insert/update operations for data scraping with duplicate handling
 	 */
+	async clearAndCreateEvents(events: Partial<IEvent>[]): Promise<IEvent[]> {
+		try {
+			console.log('🧹 Clearing existing events...');
+			await Event.deleteMany({});
+
+			console.log(`🔄 Bulk creating ${events.length} fresh events...`);
+
+			// Log first event sample for debugging
+			if (events.length > 0) {
+				console.log('📋 Sample event data:', JSON.stringify(events[0], null, 2));
+			}
+
+			const result = await Event.insertMany(events, {
+				ordered: false,
+			}) as IEvent[];
+
+			console.log(`✅ Successfully inserted ${result.length} events`);
+			return result;
+		} catch (error: any) {
+			console.error('❌ Error clearing and creating events:', error.message);
+			console.error('❌ Full error:', error);
+
+			// Check if it's a validation error
+			if (error.name === 'ValidationError') {
+				console.error('📋 Validation errors:', error.errors);
+			}
+
+			throw error;
+		}
+	}
+
+	async clearAndCreateOrganizations(organizations: Partial<IOrganization>[]): Promise<IOrganization[]> {
+		try {
+			console.log('🧹 Clearing existing organizations...');
+			await Organization.deleteMany({});
+
+			console.log(`🔄 Bulk creating ${organizations.length} fresh organizations...`);
+
+			// Log first org sample for debugging
+			if (organizations.length > 0) {
+				console.log('📋 Sample organization data:', JSON.stringify(organizations[0], null, 2));
+			}
+
+			const result = await Organization.insertMany(organizations, {
+				ordered: false,
+			}) as IOrganization[];
+
+			console.log(`✅ Successfully inserted ${result.length} organizations`);
+			return result;
+		} catch (error: any) {
+			console.error('❌ Error clearing and creating organizations:', error.message);
+			console.error('❌ Full error:', error);
+
+			if (error.name === 'ValidationError') {
+				console.error('📋 Validation errors:', error.errors);
+			}
+
+			throw error;
+		}
+	}
+
 	async bulkCreateEvents(events: Partial<IEvent>[]): Promise<IEvent[]> {
 		try {
-			return await Event.insertMany(events, { ordered: false });
-		} catch (error) {
-			console.error('Error bulk creating events:', error);
+			console.log(`🔄 Bulk creating ${events.length} events...`);
+
+			const result = await Event.insertMany(events, {
+				ordered: false,
+			});
+
+			console.log(`✅ Successfully inserted ${result.length} events`);
+			return result;
+
+		} catch (error: any) {
+			console.error('❌ Error bulk creating events:', error.message);
+
+			// Handle duplicate key errors (11000) - some documents may still be inserted
+			if (error.code === 11000 || error.name === 'BulkWriteError') {
+				console.log('⚠️ Bulk insert partially successful - some duplicates skipped');
+
+				// Get the successfully inserted documents count
+				const insertedCount = error.result?.insertedCount || 0;
+				console.log(`✅ ${insertedCount} events inserted despite duplicates`);
+
+				// Query recently created events to return them
+				if (insertedCount > 0) {
+					const recentEvents = await Event.find().sort({ createdAt: -1 }).limit(insertedCount);
+					return recentEvents;
+				}
+
+				return [];
+			}
+
 			throw error;
 		}
 	}
 
 	async bulkCreateOrganizations(organizations: Partial<IOrganization>[]): Promise<IOrganization[]> {
 		try {
-			return await Organization.insertMany(organizations, { ordered: false });
-		} catch (error) {
-			console.error('Error bulk creating organizations:', error);
+			console.log(`🔄 Bulk creating ${organizations.length} organizations...`);
+
+			const result = await Organization.insertMany(organizations, {
+				ordered: false,
+			});
+
+			console.log(`✅ Successfully inserted ${result.length} organizations`);
+			return result;
+
+		} catch (error: any) {
+			console.error('❌ Error bulk creating organizations:', error.message);
+
+			if (error.code === 11000 || error.name === 'BulkWriteError') {
+				console.log('⚠️ Bulk insert partially successful - some duplicates skipped');
+
+				const insertedCount = error.result?.insertedCount || 0;
+				console.log(`✅ ${insertedCount} organizations inserted despite duplicates`);
+
+				if (insertedCount > 0) {
+					const recentOrgs = await Organization.find().sort({ createdAt: -1 }).limit(insertedCount);
+					return recentOrgs;
+				}
+
+				return [];
+			}
+
 			throw error;
 		}
 	}
 
 	async bulkCreateLabs(labs: Partial<ILab>[]): Promise<ILab[]> {
 		try {
-			return await Lab.insertMany(labs, { ordered: false });
-		} catch (error) {
-			console.error('Error bulk creating labs:', error);
+			console.log(`🔄 Bulk creating ${labs.length} labs...`);
+
+			const result = await Lab.insertMany(labs, {
+				ordered: false,
+			});
+
+			console.log(`✅ Successfully inserted ${result.length} labs`);
+			return result;
+
+		} catch (error: any) {
+			console.error('❌ Error bulk creating labs:', error.message);
+
+			if (error.code === 11000 || error.name === 'BulkWriteError') {
+				console.log('⚠️ Bulk insert partially successful - some duplicates skipped');
+
+				const insertedCount = error.result?.insertedCount || 0;
+				console.log(`✅ ${insertedCount} labs inserted despite duplicates`);
+
+				if (insertedCount > 0) {
+					const recentLabs = await Lab.find().sort({ createdAt: -1 }).limit(insertedCount);
+					return recentLabs;
+				}
+
+				return [];
+			}
+
 			throw error;
 		}
 	}
 
 	/**
-	 * RECOMMENDATION SYSTEM HELPERS
-	 * Methods to support AI-powered recommendations
+	 * COMPREHENSIVE RECOMMENDATION SYSTEM
+	 * Advanced AI-powered recommendations using multiple algorithms
+	 */
+
+	/**
+	 * Get comprehensive event recommendations with detailed scoring and explanations
+	 */
+	async getEventRecommendationsWithDetails(
+		userId: string,
+		options: RecommendationOptions = {},
+	): Promise<{
+		recommendations: EventRecommendation[];
+		metrics: RecommendationMetrics;
+	}> {
+		try {
+			console.log(`🎯 Getting detailed event recommendations for user ${userId}`);
+			return await this.recommendationService.getEventRecommendations(userId, options);
+		} catch (error) {
+			console.error('Error getting detailed event recommendations:', error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Get comprehensive organization recommendations with detailed scoring
+	 */
+	async getOrganizationRecommendationsWithDetails(
+		userId: string,
+		options: RecommendationOptions = {},
+	): Promise<{
+		recommendations: OrganizationRecommendation[];
+		metrics: RecommendationMetrics;
+	}> {
+		try {
+			console.log(`🏛️ Getting detailed organization recommendations for user ${userId}`);
+			return await this.recommendationService.getOrganizationRecommendations(userId, options);
+		} catch (error) {
+			console.error('Error getting detailed organization recommendations:', error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Get comprehensive lab recommendations with detailed scoring
+	 */
+	async getLabRecommendationsWithDetails(
+		userId: string,
+		options: RecommendationOptions = {},
+	): Promise<{
+		recommendations: LabRecommendation[];
+		metrics: RecommendationMetrics;
+	}> {
+		try {
+			console.log(`🔬 Getting detailed lab recommendations for user ${userId}`);
+			return await this.recommendationService.getLabRecommendations(userId, options);
+		} catch (error) {
+			console.error('Error getting detailed lab recommendations:', error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Get all recommendations for a user (events, organizations, labs) in one call
+	 */
+	async getComprehensiveRecommendations(
+		userId: string,
+		options: RecommendationOptions & {
+			includeEvents?: boolean;
+			includeOrganizations?: boolean;
+			includeLabs?: boolean;
+		} = {},
+	): Promise<{
+		events?: { recommendations: EventRecommendation[]; metrics: RecommendationMetrics };
+		organizations?: { recommendations: OrganizationRecommendation[]; metrics: RecommendationMetrics };
+		labs?: { recommendations: LabRecommendation[]; metrics: RecommendationMetrics };
+		overallMetrics: {
+			totalProcessingTimeMs: number;
+			totalRecommendations: number;
+		};
+	}> {
+		const startTime = Date.now();
+		const {
+			includeEvents = true,
+			includeOrganizations = true,
+			includeLabs = true,
+			...recOptions
+		} = options;
+
+		console.log(`🌟 Getting comprehensive recommendations for user ${userId}`);
+
+		const results: any = {};
+		let totalRecommendations = 0;
+
+		// Get event recommendations
+		if (includeEvents) {
+			results.events = await this.getEventRecommendationsWithDetails(userId, recOptions);
+			totalRecommendations += results.events.recommendations.length;
+		}
+
+		// Get organization recommendations
+		if (includeOrganizations) {
+			results.organizations = await this.getOrganizationRecommendationsWithDetails(userId, recOptions);
+			totalRecommendations += results.organizations.recommendations.length;
+		}
+
+		// Get lab recommendations
+		if (includeLabs) {
+			results.labs = await this.getLabRecommendationsWithDetails(userId, recOptions);
+			totalRecommendations += results.labs.recommendations.length;
+		}
+
+		results.overallMetrics = {
+			totalProcessingTimeMs: Date.now() - startTime,
+			totalRecommendations,
+		};
+
+		console.log(`✅ Generated ${totalRecommendations} total recommendations in ${results.overallMetrics.totalProcessingTimeMs}ms`);
+
+		return results;
+	}
+
+	/**
+	 * LEGACY RECOMMENDATION SYSTEM HELPERS
+	 * Simple methods to support existing API (kept for backwards compatibility)
 	 */
 	async getRecommendedEvents(userId: string, limit: number = 10): Promise<IEvent[]> {
 		try {

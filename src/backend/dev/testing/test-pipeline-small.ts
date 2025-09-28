@@ -10,10 +10,10 @@ async function testSmallPipeline() {
 		// Initialize services
 		const db = new DatabaseService();
 		const ai = new GeminiService();
-		
+
 		console.log('🔗 Connecting to database...');
 		await db.connect();
-		
+
 		// Test sample events (small set)
 		const testEvents = [
 			{
@@ -32,11 +32,11 @@ async function testSmallPipeline() {
 
 		console.log('\n🧠 Testing AI Analysis (3 events)...');
 		let successCount = 0;
-		
+
 		for (let i = 0; i < testEvents.length; i++) {
 			const event = testEvents[i];
 			console.log(`\n📝 Analyzing event ${i + 1}/3: "${event.title}"`);
-			
+
 			try {
 				const result = await ai.analyzeContent(event);
 				console.log(`✅ Success! Found ${result.tags.length} tags with confidence ${result.confidence}`);
@@ -45,7 +45,7 @@ async function testSmallPipeline() {
 			} catch (error: any) {
 				console.error(`❌ Failed to analyze "${event.title}":`, error?.message || error);
 			}
-			
+
 			// Rate limiting: wait 8 seconds between requests (except last one)
 			if (i < testEvents.length - 1) {
 				console.log('⏳ Waiting 8s for rate limiting...');
@@ -54,7 +54,7 @@ async function testSmallPipeline() {
 		}
 
 		console.log(`\n🎯 Test Results: ${successCount}/${testEvents.length} events analyzed successfully`);
-		
+
 		if (successCount > 0) {
 			console.log('\n✅ PIPELINE TEST PASSED - AI analysis working correctly!');
 			console.log('💡 Ready for full pipeline run (will take ~52 minutes for 389 events)');

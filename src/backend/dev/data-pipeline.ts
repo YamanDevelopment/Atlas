@@ -14,12 +14,13 @@
 
 import { config } from 'dotenv';
 import { resolve } from 'path';
-import { UCFDataScraper, CombinedData, StandardEvent, StandardOrganization } from './src/backend/modules/scraper/ucfData';
-import { configurations } from './src/backend/modules/scraper/fetchData';
-import { GeminiService } from './src/backend/modules/ai/gemini';
-import Handler from './src/backend/modules/database/services/handler';
-import { DatabaseInitializer } from './src/backend/modules/database/services/initializer';
-import appConfig from './src/config';
+import type { CombinedData, StandardEvent, StandardOrganization } from '../modules/scraper/ucfData';
+import { UCFDataScraper } from '../modules/scraper/ucfData';
+import { configurations } from '../modules/scraper/fetchData';
+import { GeminiService } from '../modules/ai/gemini';
+import Handler from '../modules/database/services/handler';
+import { DatabaseInitializer } from '../modules/database/services/initializer';
+import appConfig from '../../config';
 
 // Load environment variables from project root
 config({ path: resolve(process.cwd(), '.env') });
@@ -59,11 +60,11 @@ class DataPipelineManager {
 	constructor(configMode: keyof typeof configurations = 'standard') {
 		this.scraper = new UCFDataScraper(configurations[configMode]);
 		this.geminiService = new GeminiService();
-		
+
 		const dbUrl = appConfig.database.mongodb.uri + '/' + appConfig.database.mongodb.dbName;
 		this.dbHandler = new Handler(dbUrl);
 		this.dbInitializer = new DatabaseInitializer();
-		
+
 		this.stats = {
 			scraped: { events: 0, organizations: 0, categories: 0 },
 			aiProcessed: { events: 0, organizations: 0, failed: 0 },
@@ -78,7 +79,7 @@ class DataPipelineManager {
 	async runPipeline(): Promise<void> {
 		console.log('🚀 Starting Complete Data Pipeline');
 		console.log('═'.repeat(50));
-		
+
 		const pipelineStart = Date.now();
 
 		try {
@@ -127,7 +128,7 @@ class DataPipelineManager {
 
 		// Initialize with default data
 		const result = await this.dbInitializer.initialize();
-		
+
 		if (result.alreadyInitialized) {
 			console.log('✅ Database already initialized');
 		} else {
@@ -143,11 +144,11 @@ class DataPipelineManager {
 	private async scrapeData(): Promise<CombinedData> {
 		console.log('\n📡 Step 2: Data Scraping');
 		console.log('-'.repeat(30));
-		
+
 		const scrapeStart = Date.now();
 
 		const data = await this.scraper.fetchAllData();
-		
+
 		this.stats.scraped.events = data.events.length;
 		this.stats.scraped.organizations = data.organizations.length;
 		this.stats.scraped.categories = data.categories.length;
@@ -170,7 +171,7 @@ class DataPipelineManager {
 	}> {
 		console.log('\n🧠 Step 3: AI Analysis & Tagging');
 		console.log('-'.repeat(30));
-		
+
 		const aiStart = Date.now();
 
 		// Process events with AI
@@ -191,122 +192,109 @@ class DataPipelineManager {
 	}
 
 	/**
-	 * Process events with AI tagging
+	 * Process events with AI tagging using optimized batch processing
 	 */
 	private async processEventsWithAI(events: StandardEvent[]): Promise<(StandardEvent & { aiTags?: any; aiProcessing?: any })[]> {
-		const processed = [];
-		const batchSize = 10;
+		if (events.length === 0) return [];
 
-		for (let i = 0; i < events.length; i += batchSize) {
-			const batch = events.slice(i, i + batchSize);
-			console.log(`   Processing events batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(events.length / batchSize)}`);
+		console.log('🔍 Analyzing events with ULTRA FAST batching...');
 
-			const batchPromises = batch.map(async (event) => {
-				try {
-					const result = await this.geminiService.analyzeContent({
-						title: event.name,
-						description: event.description,
-						additionalContext: {
-							location: event.location,
-							eventType: event.theme || 'general',
-						},
-					});
+		// Convert events to Gemini content format
+		const contentRequests = events.map(event => ({
+			title: event.name,
+			description: event.description,
+			additionalContext: {
+				location: event.location,
+				eventType: event.theme || 'general',
+			},
+		}));
 
-					this.stats.aiProcessed.events++;
+		// Use the optimized batch processing from Gemini service
+		const analysisResults = await this.geminiService.batchAnalyze(contentRequests);
 
-					return {
-						...event,
-						aiTags: result.tags,
-						aiProcessing: {
-							lastAnalyzed: new Date(),
-							geminiModel: result.modelUsed,
-						},
-					};
-				} catch (error) {
-					console.error(`   ❌ Failed to analyze event "${event.name}":`, error);
-					this.stats.aiProcessed.failed++;
-					
-					// Return event without AI tags
-					return {
-						...event,
-						aiTags: [],
-						aiProcessing: null,
-					};
-				}
-			});
+		// Merge results back with events
+		const processed = events.map((event, index) => {
+			const result = analysisResults[index];
 
-			const batchResults = await Promise.all(batchPromises);
-			processed.push(...batchResults);
-
-			// Rate limiting between batches
-			if (i + batchSize < events.length) {
-				await new Promise(resolve => setTimeout(resolve, 2000));
+			if (result) {
+				this.stats.aiProcessed.events++;
+				return {
+					...event,
+					aiTags: result.tags,
+					aiProcessing: {
+						lastAnalyzed: new Date(),
+						geminiModel: result.modelUsed,
+						confidence: result.confidence,
+					},
+				};
+			} else {
+				this.stats.aiProcessed.failed++;
+				// Return event without AI tags but still store it
+				return {
+					...event,
+					aiTags: [],
+					aiProcessing: null,
+				};
 			}
-		}
+		});
 
-		console.log(`   ✅ Processed ${this.stats.aiProcessed.events}/${events.length} events`);
+		console.log(`   ✅ Events processed: ${this.stats.aiProcessed.events}/${events.length} (${Math.round(this.stats.aiProcessed.events / events.length * 100)}% success)`);
 		if (this.stats.aiProcessed.failed > 0) {
-			console.log(`   ⚠️  Failed to process ${this.stats.aiProcessed.failed} events`);
+			console.log(`   ⚠️  ${this.stats.aiProcessed.failed} events processed without AI tags`);
 		}
 
 		return processed;
 	}
 
 	/**
-	 * Process organizations with AI tagging
+	 * Process organizations with AI tagging using optimized batch processing
 	 */
 	private async processOrganizationsWithAI(organizations: StandardOrganization[]): Promise<(StandardOrganization & { aiTags?: any; aiProcessing?: any })[]> {
-		const processed = [];
-		const batchSize = 8;
+		if (organizations.length === 0) return [];
 
-		for (let i = 0; i < organizations.length; i += batchSize) {
-			const batch = organizations.slice(i, i + batchSize);
-			console.log(`   Processing organizations batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(organizations.length / batchSize)}`);
+		console.log('🏛️ Analyzing organizations with ULTRA FAST batching...');
 
-			const batchPromises = batch.map(async (org) => {
-				try {
-					const result = await this.geminiService.analyzeContent({
-						title: org.name,
-						description: org.description,
-						additionalContext: {
-							// Add category context from scraped categories
-							department: org.categories.map((c: any) => c.name).join(', '),
-						},
-					});
+		// Convert organizations to Gemini content format
+		const contentRequests = organizations.map(org => ({
+			title: org.name,
+			description: org.description,
+			additionalContext: {
+				// Add category context from scraped categories
+				department: org.categories.map((c: any) => c.name).join(', '),
+			},
+		}));
 
-					this.stats.aiProcessed.organizations++;
+		// Use the optimized batch processing from Gemini service
+		const analysisResults = await this.geminiService.batchAnalyze(contentRequests);
 
-					return {
-						...org,
-						aiTags: result.tags,
-						aiProcessing: {
-							lastAnalyzed: new Date(),
-							geminiModel: result.modelUsed,
-						},
-					};
-				} catch (error) {
-					console.error(`   ❌ Failed to analyze organization "${org.name}":`, error);
-					this.stats.aiProcessed.failed++;
-					
-					return {
-						...org,
-						aiTags: [],
-						aiProcessing: null,
-					};
-				}
-			});
+		// Merge results back with organizations
+		const processed = organizations.map((org, index) => {
+			const result = analysisResults[index];
 
-			const batchResults = await Promise.all(batchPromises);
-			processed.push(...batchResults);
-
-			// Rate limiting between batches
-			if (i + batchSize < organizations.length) {
-				await new Promise(resolve => setTimeout(resolve, 2500));
+			if (result) {
+				this.stats.aiProcessed.organizations++;
+				return {
+					...org,
+					aiTags: result.tags,
+					aiProcessing: {
+						lastAnalyzed: new Date(),
+						geminiModel: result.modelUsed,
+						confidence: result.confidence,
+					},
+				};
+			} else {
+				this.stats.aiProcessed.failed++;
+				// Return org without AI tags but still store it
+				return {
+					...org,
+					aiTags: [],
+					aiProcessing: null,
+				};
 			}
-		}
+		});
 
-		console.log(`   ✅ Processed ${this.stats.aiProcessed.organizations}/${organizations.length} organizations`);
-		
+		console.log(`   ✅ Organizations processed: ${this.stats.aiProcessed.organizations}/${organizations.length} (${Math.round(this.stats.aiProcessed.organizations / organizations.length * 100)}% success)`);
+
 		return processed;
 	}
 
@@ -319,19 +307,19 @@ class DataPipelineManager {
 	}): Promise<void> {
 		console.log('\n💾 Step 4: Database Storage');
 		console.log('-'.repeat(30));
-		
+
 		const storeStart = Date.now();
 
-		// Store events
+		// Store events (including those without AI tags)
 		if (data.events.length > 0) {
-			console.log('📅 Storing events...');
+			console.log(`📅 Storing ${data.events.length} events...`);
 			const storedEvents = await this.storeEvents(data.events);
 			this.stats.stored.events = storedEvents;
 		}
 
-		// Store organizations
+		// Store organizations (including those without AI tags)
 		if (data.organizations.length > 0) {
-			console.log('🏛️  Storing organizations...');
+			console.log(`🏛️  Storing ${data.organizations.length} organizations...`);
 			const storedOrgs = await this.storeOrganizations(data.organizations);
 			this.stats.stored.organizations = storedOrgs;
 		}
@@ -341,7 +329,26 @@ class DataPipelineManager {
 	}
 
 	/**
-	 * Store events in database
+	 * Fix tag categories to match schema validation
+	 */
+	private fixTagCategories(tags: any[]): any[] {
+		if (!tags || !Array.isArray(tags)) return [];
+
+		return tags.map(tag => {
+			// Determine if tag is primary or secondary based on parentTagId
+			const category = tag.parentTagId ? 'secondary' : 'primary';
+
+			return {
+				tagId: tag.tagId,
+				weight: tag.weight,
+				category: category,
+				...(tag.parentTagId && { parentTagId: tag.parentTagId }),
+			};
+		});
+	}
+
+	/**
+	 * Store events in database with duplicate clearing
 	 */
 	private async storeEvents(events: (StandardEvent & { aiTags?: any; aiProcessing?: any })[]): Promise<number> {
 		const eventDocuments = events.map((event, index) => ({
@@ -354,7 +361,7 @@ class DataPipelineManager {
 			url: event.url,
 			latitude: event.latitude || undefined,
 			longitude: event.longitude || undefined,
-			tags: event.aiTags || [],
+			tags: this.fixTagCategories(event.aiTags), // Fix tag categories here
 			aiProcessing: event.aiProcessing,
 			organization: event.organization ? parseInt(event.organization.originalId.toString()) : undefined,
 			createdAt: new Date(),
@@ -362,8 +369,9 @@ class DataPipelineManager {
 		}));
 
 		try {
-			const result = await this.dbHandler.bulkCreateEvents(eventDocuments);
-			console.log(`   ✅ Stored ${result.length} events`);
+			// Use clear and create to avoid duplicates
+			const result = await this.dbHandler.clearAndCreateEvents(eventDocuments);
+			console.log(`   ✅ Stored ${result.length} events (cleared existing)`);
 			return result.length;
 		} catch (error) {
 			console.error('   ❌ Error storing events:', error);
@@ -373,9 +381,9 @@ class DataPipelineManager {
 	}
 
 	/**
-	 * Store organizations in database
+	 * Store organizations in database with duplicate clearing
 	 */
-	private async storeOrganizations(organizations: Array<StandardOrganization & { aiTags?: any; aiProcessing?: any }>): Promise<number> {
+	private async storeOrganizations(organizations: (StandardOrganization & { aiTags?: any; aiProcessing?: any })[]): Promise<number> {
 		const orgDocuments = organizations.map((org, index) => ({
 			id: parseInt(org.originalId.toString()) || index + 1,
 			name: org.name,
@@ -383,7 +391,7 @@ class DataPipelineManager {
 			url: org.url || '',
 			logoUrl: org.logoUrl || '',
 			description: org.description,
-			tags: org.aiTags || [],
+			tags: this.fixTagCategories(org.aiTags), // Fix tag categories here
 			aiProcessing: org.aiProcessing,
 			memberCount: 0, // Default value
 			createdAt: new Date(),
@@ -391,8 +399,9 @@ class DataPipelineManager {
 		}));
 
 		try {
-			const result = await this.dbHandler.bulkCreateOrganizations(orgDocuments);
-			console.log(`   ✅ Stored ${result.length} organizations`);
+			// Use clear and create to avoid duplicates
+			const result = await this.dbHandler.clearAndCreateOrganizations(orgDocuments);
+			console.log(`   ✅ Stored ${result.length} organizations (cleared existing)`);
 			return result.length;
 		} catch (error) {
 			console.error('   ❌ Error storing organizations:', error);
@@ -407,19 +416,19 @@ class DataPipelineManager {
 	private displayFinalStats(): void {
 		console.log('\n📊 Pipeline Statistics');
 		console.log('═'.repeat(50));
-		
+
 		console.log('📡 Scraping Results:');
 		console.log(`   Events: ${this.stats.scraped.events}`);
 		console.log(`   Organizations: ${this.stats.scraped.organizations}`);
 		console.log(`   Categories: ${this.stats.scraped.categories}`);
-		
+
 		console.log('\n🧠 AI Processing Results:');
 		console.log(`   Events analyzed: ${this.stats.aiProcessed.events}`);
 		console.log(`   Organizations analyzed: ${this.stats.aiProcessed.organizations}`);
 		if (this.stats.aiProcessed.failed > 0) {
 			console.log(`   Failed analyses: ${this.stats.aiProcessed.failed}`);
 		}
-		
+
 		console.log('\n💾 Storage Results:');
 		console.log(`   Events stored: ${this.stats.stored.events}`);
 		console.log(`   Organizations stored: ${this.stats.stored.organizations}`);
@@ -427,7 +436,7 @@ class DataPipelineManager {
 		if (this.stats.stored.failed > 0) {
 			console.log(`   Storage failures: ${this.stats.stored.failed}`);
 		}
-		
+
 		console.log('\n⏱️  Timing Breakdown:');
 		console.log(`   Scraping: ${(this.stats.timing.scraping / 1000).toFixed(1)}s`);
 		console.log(`   AI Analysis: ${(this.stats.timing.aiAnalysis / 1000).toFixed(1)}s`);
@@ -487,11 +496,11 @@ async function main() {
 	try {
 		const pipeline = new DataPipelineManager(mode);
 		await pipeline.runPipeline();
-		
+
 		console.log('\n🎉 Pipeline completed successfully!');
 		console.log('🔍 Check your MongoDB database for the processed data');
 		process.exit(0);
-		
+
 	} catch (error) {
 		console.error('\n💥 Pipeline failed with error:', error);
 		process.exit(1);
@@ -510,7 +519,7 @@ process.on('SIGTERM', () => {
 });
 
 // Run the pipeline
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (require.main === module) {
 	void main();
 }
 

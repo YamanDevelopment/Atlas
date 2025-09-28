@@ -1,4 +1,5 @@
-import { UCFDataScraper, ScraperConfig, CombinedData } from './ucfData.js';
+import type { ScraperConfig, CombinedData } from './ucfData.js';
+import { UCFDataScraper } from './ucfData.js';
 import { writeFileSync } from 'node:fs';
 
 // Example configurations for different use cases
