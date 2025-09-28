@@ -382,6 +382,9 @@
                 </div>
               </div>
 
+              <!-- Event Map - Full Width -->
+              <EventMap :event="modalData" />
+
               <div class="flex gap-4 pt-6 border-t border-gray-200/50">
                 <button
                   @click="rsvpEvent(modalData, 'going')"
@@ -392,7 +395,7 @@
                 </button>
                 <button
                   @click="rsvpEvent(modalData, 'interested')"
-                  class="flex-1 py-4 px-6 bg-gray-100 border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-200 hover:border-indigo-300 transition-all duration-300 font-medium"
+                  class="flex-1 py-4 px-6 bg-white border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 font-medium text-lg shadow-sm hover:shadow-md transform hover:-translate-y-1 hover:scale-105"
                   :class="{ 'border-indigo-600 text-indigo-600 bg-indigo-50': modalData.rsvpStatus === 'interested' }"
                 >
                   {{ modalData.rsvpStatus === 'interested' ? 'Interested ✓' : 'Interested' }}
@@ -720,6 +723,8 @@ const upcomingEvents = ref<Event[]>([
     date: new Date('2025-09-30T18:00:00'),
     endDate: new Date('2025-09-30T20:00:00'),
     location: 'Engineering Building II, Room 208',
+    latitude: 28.6018,
+    longitude: -81.2018,
     organizer: 'AI Research Club',
     tags: ['AI', 'Workshop'],
     categories: [{ id: 'workshop', name: 'Workshop' }],
@@ -742,6 +747,8 @@ const upcomingEvents = ref<Event[]>([
     date: new Date('2025-10-08T10:00:00'),
     endDate: new Date('2025-10-08T16:00:00'),
     location: 'Student Union Pegasus Ballroom',
+    latitude: 28.6022,
+    longitude: -81.2005,
     organizer: 'Career Services',
     tags: ['Career', 'Technology'],
     categories: [{ id: 'career', name: 'Career' }],
@@ -764,6 +771,8 @@ const upcomingEvents = ref<Event[]>([
     date: new Date('2025-10-12T14:00:00'),
     endDate: new Date('2025-10-12T18:00:00'),
     location: 'Harris Center Computer Lab',
+    latitude: 28.6015,
+    longitude: -81.2010,
     organizer: 'Cybersecurity Club',
     tags: ['Cybersecurity', 'Competition'],
     categories: [{ id: 'competition', name: 'Competition' }],

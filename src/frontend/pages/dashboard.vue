@@ -519,9 +519,6 @@
                       <span>{{ modalEventData.organizer }}</span>
                     </div>
                   </div>
-
-                  <!-- Event Map -->
-                  <EventMap :event="modalEventData" />
                 </div>
                 <div>
                   <h3 class="font-semibold text-gray-900 mb-4">Why You'll Love This</h3>
@@ -559,6 +556,9 @@
                 </div>
               </div>
 
+              <!-- Event Map - Full Width -->
+              <EventMap :event="modalEventData" />
+
               <div class="flex gap-4 pt-6 border-t border-gray-200/50">
                 <button
                   @click="rsvpEvent(modalEventData, 'going')"
@@ -569,7 +569,7 @@
                 </button>
                 <button
                   @click="rsvpEvent(modalEventData, 'interested')"
-                  class="px-8 py-4 bg-white border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 font-medium"
+                  class="flex-1 py-4 px-6 bg-white border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 font-medium text-lg shadow-sm hover:shadow-md transform hover:-translate-y-1 hover:scale-105"
                   :class="{ 'border-indigo-600 text-indigo-600 bg-indigo-50': (modalEventData as any).rsvpStatus === 'interested' }"
                 >
                   {{ (modalEventData as any).rsvpStatus === 'interested' ? '✓ Interested' : 'Interested' }}

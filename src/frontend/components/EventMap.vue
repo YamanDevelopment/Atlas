@@ -9,7 +9,7 @@
     </h4>
     <div 
       ref="mapContainer" 
-      class="h-48 rounded-lg border border-gray-200 relative overflow-hidden bg-gray-50"
+      class="h-64 w-full rounded-lg border border-gray-200 relative overflow-hidden bg-gray-50"
       :class="{ 'opacity-50': isLoading }"
     >
       <!-- Loading state -->
