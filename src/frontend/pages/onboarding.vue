@@ -180,31 +180,6 @@
         </div>
       </div>
 
-      <!-- Step 4: Time Budget -->
-      <div v-else-if="currentStep === 4" class="space-y-8">
-        <div class="text-center">
-          <h1 class="text-3xl font-bold text-gray-900 mb-4">How much time do you want to commit?</h1>
-          <p class="text-lg text-gray-600">This helps us recommend opportunities that fit your schedule.</p>
-        </div>
-
-        <div class="space-y-4">
-          <div class="grid gap-4">
-            <button
-              v-for="option in timeBudgetOptions"
-              :key="option.value"
-              @click="selectedTimeBudget = option.value"
-              class="p-6 border-2 rounded-lg text-left transition-all"
-              :class="selectedTimeBudget === option.value 
-                ? 'border-indigo-600 bg-indigo-50 text-indigo-900' 
-                : 'border-gray-300 hover:border-gray-400'"
-            >
-              <h3 class="text-lg font-semibold mb-2">{{ option.label }}</h3>
-              <p class="text-gray-600">{{ option.description }}</p>
-            </button>
-          </div>
-        </div>
-      </div>
-
       <!-- Navigation -->
       <div class="flex justify-between pt-8">
         <button
@@ -233,7 +208,7 @@ import type { Interest } from '../types';
 
 // State
 const currentStep = ref(1);
-const totalSteps = 4;
+const totalSteps = 3;
 const isLoading = ref(false);
 
 // Step 1: Major
@@ -295,33 +270,12 @@ const commonInvolvements = [
   'Student Government', 'Volunteer Work', 'Sports Team', 'Music Ensemble'
 ];
 
-// Step 4: Time Budget
-const selectedTimeBudget = ref('');
-const timeBudgetOptions = [
-  {
-    value: '1-2 hours',
-    label: '1-2 hours per week',
-    description: 'Light involvement - perfect for trying new things or maintaining a low commitment'
-  },
-  {
-    value: '3-5 hours',
-    label: '3-5 hours per week',
-    description: 'Moderate involvement - ideal balance of commitment and flexibility'
-  },
-  {
-    value: '6+ hours',
-    label: '6+ hours per week',
-    description: 'High involvement - ready for leadership roles and significant time investment'
-  }
-];
-
 // Computed
 const canProceed = computed(() => {
   switch (currentStep.value) {
     case 1: return selectedMajor.value !== '';
     case 2: return selectedInterests.value.length > 0;
     case 3: return true; // Optional step
-    case 4: return selectedTimeBudget.value !== '';
     default: return false;
   }
 });
@@ -432,8 +386,7 @@ const completeOnboarding = async () => {
     const onboardingData = {
       major: selectedMajor.value,
       interests: selectedInterests.value,
-      currentInvolvement: currentInvolvements.value.filter(inv => inv.trim() !== ''),
-      timeBudget: selectedTimeBudget.value as any
+      currentInvolvement: currentInvolvements.value.filter(inv => inv.trim() !== '')
     };
     
     console.log('Onboarding completed:', onboardingData);
