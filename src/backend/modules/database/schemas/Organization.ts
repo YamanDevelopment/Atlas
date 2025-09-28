@@ -22,6 +22,12 @@ export interface IOrganization extends Document {
 	tags: IWeightedTag[]; // Weighted tag assignments with AI confidence scores
 	description: string;
 	aiProcessing?: IAIProcessing; // AI analysis metadata
+	involvementGuide?: {
+		guide: string;
+		actionableSteps: string[];
+		tips: string[];
+		lastUpdated: Date;
+	};
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -93,6 +99,28 @@ const OrganizationSchema: Schema<IOrganization> = new Schema<IOrganization>({
 		trim: true,
 		minlength: [10, 'Description must be at least 10 characters long'],
 		maxlength: [2000, 'Description cannot exceed 2000 characters'],
+	},
+	involvementGuide: {
+		guide: {
+			type: String,
+			required: false,
+			trim: true,
+			maxlength: [1000, 'Guide cannot exceed 1000 characters'],
+		},
+		actionableSteps: [{
+			type: String,
+			trim: true,
+			maxlength: [200, 'Each step cannot exceed 200 characters'],
+		}],
+		tips: [{
+			type: String,
+			trim: true,
+			maxlength: [200, 'Each tip cannot exceed 200 characters'],
+		}],
+		lastUpdated: {
+			type: Date,
+			default: Date.now,
+		},
 	},
 	createdAt: { type: Date, default: Date.now },
 	updatedAt: { type: Date, default: Date.now },

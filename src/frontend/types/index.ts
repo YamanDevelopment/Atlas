@@ -15,7 +15,7 @@ export interface Interest {
   id: string;
   keyword: string;
   name?: string; // For frontend display
-  category?: string; // For categorization 
+  category?: string; // For categorization
   isCustom?: boolean; // For user-generated interests
   linkedTags: LinkedTag[];
   isUserGenerated?: boolean;

@@ -2,6 +2,8 @@ import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { requireAuth } from '../../auth/middleware/auth';
 import type Handler from '../../database/services/handler';
+import { Interest } from '../../database/schemas/Interest';
+import { GeminiService } from '../../ai/gemini';
 
 const router = Router();
 
@@ -125,26 +127,70 @@ router.post('/',
 	requireAuth,
 	async (req: Request, res: Response): Promise<void> => {
 		try {
-			const interestData = req.body;
+			const { name, keyword, description, category } = req.body;
 
 			// Validate required fields
-			if (!interestData.name || !interestData.category) {
+			if (!keyword) {
 				res.status(400).json({
 					success: false,
 					error: 'Missing required fields',
-					message: 'Name and category are required',
+					message: 'Keyword is required',
 				});
 				return;
 			}
 
-			// Create the interest
-			const newInterest = await handler.createInterest(interestData);
+			// Check if interest already exists
+			const existingInterest = await Interest.findOne({
+				$or: [
+					{ keyword: keyword.toLowerCase() },
+					{ name: (name || keyword).toLowerCase() },
+				],
+			});
+
+			if (existingInterest) {
+				res.status(400).json({
+					success: false,
+					error: 'Interest already exists',
+					message: 'An interest with this keyword or name already exists',
+				});
+				return;
+			}
+
+			// Get the next available ID
+			const lastInterest = await Interest.findOne().sort({ id: -1 });
+			const nextId = lastInterest ? lastInterest.id + 1 : 1;
+
+			// Create Gemini service for AI tagging
+			const geminiService = new GeminiService();
+
+			// Analyze interest with Gemini AI
+			const interestAnalysis = await geminiService.analyzeInterest({
+				interestKeyword: keyword,
+				userDescription: description,
+			});
+
+			// Create the interest with AI tags
+			const newInterest = new Interest({
+				id: nextId,
+				name: interestAnalysis.suggestedInterestName || name || keyword,
+				keyword: keyword.toLowerCase(),
+				description: description || `Interest in ${keyword}`,
+				category: category || 'general',
+				tags: interestAnalysis.tags,
+			});
+
+			await newInterest.save();
 
 			res.status(201).json({
 				success: true,
-				message: 'Interest created successfully',
+				message: 'Interest created successfully with AI tagging',
 				data: {
 					interest: newInterest,
+					aiAnalysis: {
+						confidence: interestAnalysis.confidence,
+						tagsGenerated: interestAnalysis.tags.length,
+						suggestedName: interestAnalysis.suggestedInterestName,
+					},
 				},
 			});
 

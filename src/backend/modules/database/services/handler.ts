@@ -44,25 +44,32 @@ class Handler {
 	private isConnected: boolean = false;
 	private recommendationService: RecommendationService;
 
-	constructor(dbUrl: string) {
+	constructor(dbUri: string, dbName?: string) {
 		this.connectionStartTime = new Date();
 		this.recommendationService = new RecommendationService();
-		this.loadDatabase(dbUrl);
+		this.loadDatabase(dbUri, dbName);
 	}
 
 	/**
 	 * DATABASE CONNECTION MANAGEMENT
 	 * Handles MongoDB connection, reconnection, and connection monitoring
 	 */
-	private async loadDatabase(dbUrl: string): Promise<void> {
+	private async loadDatabase(dbUri: string, dbName?: string): Promise<void> {
 		try {
 			// Configure mongoose for better connection handling
 			mongoose.set('strictQuery', false);
 
-			await mongoose.connect(dbUrl, {
+			// Connect with separate URI and dbName (like the CLI script)
+			const connectionOptions: any = {
 				serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
 				heartbeatFrequencyMS: 2000, // Check connection every 2s
-			});
+			};
+
+			if (dbName) {
+				connectionOptions.dbName = dbName;
+			}
+
+			await mongoose.connect(dbUri, connectionOptions);
 
 			this.isConnected = true;
 			console.log('✅ Connected to MongoDB successfully');

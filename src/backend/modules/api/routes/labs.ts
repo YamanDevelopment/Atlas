@@ -2,6 +2,8 @@ import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { requireAuth } from '../../auth/middleware/auth';
 import type Handler from '../../database/services/handler';
+import { Lab } from '../../database/schemas/Lab';
+import { GeminiService } from '../../ai/gemini';
 
 const router = Router();
 
@@ -198,26 +200,94 @@ router.post('/',
 	requireAuth,
 	async (req: Request, res: Response): Promise<void> => {
 		try {
-			const labData = req.body;
+			const {
+				name,
+				description,
+				department,
+				principalInvestigator,
+				location,
+				email,
+				url,
+				acceptingStudents = true,
+				researchAreas = [],
+			} = req.body;
 
 			// Validate required fields
-			if (!labData.name) {
+			if (!name || !description || !department || !principalInvestigator) {
 				res.status(400).json({
 					success: false,
 					error: 'Missing required fields',
-					message: 'Name is required',
+					message: 'Name, description, department, and principal investigator are required',
 				});
 				return;
 			}
 
-			// Create the lab
-			const newLab = await handler.createLab(labData);
+			// Get the next available ID
+			const lastLab = await Lab.findOne().sort({ id: -1 });
+			const nextId = lastLab ? lastLab.id + 1 : 1;
+
+			// Create Gemini service for AI tagging
+			const geminiService = new GeminiService();
+
+			// Create lab object for AI analysis
+			const labForAnalysis = {
+				title: name,
+				description,
+				additionalContext: {
+					department,
+					researchAreas,
+				},
+			};
+
+			// Generate AI tags and involvement guide
+			const [aiAnalysis, involvementGuide] = await Promise.all([
+				geminiService.analyzeContent(labForAnalysis),
+				geminiService.generateInvolvementGuide(
+					{
+						name,
+						description,
+						website: url,
+					},
+					[], // No specific user interests for generic guide
+				),
+			]);
+
+			// Create the lab with AI-generated content
+			const newLab = new Lab({
+				id: nextId,
+				name,
+				description,
+				department,
+				principalInvestigator,
+				location,
+				email,
+				url,
+				acceptingStudents,
+				researchAreas,
+				tags: aiAnalysis.tags,
+				aiProcessing: {
+					lastAnalyzed: new Date(),
+					geminiModel: geminiService.getModelInfo().model,
+				},
+				involvementGuide: {
+					guide: involvementGuide.guide,
+					actionableSteps: involvementGuide.actionableSteps,
+					tips: involvementGuide.tips,
+					lastUpdated: new Date(),
+				},
+			});
+
+			await newLab.save();
 
 			res.status(201).json({
 				success: true,
-				message: 'Lab created successfully',
+				message: 'Lab created successfully with AI tagging and involvement guide',
 				data: {
 					lab: newLab,
+					aiAnalysis: {
+						confidence: aiAnalysis.confidence,
+						tagsGenerated: aiAnalysis.tags.length,
+					},
 				},
 			});
 

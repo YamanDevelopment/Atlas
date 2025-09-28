@@ -9,6 +9,8 @@ import {
 import { User } from '../../database/schemas/User';
 import { jwtService } from '../../auth/services/jwt';
 import { passwordService } from '../../auth/services/password';
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 
 const router = Router();
 
@@ -84,7 +86,7 @@ router.post('/register',
 
 			// Generate tokens
 			const tokens = jwtService.generateTokenPair({
-				id: newUser._id.toString(),
+				id: String(newUser._id),
 				username: newUser.username,
 				email: newUser.email,
 			});
@@ -100,6 +102,7 @@ router.post('/register',
 						name: newUser.name,
 						username: newUser.username,
 						email: newUser.email,
+						role: newUser.role, // Add the role field
 						createdAt: newUser.createdAt,
 					},
 					tokens: {
@@ -165,7 +168,7 @@ router.post('/login',
 
 			// Generate tokens
 			const tokens = jwtService.generateTokenPair({
-				id: user._id.toString(),
+				id: String(user._id),
 				username: user.username,
 				email: user.email,
 			});
@@ -181,6 +184,7 @@ router.post('/login',
 						name: user.name,
 						username: user.username,
 						email: user.email,
+						role: user.role, // Add the role field
 						lastLogin: user.lastLogin,
 						interests: user.interests,
 					},
@@ -345,5 +349,201 @@ router.get('/me',
 		}
 	},
 );
+
+// In-memory store for reset tokens (in production, use Redis or database)
+const resetTokens = new Map<string, { userId: string; expires: Date }>();
+
+/**
+ * POST /api/auth/forgot-password
+ * Request password reset
+ */
+router.post('/forgot-password', async (req: Request, res: Response): Promise<void> => {
+	try {
+		const { email } = req.body;
+
+		if (!email) {
+			res.status(400).json({
+				success: false,
+				error: 'Email required',
+				message: 'Email address is required',
+			});
+			return;
+		}
+
+		const user = await User.findOne({ email: email.toLowerCase() });
+		if (!user) {
+			// Don't reveal whether user exists or not
+			res.json({
+				success: true,
+				message: 'If an account with this email exists, a password reset link has been sent',
+			});
+			return;
+		}
+
+		// Generate reset token
+		const resetToken = crypto.randomBytes(32).toString('hex');
+		const expires = new Date();
+		expires.setHours(expires.getHours() + 1); // 1 hour expiry
+
+		resetTokens.set(resetToken, {
+			userId: user.id.toString(),
+			expires,
+		});
+
+		// In production, send email here
+		console.log(`Password reset token for ${user.email}: ${resetToken}`);
+
+		res.json({
+			success: true,
+			message: 'Password reset instructions have been sent to your email',
+			// For development only - remove in production
+			devToken: resetToken,
+		});
+
+	} catch (error) {
+		console.error('❌ Forgot password error:', error);
+		res.status(500).json({
+			success: false,
+			error: 'Failed to process request',
+			message: 'An error occurred while processing your request',
+		});
+	}
+});
+
+/**
+ * POST /api/auth/reset-password
+ * Reset password using token
+ */
+router.post('/reset-password', async (req: Request, res: Response): Promise<void> => {
+	try {
+		const { token, newPassword } = req.body;
+
+		if (!token || !newPassword) {
+			res.status(400).json({
+				success: false,
+				error: 'Missing required fields',
+				message: 'Reset token and new password are required',
+			});
+			return;
+		}
+
+		if (newPassword.length < 6) {
+			res.status(400).json({
+				success: false,
+				error: 'Invalid password',
+				message: 'Password must be at least 6 characters long',
+			});
+			return;
+		}
+
+		const tokenData = resetTokens.get(token);
+		if (!tokenData || tokenData.expires < new Date()) {
+			res.status(400).json({
+				success: false,
+				error: 'Invalid token',
+				message: 'Reset token is invalid or has expired',
+			});
+			return;
+		}
+
+		const user = await User.findById(tokenData.userId);
+		if (!user) {
+			res.status(404).json({
+				success: false,
+				error: 'User not found',
+				message: 'User account no longer exists',
+			});
+			return;
+		}
+
+		// Update password (will be hashed by pre-save middleware)
+		user.password = newPassword;
+		user.updatedAt = new Date();
+		await user.save();
+
+		// Remove used token
+		resetTokens.delete(token);
+
+		res.json({
+			success: true,
+			message: 'Password has been successfully reset',
+		});
+
+	} catch (error) {
+		console.error('❌ Reset password error:', error);
+		res.status(500).json({
+			success: false,
+			error: 'Failed to reset password',
+			message: 'An error occurred while resetting your password',
+		});
+	}
+});
+
+/**
+ * GET /api/auth/session
+ * Get current user session info
+ */
+router.get('/session', async (req: Request, res: Response): Promise<void> => {
+	try {
+		const authHeader = req.headers.authorization;
+
+		if (!authHeader || !authHeader.startsWith('Bearer ')) {
+			res.status(401).json({
+				success: false,
+				error: 'No token provided',
+				message: 'Authorization token is required',
+			});
+			return;
+		}
+
+		const token = authHeader.substring(7);
+
+		try {
+			const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
+			const user = await User.findById(decoded.userId).select('-password');
+
+			if (!user) {
+				res.status(401).json({
+					success: false,
+					error: 'Invalid token',
+					message: 'User not found',
+				});
+				return;
+			}
+
+			res.json({
+				success: true,
+				data: {
+					user: {
+						id: user.id,
+						name: user.name,
+						username: user.username,
+						email: user.email,
+						role: user.role,
+						interests: user.interests,
+						lastLogin: user.lastLogin,
+						createdAt: user.createdAt,
+					},
+					tokenValid: true,
+				},
+			});
+
+		} catch {
+			res.status(401).json({
+				success: false,
+				error: 'Invalid token',
+				message: 'Authorization token is invalid or expired',
+			});
+		}
+
+	} catch (error) {
+		console.error('❌ Session check error:', error);
+		res.status(500).json({
+			success: false,
+			error: 'Failed to check session',
+			message: 'An error occurred while checking your session',
+		});
+	}
+});
 
 export default router;

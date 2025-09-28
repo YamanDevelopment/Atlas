@@ -18,10 +18,29 @@ export interface IUser extends Document {
 
 	interests: number[]; // array of Interest IDs
 
+	// Involvement tracking
+	commitments: {
+		type: 'lab' | 'organization';
+		itemId: number;
+		status: 'pending' | 'active' | 'passive' | 'inactive';
+		joinedAt: Date;
+		lastUpdated: Date;
+	}[];
+
+	bookmarkedEvents: {
+		eventId: number;
+		bookmarkedAt: Date;
+	}[];
+
 	// Instance Methods
 	comparePassword(candidatePassword: string): Promise<boolean>;
 	addInterest(interestId: number): Promise<void>;
 	removeInterest(interestId: number): Promise<void>;
+	addCommitment(type: 'lab' | 'organization', itemId: number): Promise<void>;
+	updateCommitmentStatus(type: 'lab' | 'organization', itemId: number, status: 'pending' | 'active' | 'passive' | 'inactive'): Promise<void>;
+	removeCommitment(type: 'lab' | 'organization', itemId: number): Promise<void>;
+	bookmarkEvent(eventId: number): Promise<void>;
+	unbookmarkEvent(eventId: number): Promise<void>;
 }
 
 
@@ -33,7 +52,7 @@ const UserSchema: Schema = new Schema<IUser>({
 		trim: true,
 		minlength: [2, 'Name must be at least 2 characters long'],
 		maxlength: [100, 'Name cannot exceed 100 characters'],
-		match: [/^[a-zA-Z\s'-]+$/, 'Name can only contain letters, spaces, apostrophes, and hyphens'],
+		match: [/^[a-zA-Z0-9_-]+$/, 'Name can only contain letters, numbers, hyphens, and underscores'],
 	},
 	username: {
 		type: String,
@@ -65,6 +84,25 @@ const UserSchema: Schema = new Schema<IUser>({
 	updatedAt: { type: Date, default: Date.now },
 
 	interests: { type: [Number], ref: 'Interest' },
+
+	// Involvement tracking
+	commitments: [{
+		type: { type: String, enum: ['lab', 'organization'], required: true },
+		itemId: { type: Number, required: true },
+		status: {
+			type: String,
+			enum: ['pending', 'active', 'passive', 'inactive'],
+			default: 'pending',
+			required: true,
+		},
+		joinedAt: { type: Date, default: Date.now },
+		lastUpdated: { type: Date, default: Date.now },
+	}],
+
+	bookmarkedEvents: [{
+		eventId: { type: Number, required: true },
+		bookmarkedAt: { type: Date, default: Date.now },
+	}],
 });
 
 // Instance method to compare passwords
@@ -109,6 +147,63 @@ UserSchema.methods.removeInterest = async function(this: IUser, interestId: numb
 	const index = this.interests.indexOf(interestId);
 	if (index > -1) {
 		this.interests.splice(index, 1);
+		await this.save();
+	}
+};
+
+// Instance method to add a commitment
+UserSchema.methods.addCommitment = async function(this: IUser, type: 'lab' | 'organization', itemId: number): Promise<void> {
+	// Check if commitment already exists
+	const existingCommitment = this.commitments.find(c => c.type === type && c.itemId === itemId);
+	if (!existingCommitment) {
+		this.commitments.push({
+			type,
+			itemId,
+			status: 'pending',
+			joinedAt: new Date(),
+			lastUpdated: new Date(),
+		});
+		await this.save();
+	}
+};
+
+// Instance method to update commitment status
+UserSchema.methods.updateCommitmentStatus = async function(this: IUser, type: 'lab' | 'organization', itemId: number, status: 'pending' | 'active' | 'passive' | 'inactive'): Promise<void> {
+	const commitment = this.commitments.find(c => c.type === type && c.itemId === itemId);
+	if (commitment) {
+		commitment.status = status;
+		commitment.lastUpdated = new Date();
+		await this.save();
+	}
+};
+
+// Instance method to remove a commitment
+UserSchema.methods.removeCommitment = async function(this: IUser, type: 'lab' | 'organization', itemId: number): Promise<void> {
+	const index = this.commitments.findIndex(c => c.type === type && c.itemId === itemId);
+	if (index > -1) {
+		this.commitments.splice(index, 1);
+		await this.save();
+	}
+};
+
+// Instance method to bookmark an event
+UserSchema.methods.bookmarkEvent = async function(this: IUser, eventId: number): Promise<void> {
+	// Check if event is already bookmarked
+	const existingBookmark = this.bookmarkedEvents.find(b => b.eventId === eventId);
+	if (!existingBookmark) {
+		this.bookmarkedEvents.push({
+			eventId,
+			bookmarkedAt: new Date(),
+		});
+		await this.save();
+	}
+};
+
+// Instance method to unbookmark an event
+UserSchema.methods.unbookmarkEvent = async function(this: IUser, eventId: number): Promise<void> {
+	const index = this.bookmarkedEvents.findIndex(b => b.eventId === eventId);
+	if (index > -1) {
+		this.bookmarkedEvents.splice(index, 1);
 		await this.save();
 	}
 };

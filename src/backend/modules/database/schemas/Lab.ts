@@ -26,6 +26,12 @@ export interface ILab extends Document {
 	email?: string;
 	acceptingStudents: boolean;
 	researchAreas: string[];
+	involvementGuide?: {
+		guide: string;
+		actionableSteps: string[];
+		tips: string[];
+		lastUpdated: Date;
+	};
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -124,6 +130,28 @@ const LabSchema: Schema<ILab> = new Schema<ILab>({
 				return areas.every(area => area.trim().length >= 2 && area.trim().length <= 100);
 			},
 			message: 'Each research area must be between 2 and 100 characters',
+		},
+	},
+	involvementGuide: {
+		guide: {
+			type: String,
+			required: false,
+			trim: true,
+			maxlength: [1000, 'Guide cannot exceed 1000 characters'],
+		},
+		actionableSteps: [{
+			type: String,
+			trim: true,
+			maxlength: [200, 'Each step cannot exceed 200 characters'],
+		}],
+		tips: [{
+			type: String,
+			trim: true,
+			maxlength: [200, 'Each tip cannot exceed 200 characters'],
+		}],
+		lastUpdated: {
+			type: Date,
+			default: Date.now,
 		},
 	},
 	createdAt: { type: Date, default: Date.now },

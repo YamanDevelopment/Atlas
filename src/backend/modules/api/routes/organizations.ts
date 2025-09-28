@@ -2,6 +2,8 @@ import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { requireAuth } from '../../auth/middleware/auth';
 import type Handler from '../../database/services/handler';
+import { Organization } from '../../database/schemas/Organization';
+import { GeminiService } from '../../ai/gemini';
 
 const router = Router();
 
@@ -194,26 +196,85 @@ router.post('/',
 	requireAuth,
 	async (req: Request, res: Response): Promise<void> => {
 		try {
-			const organizationData = req.body;
+			const {
+				name,
+				shortName,
+				description,
+				url,
+				logoUrl,
+			} = req.body;
 
 			// Validate required fields
-			if (!organizationData.name) {
+			if (!name || !description) {
 				res.status(400).json({
 					success: false,
 					error: 'Missing required fields',
-					message: 'Name is required',
+					message: 'Name and description are required',
 				});
 				return;
 			}
 
-			// Create the organization
-			const newOrganization = await handler.createOrganization(organizationData);
+			// Get the next available ID
+			const lastOrg = await Organization.findOne().sort({ id: -1 });
+			const nextId = lastOrg ? lastOrg.id + 1 : 1;
+
+			// Create Gemini service for AI tagging
+			const geminiService = new GeminiService();
+
+			// Create organization object for AI analysis
+			const orgForAnalysis = {
+				title: name,
+				description,
+				additionalContext: {
+					contactInfo: shortName,
+				},
+			};
+
+			// Generate AI tags and involvement guide
+			const [aiAnalysis, involvementGuide] = await Promise.all([
+				geminiService.analyzeContent(orgForAnalysis),
+				geminiService.generateInvolvementGuide(
+					{
+						name,
+						description,
+						website: url,
+					},
+					[], // No specific user interests for generic guide
+				),
+			]);
+
+			// Create the organization with AI-generated content
+			const newOrganization = new Organization({
+				id: nextId,
+				name,
+				shortName,
+				description,
+				url,
+				logoUrl,
+				tags: aiAnalysis.tags,
+				aiProcessing: {
+					lastAnalyzed: new Date(),
+					geminiModel: geminiService.getModelInfo().model,
+				},
+				involvementGuide: {
+					guide: involvementGuide.guide,
+					actionableSteps: involvementGuide.actionableSteps,
+					tips: involvementGuide.tips,
+					lastUpdated: new Date(),
+				},
+			});
+
+			await newOrganization.save();
 
 			res.status(201).json({
 				success: true,
-				message: 'Organization created successfully',
+				message: 'Organization created successfully with AI tagging and involvement guide',
 				data: {
 					organization: newOrganization,
+					aiAnalysis: {
+						confidence: aiAnalysis.confidence,
+						tagsGenerated: aiAnalysis.tags.length,
+					},
 				},
 			});
 

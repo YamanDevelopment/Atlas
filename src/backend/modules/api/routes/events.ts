@@ -2,6 +2,8 @@ import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { requireAuth } from '../../auth/middleware/auth';
 import type Handler from '../../database/services/handler';
+import { Event } from '../../database/schemas/Event';
+import { GeminiService } from '../../ai/gemini';
 
 const router = Router();
 
@@ -264,26 +266,78 @@ router.post('/',
 	requireAuth,
 	async (req: Request, res: Response): Promise<void> => {
 		try {
-			const eventData = req.body;
+			const {
+				name,
+				description,
+				startTime,
+				endTime,
+				location,
+				url,
+				organization,
+				latitude,
+				longitude,
+			} = req.body;
 
 			// Validate required fields
-			if (!eventData.title || !eventData.startDate) {
+			if (!name || !description || !startTime) {
 				res.status(400).json({
 					success: false,
 					error: 'Missing required fields',
-					message: 'Title and startDate are required',
+					message: 'Name, description, and start time are required',
 				});
 				return;
 			}
 
-			// Create the event
-			const newEvent = await handler.createEvent(eventData);
+			// Get the next available ID
+			const lastEvent = await Event.findOne().sort({ id: -1 });
+			const nextId = lastEvent ? lastEvent.id + 1 : 1;
+
+			// Create Gemini service for AI tagging
+			const geminiService = new GeminiService();
+
+			// Create event object for AI analysis
+			const eventForAnalysis = {
+				title: name,
+				description,
+				additionalContext: {
+					location,
+					eventType: 'general',
+				},
+			};
+
+			// Generate AI tags
+			const aiAnalysis = await geminiService.analyzeContent(eventForAnalysis);
+
+			// Create the event with AI-generated tags
+			const newEvent = new Event({
+				id: nextId,
+				name,
+				description,
+				startTime: new Date(startTime),
+				endTime: endTime ? new Date(endTime) : undefined,
+				location,
+				url,
+				organization,
+				latitude,
+				longitude,
+				tags: aiAnalysis.tags,
+				aiProcessing: {
+					lastAnalyzed: new Date(),
+					geminiModel: geminiService.getModelInfo().model,
+				},
+			});
+
+			await newEvent.save();
 
 			res.status(201).json({
 				success: true,
-				message: 'Event created successfully',
+				message: 'Event created successfully with AI tagging',
 				data: {
 					event: newEvent,
+					aiAnalysis: {
+						confidence: aiAnalysis.confidence,
+						tagsGenerated: aiAnalysis.tags.length,
+					},
 				},
 			});
 

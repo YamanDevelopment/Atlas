@@ -10,11 +10,12 @@ import usersRoutes, { setHandler as setUsersHandler } from './routes/users';
 import interestsRoutes, { setHandler as setInterestsHandler } from './routes/interests';
 import tagsRoutes, { setHandler as setTagsHandler } from './routes/tags';
 import recommendationsRoutes, { setHandler as setRecommendationsHandler } from './routes/recommendations';
+import involvementRoutes from './routes/involvement';
 
 // Import admin routes
 import adminDashboardRoutes, { setHandler as setAdminDashboardHandler } from './routes/admin/dashboard';
 import adminUsersRoutes, { setHandler as setAdminUsersHandler } from './routes/admin/users';
-import adminContentRoutes, { setHandler as setAdminContentHandler } from './routes/admin/content';
+import adminContentRoutes from './routes/admin/content';
 import adminAnalyticsRoutes, { setHandler as setAdminAnalyticsHandler } from './routes/admin/analytics';
 
 const router = Router();
@@ -36,7 +37,6 @@ export function initializeApiRoutes(handler: Handler): Router {
 	// Set handler for admin routes
 	setAdminDashboardHandler(handler);
 	setAdminUsersHandler(handler);
-	setAdminContentHandler(handler);
 	setAdminAnalyticsHandler(handler);
 
 	// Mount all public routes
@@ -48,6 +48,7 @@ export function initializeApiRoutes(handler: Handler): Router {
 	router.use('/interests', interestsRoutes);
 	router.use('/tags', tagsRoutes);
 	router.use('/recommendations', recommendationsRoutes);
+	router.use('/involvement', involvementRoutes);
 
 	// Mount admin routes (protected by requireAdmin middleware)
 	router.use('/admin/dashboard', adminDashboardRoutes);
@@ -80,6 +81,7 @@ export function initializeApiRoutes(handler: Handler): Router {
 				interests: '/api/interests',
 				tags: '/api/tags',
 				recommendations: '/api/recommendations',
+				involvement: '/api/involvement',
 				health: '/api/health',
 				admin: {
 					dashboard: '/api/admin/dashboard',
