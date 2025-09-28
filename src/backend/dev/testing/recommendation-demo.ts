@@ -1,6 +1,6 @@
 #!/usr/bin/env ts-node
-import Handler from './src/backend/modules/database/services/handler';
-import type { RecommendationOptions } from './src/backend/modules/database/services/recommendations';
+import Handler from '../../modules/database/services/handler';
+import type { RecommendationOptions } from '../../modules/database/services/recommendations';
 
 // Example usage of the comprehensive recommendation system
 
