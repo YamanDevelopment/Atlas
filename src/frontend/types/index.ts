@@ -47,6 +47,13 @@ export interface Club {
   url?: string;
   logoUrl?: string;
   categories: Category[];
+  tags?: string[];
+  category?: string;
+  whyRecommended?: string;
+  timeCommitment?: string;
+  meetingFrequency?: string;
+  contactInfo?: { email: string; phone?: string };
+  isProfessional?: boolean;
   memberCount: number;
   isFollowing: boolean;
   upcomingEvents: Event[];
@@ -57,19 +64,29 @@ export interface Event {
   name: string;
   title?: string;
   description: string;
+  shortDescription?: string;
   location: string;
   startTime: Date;
   endTime: Date;
+  date?: Date;
+  endDate?: Date;
   url?: string;
+  organizer?: string;
   organization?: Club;
   latitude?: number;
   longitude?: number;
   theme?: string;
   categories: Category[];
+  tags?: string[];
+  category?: string;
+  whyRecommended?: string;
   benefits?: string[];
   recurring?: boolean;
   isBookmarked: boolean;
   attendeeCount?: number;
+  isVirtual?: boolean;
+  isFree?: boolean;
+  rsvpStatus?: RSVPStatus;
 }
 
 export interface Category {
@@ -82,12 +99,15 @@ export interface Category {
 export interface Professor {
   id: string;
   name: string;
+  title?: string;
   department: string;
   email: string;
-  office: string;
+  office?: string;
   researchAreas: string[];
-  courses: Course[];
-  isFollowing: boolean;
+  courses?: Course[];
+  isFollowing?: boolean;
+  whyRecommended?: string;
+  isAcceptingStudents?: boolean;
 }
 
 export interface Course {
@@ -134,6 +154,9 @@ export interface Plan {
   price: number;
   isPopular?: boolean;
 }
+
+// RSVP Status types
+export type RSVPStatus = 'going' | 'maybe' | 'not-going' | 'none';
 
 // API response types
 export interface ApiResponse<T> {
