@@ -103,9 +103,12 @@
               </div>
             </div>
 
-            <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+            <NuxtLink 
+              to="/profile"
+              class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-medium hover:bg-indigo-700 transition-colors cursor-pointer"
+            >
               JD
-            </div>
+            </NuxtLink>
           </div>
         </div>
       </div>
