@@ -6,7 +6,78 @@
 				<div class="text-2xl font-bold text-indigo-600">
 					OppTrack
 				</div>
-				<div class="space-x-4">
+
+				<!-- Authenticated User Nav -->
+				<div
+					v-if="isAuthenticated && user"
+					class="flex items-center space-x-4"
+				>
+					<NuxtLink
+						to="/dashboard"
+						class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md transition-colors"
+					>
+						Dashboard
+					</NuxtLink>
+					<NuxtLink
+						to="/explore"
+						class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md transition-colors"
+					>
+						Explore
+					</NuxtLink>
+					<!-- User Account Button -->
+					<div class="relative">
+						<button
+							class="flex items-center space-x-2 bg-white rounded-full px-4 py-2 shadow-md hover:shadow-lg transition-all duration-200 border border-gray-200"
+							@click="toggleUserMenu"
+						>
+							<div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center">
+								<span class="text-white text-sm font-medium">
+									{{ userInitials }}
+								</span>
+							</div>
+							<span class="text-gray-700 font-medium">{{ user.username }}</span>
+							<svg
+								class="w-4 h-4 text-gray-500"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M19 9l-7 7-7-7"
+								/>
+							</svg>
+						</button>
+
+						<!-- User Menu Dropdown -->
+						<div
+							v-if="showUserMenu"
+							class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
+						>
+							<NuxtLink
+								to="/profile"
+								class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+								@click="showUserMenu = false"
+							>
+								Profile Settings
+							</NuxtLink>
+							<button
+								class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
+								@click="handleLogout"
+							>
+								Sign Out
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Guest User Nav -->
+				<div
+					v-else
+					class="space-x-4"
+				>
 					<NuxtLink
 						to="/login"
 						class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md transition-colors"
@@ -167,9 +238,45 @@
 <script setup lang="ts">
 import { useUser } from '~/composables/useUser';
 
-// Redirect to dashboard if already authenticated
-const { isAuthenticated } = useUser();
-if (isAuthenticated.value) {
-  await navigateTo('/dashboard');
-}
+// Get user state and functions
+const { user, isAuthenticated, userInitials, logout, init } = useUser();
+const showUserMenu = ref(false);
+
+// Initialize user state
+onMounted(async () => {
+	await init();
+});
+
+// Handle user menu toggle
+const toggleUserMenu = () => {
+	showUserMenu.value = !showUserMenu.value;
+};
+
+// Handle logout
+const handleLogout = async () => {
+	showUserMenu.value = false;
+	try {
+		await logout();
+		// Refresh the page to update UI state
+		await navigateTo('/');
+	} catch (error) {
+		console.error('Logout error:', error);
+	}
+};
+
+// Close menu when clicking outside
+const handleClickOutside = (event: MouseEvent) => {
+	const target = event.target as HTMLElement;
+	if (!target.closest('.relative')) {
+		showUserMenu.value = false;
+	}
+};
+
+onMounted(() => {
+	document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+	document.removeEventListener('click', handleClickOutside);
+});
 </script>

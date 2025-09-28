@@ -4,6 +4,7 @@ import { requireAuth } from '../../auth/middleware/auth';
 import type Handler from '../../database/services/handler';
 import { Event } from '../../database/schemas/Event';
 import { GeminiService } from '../../ai/gemini';
+import { transformEventForAPI } from '../transformers';
 
 const router = Router();
 
@@ -39,11 +40,14 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
 			sortOrder: sortOrder as 'asc' | 'desc',
 		});
 
+		// Transform events to API format
+		const transformedEvents = events.map(event => transformEventForAPI(event));
+
 		res.json({
 			success: true,
 			data: {
-				events,
-				count: events.length,
+				events: transformedEvents,
+				count: transformedEvents.length,
 				pagination: {
 					limit: parseInt(limit as string),
 					skip: parseInt(skip as string),
@@ -79,10 +83,13 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
 			return;
 		}
 
+		// Transform event to API format
+		const transformedEvent = transformEventForAPI(event);
+
 		res.json({
 			success: true,
 			data: {
-				event,
+				event: transformedEvent,
 			},
 		});
 
@@ -258,6 +265,71 @@ router.get('/by-tags', async (req: Request, res: Response): Promise<void> => {
 		});
 	}
 });
+
+/**
+ * POST /api/events/:id/rsvp (Protected route)
+ */
+router.post('/:id/rsvp',
+	requireAuth,
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			const { id: eventId } = req.params;
+			const { status } = req.body;
+			const userId = (req as any).user?.userId;
+
+			if (!userId) {
+				res.status(401).json({
+					success: false,
+					error: 'Authentication required',
+					message: 'User not authenticated',
+				});
+				return;
+			}
+
+			if (!status || !['going', 'interested', 'not-going'].includes(status)) {
+				res.status(400).json({
+					success: false,
+					error: 'Invalid RSVP status',
+					message: 'Status must be one of: going, interested, not-going',
+				});
+				return;
+			}
+
+			// Check if event exists
+			const event = await handler.getEventById(eventId);
+			if (!event) {
+				res.status(404).json({
+					success: false,
+					error: 'Event not found',
+					message: 'No event found with the provided ID',
+				});
+				return;
+			}
+
+			// For now, just log the RSVP (would implement actual RSVP tracking in production)
+			console.log(`User ${userId} RSVP'd ${status} to event ${eventId}`);
+
+			res.json({
+				success: true,
+				message: `RSVP updated to ${status}`,
+				data: {
+					eventId,
+					userId,
+					status,
+					timestamp: new Date(),
+				},
+			});
+
+		} catch (error) {
+			console.error('❌ RSVP event error:', error);
+			res.status(500).json({
+				success: false,
+				error: 'RSVP failed',
+				message: 'An error occurred while updating RSVP status',
+			});
+		}
+	},
+);
 
 /**
  * POST /api/events (Protected route - requires authentication)

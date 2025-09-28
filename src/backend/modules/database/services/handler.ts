@@ -246,7 +246,7 @@ class Handler {
 		try {
 			return await Interest.find({
 				keyword: { $regex: keyword, $options: 'i' },
-			}).populate('linkedTags.tagId');
+			});
 		} catch (error) {
 			console.error('Error searching interests:', error);
 			throw error;
@@ -269,7 +269,13 @@ class Handler {
 
 	async getEventById(id: string): Promise<IEvent | null> {
 		try {
-			return await Event.findById(id).populate('tags').populate('organization');
+			// Try to find by numeric id first, then by MongoDB _id as fallback
+			const numericId = parseInt(id);
+			if (!isNaN(numericId)) {
+				return await Event.findOne({ id: numericId }).populate('tags').populate('organization');
+			} else {
+				return await Event.findById(id).populate('tags').populate('organization');
+			}
 		} catch (error) {
 			console.error('Error fetching event:', error);
 			throw error;
@@ -336,7 +342,13 @@ class Handler {
 
 	async getOrganizationById(id: string): Promise<IOrganization | null> {
 		try {
-			return await Organization.findById(id).populate('tags');
+			// Try to find by numeric id first, then by MongoDB _id as fallback
+			const numericId = parseInt(id);
+			if (!isNaN(numericId)) {
+				return await Organization.findOne({ id: numericId }).populate('tags');
+			} else {
+				return await Organization.findById(id).populate('tags');
+			}
 		} catch (error) {
 			console.error('Error fetching organization:', error);
 			throw error;

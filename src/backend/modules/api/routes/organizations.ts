@@ -4,6 +4,7 @@ import { requireAuth } from '../../auth/middleware/auth';
 import type Handler from '../../database/services/handler';
 import { Organization } from '../../database/schemas/Organization';
 import { GeminiService } from '../../ai/gemini';
+import { transformOrganizationForAPI } from '../transformers';
 
 const router = Router();
 
@@ -35,11 +36,16 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
 			skip: parseInt(skip as string),
 			sortBy: sortBy as string,
 			sortOrder: sortOrder as 'asc' | 'desc',
-		});		res.json({
+		});
+
+		// Transform organizations to API format
+		const transformedOrganizations = organizations.map(org => transformOrganizationForAPI(org));
+
+		res.json({
 			success: true,
 			data: {
-				organizations,
-				count: organizations.length,
+				organizations: transformedOrganizations,
+				count: transformedOrganizations.length,
 				pagination: {
 					limit: parseInt(limit as string),
 					skip: parseInt(skip as string),
@@ -75,10 +81,13 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
 			return;
 		}
 
+		// Transform organization to API format
+		const transformedOrganization = transformOrganizationForAPI(organization);
+
 		res.json({
 			success: true,
 			data: {
-				organization,
+				organization: transformedOrganization,
 			},
 		});
 
@@ -188,6 +197,116 @@ router.get('/by-category', async (req: Request, res: Response): Promise<void> =>
 		});
 	}
 });
+
+/**
+ * POST /api/organizations/:id/follow (Protected route)
+ */
+router.post('/:id/follow',
+	requireAuth,
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			const { id: organizationId } = req.params;
+			const userId = (req as any).user?.userId;
+
+			if (!userId) {
+				res.status(401).json({
+					success: false,
+					error: 'Authentication required',
+					message: 'User not authenticated',
+				});
+				return;
+			}
+
+			// Check if organization exists
+			const organization = await handler.getOrganizationById(organizationId);
+			if (!organization) {
+				res.status(404).json({
+					success: false,
+					error: 'Organization not found',
+					message: 'No organization found with the provided ID',
+				});
+				return;
+			}
+
+			// For now, just log the follow action (would implement actual following in production)
+			console.log(`User ${userId} followed organization ${organizationId}`);
+
+			res.json({
+				success: true,
+				message: 'Organization followed successfully',
+				data: {
+					organizationId,
+					userId,
+					action: 'follow',
+					timestamp: new Date(),
+				},
+			});
+
+		} catch (error) {
+			console.error('❌ Follow organization error:', error);
+			res.status(500).json({
+				success: false,
+				error: 'Follow failed',
+				message: 'An error occurred while following the organization',
+			});
+		}
+	},
+);
+
+/**
+ * POST /api/organizations/:id/unfollow (Protected route)
+ */
+router.post('/:id/unfollow',
+	requireAuth,
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			const { id: organizationId } = req.params;
+			const userId = (req as any).user?.userId;
+
+			if (!userId) {
+				res.status(401).json({
+					success: false,
+					error: 'Authentication required',
+					message: 'User not authenticated',
+				});
+				return;
+			}
+
+			// Check if organization exists
+			const organization = await handler.getOrganizationById(organizationId);
+			if (!organization) {
+				res.status(404).json({
+					success: false,
+					error: 'Organization not found',
+					message: 'No organization found with the provided ID',
+				});
+				return;
+			}
+
+			// For now, just log the unfollow action (would implement actual unfollowing in production)
+			console.log(`User ${userId} unfollowed organization ${organizationId}`);
+
+			res.json({
+				success: true,
+				message: 'Organization unfollowed successfully',
+				data: {
+					organizationId,
+					userId,
+					action: 'unfollow',
+					timestamp: new Date(),
+				},
+			});
+
+		} catch (error) {
+			console.error('❌ Unfollow organization error:', error);
+			res.status(500).json({
+				success: false,
+				error: 'Unfollow failed',
+				message: 'An error occurred while unfollowing the organization',
+			});
+		}
+	},
+);
 
 /**
  * POST /api/organizations (Protected route - requires authentication)

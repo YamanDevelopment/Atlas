@@ -198,9 +198,17 @@
 
 				<!-- Searchable dropdown -->
 				<div class="space-y-4">
-					<label class="block text-sm font-medium text-gray-700 mb-2">
-						Search and add your current involvements
-					</label>
+					<div class="flex justify-between items-end">
+						<label class="block text-sm font-medium text-gray-700 mb-2">
+							Search and add your current involvements
+						</label>
+						<span
+							v-if="!isLoadingInvolvements && availableInvolvements.length > 0"
+							class="text-xs text-gray-500"
+						>
+							{{ availableInvolvements.length }} options available
+						</span>
+					</div>
 					<div class="relative">
 						<input
 							v-model="involvementSearch"
@@ -214,9 +222,18 @@
 
 						<!-- Dropdown results -->
 						<div
-							v-if="showInvolvementDropdown && filteredInvolvements.length > 0"
-							class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto"
+							v-if="showInvolvementDropdown && (filteredInvolvements.length > 0 || isLoadingInvolvements)"
+							class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto"
 						>
+							<!-- Loading state -->
+							<div
+								v-if="isLoadingInvolvements"
+								class="p-3 text-center text-gray-500"
+							>
+								Loading involvements...
+							</div>
+							
+							<!-- Involvement options -->
 							<button
 								v-for="involvement in filteredInvolvements"
 								:key="involvement.id"
@@ -225,6 +242,12 @@
 							>
 								<div class="font-medium text-gray-900">
 									{{ involvement.name }}
+								</div>
+								<div
+									v-if="involvement.description"
+									class="text-xs text-gray-500 mt-1 truncate"
+								>
+									{{ involvement.description }}
 								</div>
 							</button>
 						</div>
@@ -323,6 +346,8 @@
 </template>
 
 <script setup lang="ts">
+import { apiService } from '~/services/api';
+
 // Simple interface for onboarding interests (avoiding complex Interest type for now)
 interface OnboardingInterest {
 	id: string;
@@ -336,6 +361,7 @@ interface InvolvementItem {
 	id: string;
 	name: string;
 	status: 'pending' | 'active' | 'passive' | 'inactive';
+	type?: string;
 }
 
 // State
@@ -359,65 +385,123 @@ const selectedInterests = ref<OnboardingInterest[]>([]);
 const interestSearch = ref('');
 const searchResults = ref<OnboardingInterest[]>([]);
 const customInterests = ref<OnboardingInterest[]>([]);
+const allInterests = ref<OnboardingInterest[]>([]);
+const isLoadingInterests = ref(false);
 
-const allInterests: OnboardingInterest[] = [
-	// Academic
-	{ id: '1', name: 'Machine Learning', category: 'academic', isCustom: false },
-	{ id: '2', name: 'Data Science', category: 'academic', isCustom: false },
-	{ id: '3', name: 'Web Development', category: 'academic', isCustom: false },
-	{ id: '4', name: 'Robotics', category: 'academic', isCustom: false },
-	{ id: '5', name: 'Cybersecurity', category: 'academic', isCustom: false },
-	{ id: '6', name: 'Biology Research', category: 'academic', isCustom: false },
+// Load interests from backend API
+const loadInterests = async () => {
+	try {
+		isLoadingInterests.value = true;
+		const response = await apiService.get('/interests');
 
-	// Career
-	{ id: '11', name: 'Entrepreneurship', category: 'career', isCustom: false },
-	{ id: '12', name: 'Consulting', category: 'career', isCustom: false },
-	{ id: '13', name: 'Software Engineering', category: 'career', isCustom: false },
-	{ id: '14', name: 'Product Management', category: 'career', isCustom: false },
+		if (response.success) {
+			allInterests.value = response.data.interests.map((interest: any) => ({
+				id: interest.id.toString(),
+				name: interest.name || interest.keyword, // Use keyword if name doesn't exist
+				category: interest.category || 'academic',
+				isCustom: false,
+			}));
 
-	// Hobbies
-	{ id: '16', name: 'Photography', category: 'hobby', isCustom: false },
-	{ id: '17', name: 'Music Production', category: 'hobby', isCustom: false },
-	{ id: '18', name: 'Gaming', category: 'hobby', isCustom: false },
-	{ id: '19', name: 'Reading', category: 'hobby', isCustom: false },
-	{ id: '20', name: 'Writing', category: 'hobby', isCustom: false },
+			// Add interests from selected major using Gemini AI
+			if (selectedMajor.value) {
+				await addMajorAsInterest(selectedMajor.value);
+			}
+		}
+	} catch (error) {
+		console.error('Failed to load interests:', error);
+		// Fallback to basic interests if API fails
+		allInterests.value = [
+			{ id: 'fallback-1', name: 'Academic Research', category: 'academic', isCustom: false },
+			{ id: 'fallback-2', name: 'Career Development', category: 'career', isCustom: false },
+		];
+	} finally {
+		isLoadingInterests.value = false;
+	}
+};
 
-	// Lifestyle
-	{ id: '22', name: 'Christianity', category: 'lifestyle', isCustom: false },
-	{ id: '23', name: 'Meditation', category: 'lifestyle', isCustom: false },
-	{ id: '24', name: 'Sustainability', category: 'lifestyle', isCustom: false },
-	{ id: '25', name: 'Volunteering', category: 'lifestyle', isCustom: false },
+// Add major as interest using Gemini AI
+const addMajorAsInterest = async (major: string) => {
+	try {
+		const response = await apiService.post('/interests', {
+			keyword: major.toLowerCase(),
+			name: major,
+			description: `Academic major in ${major}`,
+			category: 'academic',
+		});
 
-	// Sports
-	{ id: '26', name: 'Pickleball', category: 'sport', isCustom: false },
-	{ id: '27', name: 'Soccer', category: 'sport', isCustom: false },
-	{ id: '28', name: 'Basketball', category: 'sport', isCustom: false },
-	{ id: '29', name: 'Tennis', category: 'sport', isCustom: false },
-];
+		if (response.success) {
+			const newInterest = {
+				id: response.data.interest.id.toString(),
+				name: response.data.interest.name || response.data.interest.keyword,
+				category: 'academic',
+				isCustom: false,
+			};
 
-// Step 3: Current Involvement - Searchable dropdown approach
+			// Add to all interests and auto-select it
+			allInterests.value.unshift(newInterest);
+			if (!selectedInterests.value.some(i => i.id === newInterest.id)) {
+				selectedInterests.value.push(newInterest);
+			}
+		}
+	} catch (error) {
+		console.error('Failed to add major as interest:', error);
+	}
+};
+
+// Step 3: Current Involvement - Load from backend
 const selectedInvolvements = ref<InvolvementItem[]>([]);
 const involvementSearch = ref('');
 const showInvolvementDropdown = ref(false);
+const availableInvolvements = ref<any[]>([]);
+const isLoadingInvolvements = ref(false);
 
-const availableInvolvements = [
-	{ id: 'study-group', name: 'Study Groups' },
-	{ id: 'part-time-job', name: 'Part-time Job' },
-	{ id: 'internship', name: 'Internship' },
-	{ id: 'greek-life', name: 'Greek Life' },
-	{ id: 'student-gov', name: 'Student Government' },
-	{ id: 'volunteer', name: 'Volunteer Work' },
-	{ id: 'sports-team', name: 'Sports Team' },
-	{ id: 'music-ensemble', name: 'Music Ensemble' },
-	{ id: 'research', name: 'Research Project' },
-	{ id: 'student-org', name: 'Student Organizations' },
-	{ id: 'tutoring', name: 'Tutoring' },
-	{ id: 'clubs', name: 'Academic Clubs' },
-	{ id: 'honor-society', name: 'Honor Society' },
-	{ id: 'peer-mentor', name: 'Peer Mentoring' },
-	{ id: 'student-media', name: 'Student Media' },
-	{ id: 'outdoor-rec', name: 'Outdoor Recreation' },
-];
+// Load organizations and labs from backend
+const loadInvolvements = async () => {
+	try {
+		isLoadingInvolvements.value = true;
+		const [orgsResponse, labsResponse] = await Promise.all([
+			apiService.get('/organizations?limit=100'),
+			apiService.get('/labs?limit=50'),
+		]);
+
+		const involvements: any[] = [];
+
+		// Add organizations
+		if (orgsResponse.success && orgsResponse.data.organizations) {
+			orgsResponse.data.organizations.forEach((org: any) => {
+				involvements.push({
+					id: `org-${org.id}`,
+					name: org.name,
+					type: 'organization',
+					description: org.shortDescription || org.description,
+				});
+			});
+		}
+
+		// Add labs
+		if (labsResponse.success && labsResponse.data.labs) {
+			labsResponse.data.labs.forEach((lab: any) => {
+				involvements.push({
+					id: `lab-${lab.id}`,
+					name: lab.name,
+					type: 'lab',
+					description: lab.description,
+				});
+			});
+		}
+
+		availableInvolvements.value = involvements;
+	} catch (error) {
+		console.error('Failed to load involvements:', error);
+		// Fallback to basic options
+		availableInvolvements.value = [
+			{ id: 'other-1', name: 'Student Organizations', type: 'organization' },
+			{ id: 'other-2', name: 'Research Labs', type: 'lab' },
+		];
+	} finally {
+		isLoadingInvolvements.value = false;
+	}
+};
 
 const memberStatuses = [
 	{ value: 'pending', label: 'Pending', description: 'Application submitted, awaiting acceptance' },
@@ -428,9 +512,9 @@ const memberStatuses = [
 
 // Computed for filtered search results
 const filteredInvolvements = computed(() => {
-	if (!involvementSearch.value) return availableInvolvements.slice(0, 8);
+	if (!involvementSearch.value) return availableInvolvements.value; // Show all involvements
 
-	return availableInvolvements.filter(involvement =>
+	return availableInvolvements.value.filter((involvement: any) =>
 		involvement.name.toLowerCase().includes(involvementSearch.value.toLowerCase()) &&
 		!selectedInvolvements.value.some(selected => selected.id === involvement.id),
 	);
@@ -439,10 +523,10 @@ const filteredInvolvements = computed(() => {
 // Computed
 const canProceed = computed(() => {
 	switch (currentStep.value) {
-	case 1: return selectedMajor.value !== '';
-	case 2: return selectedInterests.value.length > 0;
-	case 3: return true; // Optional step
-	default: return false;
+		case 1: return selectedMajor.value !== '';
+		case 2: return selectedInterests.value.length > 0;
+		case 3: return true; // Optional step
+		default: return false;
 	}
 });
 
@@ -464,11 +548,11 @@ const previousStep = () => {
 
 const handleInterestSearch = () => {
 	if (interestSearch.value.length > 0) {
-		searchResults.value = allInterests.filter(interest =>
+		searchResults.value = allInterests.value.filter((interest: OnboardingInterest) =>
 			interest.name.toLowerCase().includes(interestSearch.value.toLowerCase()),
 		);
 	} else {
-		searchResults.value = allInterests.slice(0, 20); // Show first 20 by default
+		searchResults.value = allInterests.value.slice(0, 20); // Show first 20 by default
 	}
 };
 
@@ -524,12 +608,13 @@ const getCategoryColor = (category: string) => {
 };
 
 // New involvement methods
-const addInvolvement = (involvement: typeof availableInvolvements[0]) => {
+const addInvolvement = (involvement: any) => {
 	if (!selectedInvolvements.value.some(item => item.id === involvement.id)) {
 		selectedInvolvements.value.push({
 			id: involvement.id,
 			name: involvement.name,
 			status: 'active', // Default status
+			type: involvement.type,
 		});
 		involvementSearch.value = '';
 		showInvolvementDropdown.value = false;
@@ -574,28 +659,49 @@ const completeOnboarding = async () => {
 	isLoading.value = true;
 
 	try {
-		// Simulate API call
-		await new Promise(resolve => setTimeout(resolve, 2000));
+		// Update user's interests in the backend
+		const interestIds = selectedInterests.value.map(interest => parseInt(interest.id));
 
-		const onboardingData = {
-			major: selectedMajor.value,
-			interests: selectedInterests.value,
-			currentInvolvement: selectedInvolvements.value,
-		};
+		const updateResponse = await apiService.post('/auth/update-interests', {
+			interests: interestIds,
+		});
 
-		console.log('Onboarding completed:', onboardingData);
+		if (!updateResponse.success) {
+			throw new Error(updateResponse.message || 'Failed to update interests');
+		}
+
+		// Save involvement data if provided
+		if (selectedInvolvements.value.length > 0) {
+			const involvementResponse = await apiService.post('/involvement/bulk-update', {
+				involvements: selectedInvolvements.value.map(inv => ({
+					type: inv.type || (inv.id.startsWith('lab-') ? 'lab' : 'organization'),
+					itemId: parseInt(inv.id.replace(/^(org-|lab-)/, '')),
+					status: inv.status,
+				})),
+			});
+
+			if (!involvementResponse.success) {
+				console.warn('Failed to update involvements:', involvementResponse.message);
+			}
+		}
+
+		console.log('Onboarding completed successfully');
 
 		// Redirect to dashboard with flag for starter plan modal
 		await navigateTo('/dashboard?from=onboarding');
 	} catch (error) {
 		console.error('Onboarding failed:', error);
+		// Show error to user but still redirect to dashboard
+		await navigateTo('/dashboard?from=onboarding&error=1');
 	} finally {
 		isLoading.value = false;
 	}
 };
 
 // Initialize
-onMounted(() => {
-	searchResults.value = allInterests.slice(0, 20);
+onMounted(async () => {
+	await loadInterests();
+	await loadInvolvements();
+	searchResults.value = allInterests.value.slice(0, 20);
 });
 </script>

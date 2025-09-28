@@ -149,6 +149,16 @@
 <script setup lang="ts">
 import { useUser } from '~/composables/useUser';
 
+// If already authenticated, redirect to dashboard
+const { isAuthenticated, init } = useUser();
+
+onMounted(async () => {
+	await init();
+	if (isAuthenticated.value) {
+		await navigateTo('/dashboard');
+	}
+});
+
 const username = ref('');
 const password = ref('');
 const error = ref('');
@@ -167,6 +177,11 @@ const handleLogin = async () => {
 
 	try {
 		await loginUser(username.value, password.value);
+
+		// Wait a moment for the authentication state to update
+		await nextTick();
+
+		// Navigate to dashboard
 		await navigateTo('/dashboard');
 	} catch (err) {
 		error.value = err instanceof Error ? err.message : 'Login failed. Please try again.';

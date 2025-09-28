@@ -213,8 +213,16 @@
 
 <script setup lang="ts">
 import { useUser } from '~/composables/useUser';
-import { authService } from '~/services/auth';
-import type { RegisterData } from '~/types/auth';
+
+// If already authenticated, redirect to dashboard
+const { isAuthenticated, init, register: registerUser } = useUser();
+
+onMounted(async () => {
+	await init();
+	if (isAuthenticated.value) {
+		await navigateTo('/dashboard');
+	}
+});
 
 const name = ref('');
 const username = ref('');
@@ -229,6 +237,7 @@ const handleSignup = async () => {
 	error.value = '';
 
 	// Validation
+	// Basic validation - only what's required by the User schema
 	if (!name.value || !username.value || !email.value || !password.value) {
 		error.value = 'Please fill in all fields';
 		return;
@@ -239,6 +248,7 @@ const handleSignup = async () => {
 		return;
 	}
 
+	// User schema requirement: minlength: 6
 	if (password.value.length < 6) {
 		error.value = 'Password must be at least 6 characters';
 		return;
@@ -252,14 +262,19 @@ const handleSignup = async () => {
 	isLoading.value = true;
 
 	try {
-		const registerData: RegisterData = {
+		const registerData = {
 			name: name.value,
 			username: username.value,
 			email: email.value,
 			password: password.value,
 		};
 
-		await authService.register(registerData);
+		await registerUser(registerData);
+
+		// Wait a moment for the authentication state to update
+		await nextTick();
+
+		// Navigate to onboarding
 		await navigateTo('/onboarding');
 	} catch (err) {
 		error.value = err instanceof Error ? err.message : 'Registration failed. Please try again.';

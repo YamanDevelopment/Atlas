@@ -5,9 +5,12 @@
 			<div class="max-w-7xl mx-auto px-4">
 				<div class="flex justify-between items-center h-16">
 					<div class="flex items-center space-x-8">
-						<div class="text-2xl font-bold text-indigo-600">
+						<NuxtLink
+							to="/"
+							class="text-2xl font-bold text-indigo-600 hover:text-indigo-700 transition-colors duration-200"
+						>
 							OppTrack
-						</div>
+						</NuxtLink>
 						<div class="hidden md:flex space-x-6">
 							<NuxtLink
 								to="/dashboard"
@@ -32,138 +35,6 @@
 					</div>
 
 					<div class="flex items-center space-x-4">
-						<!-- Notifications Dropdown -->
-						<div class="relative">
-							<button
-								class="relative text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-white/50 backdrop-blur-sm transition-all duration-200"
-								@click="toggleNotifications"
-							>
-								<svg
-									class="w-6 h-6"
-									viewBox="0 0 24 24"
-									fill="none"
-									xmlns="http://www.w3.org/2000/svg"
-								>
-									<path
-										d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z"
-										stroke="currentColor"
-										stroke-width="2"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-									/>
-									<path
-										d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21"
-										stroke="currentColor"
-										stroke-width="2"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-									/>
-								</svg>
-								<!-- Notification badge -->
-								<span
-									v-if="nudges.length > 0"
-									class="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
-								>
-									{{ nudges.length }}
-								</span>
-							</button>
-
-							<!-- Notifications Dropdown -->
-							<div
-								v-if="showNotifications"
-								class="absolute top-full right-0 mt-1 w-80 bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 z-50"
-							>
-								<div class="p-4 border-b border-gray-200">
-									<div class="flex items-center justify-between">
-										<h3 class="text-lg font-semibold text-gray-900">
-											Notifications
-										</h3>
-										<button
-											v-if="nudges.length > 0"
-											class="text-sm text-indigo-600 hover:text-indigo-800"
-											@click="clearAllNotifications"
-										>
-											Clear all
-										</button>
-									</div>
-								</div>
-
-								<div class="max-h-96 overflow-y-auto">
-									<div
-										v-if="nudges.length === 0"
-										class="p-6 text-center text-gray-500"
-									>
-										<svg
-											class="w-12 h-12 mx-auto mb-4 text-gray-300"
-											fill="none"
-											stroke="currentColor"
-											viewBox="0 0 24 24"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M15 17h5l-5 5v-5zM9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-											/>
-										</svg>
-										<p class="text-sm">
-											No new notifications
-										</p>
-									</div>
-
-									<div
-										v-else
-										class="divide-y divide-gray-100"
-									>
-										<div
-											v-for="nudge in nudges"
-											:key="nudge.id"
-											class="p-4 hover:bg-gray-50 transition-colors"
-										>
-											<div class="flex items-start justify-between">
-												<div class="flex-1">
-													<div class="flex items-center mb-2">
-														<div class="w-2 h-2 bg-blue-500 rounded-full mr-2" />
-														<span class="text-xs text-gray-500 uppercase tracking-wide">{{ nudge.type }}</span>
-													</div>
-													<p class="text-sm text-gray-900 mb-2">
-														{{ nudge.message }}
-													</p>
-													<div class="flex items-center justify-between">
-														<span class="text-xs text-gray-400">Just now</span>
-														<button
-															class="text-xs text-indigo-600 hover:text-indigo-800 font-medium"
-															@click="handleNotificationAction(nudge)"
-														>
-															View →
-														</button>
-													</div>
-												</div>
-												<button
-													class="ml-2 text-gray-400 hover:text-gray-600"
-													@click="dismissNotification(nudge.id)"
-												>
-													<svg
-														class="w-4 h-4"
-														fill="none"
-														stroke="currentColor"
-														viewBox="0 0 24 24"
-													>
-														<path
-															stroke-linecap="round"
-															stroke-linejoin="round"
-															stroke-width="2"
-															d="M6 18L18 6M6 6l12 12"
-														/>
-													</svg>
-												</button>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-
 						<!-- User Profile Dropdown -->
 						<div class="relative">
 							<button
@@ -179,8 +50,12 @@
 								class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
 							>
 								<div class="px-4 py-2 border-b border-gray-100">
-									<p class="font-medium text-gray-900">{{ fullName || user?.name || 'User' }}</p>
-									<p class="text-sm text-gray-500">{{ user?.email || '' }}</p>
+									<p class="font-medium text-gray-900">
+										{{ fullName || user?.name || 'User' }}
+									</p>
+									<p class="text-sm text-gray-500">
+										{{ user?.email || '' }}
+									</p>
 								</div>
 								<NuxtLink
 									to="/profile"
@@ -616,15 +491,18 @@
 								</div>
 								<div>
 									<h4 class="font-medium text-gray-900">
-										Explore Opportunities
+										View All Recommendations
 									</h4>
 									<p class="text-sm text-gray-500">
-										Find new clubs and events
+										Explore all clubs, events and opportunities
 									</p>
 								</div>
 							</NuxtLink>
 
-							<button class="flex items-center w-full p-3 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-colors">
+							<button
+								class="flex items-center w-full p-3 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-colors"
+								@click="showResearchGuide = true"
+							>
 								<div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
 									<svg
 										class="w-5 h-5 text-green-600"
@@ -645,7 +523,7 @@
 										Research Guide
 									</h4>
 									<p class="text-sm text-gray-500">
-										Learn how to get involved
+										Learn how to get into research opportunities
 									</p>
 								</div>
 							</button>
@@ -760,98 +638,382 @@
 								</button>
 							</div>
 
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                <div>
-                  <h3 class="font-semibold text-gray-900 mb-4">Event Details</h3>
-                  <div class="space-y-3">
-                    <div class="flex items-center text-gray-600">
-                      <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <span>{{ formatDate(modalEventData.startTime) }}</span>
-                    </div>
-                    <div class="flex items-center text-gray-600">
-                      <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <span>{{ modalEventData.location }}</span>
-                    </div>
-                    <div v-if="modalEventData.attendeeCount" class="flex items-center text-gray-600">
-                      <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                      </svg>
-                      <span>{{ modalEventData.attendeeCount }} attending</span>
-                    </div>
-                    <div v-if="modalEventData.organizer" class="flex items-center text-gray-600">
-                      <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                      </svg>
-                      <span>{{ modalEventData.organizer }}</span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <h3 class="font-semibold text-gray-900 mb-4">Why You'll Love This</h3>
-                  <p class="text-gray-600 mb-6">{{ modalEventData.whyRecommended || 'Perfect opportunity to expand your network and learn something new!' }}</p>
-                  
-                  <!-- Tags -->
-                  <div v-if="modalEventData.tags && modalEventData.tags.length > 0" class="mb-6">
-                    <h4 class="font-medium text-gray-900 mb-2">Tags</h4>
-                    <div class="flex flex-wrap gap-2">
-                      <span 
-                        v-for="tag in modalEventData.tags" 
-                        :key="tag"
-                        class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full font-medium"
-                      >
-                        {{ tag }}
-                      </span>
-                    </div>
-                  </div>
+							<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+								<div>
+									<h3 class="font-semibold text-gray-900 mb-4">
+										Event Details
+									</h3>
+									<div class="space-y-3">
+										<div class="flex items-center text-gray-600">
+											<svg
+												class="w-5 h-5 mr-3 text-gray-400"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+											>
+												<path
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+												/>
+											</svg>
+											<span>{{ formatDate(modalEventData.startTime) }}</span>
+										</div>
+										<div class="flex items-center text-gray-600">
+											<svg
+												class="w-5 h-5 mr-3 text-gray-400"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+											>
+												<path
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+												/>
+												<path
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+												/>
+											</svg>
+											<span>{{ modalEventData.location }}</span>
+										</div>
+										<div
+											v-if="modalEventData.attendeeCount"
+											class="flex items-center text-gray-600"
+										>
+											<svg
+												class="w-5 h-5 mr-3 text-gray-400"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+											>
+												<path
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+												/>
+											</svg>
+											<span>{{ modalEventData.attendeeCount }} attending</span>
+										</div>
+										<div
+											v-if="modalEventData.organizer"
+											class="flex items-center text-gray-600"
+										>
+											<svg
+												class="w-5 h-5 mr-3 text-gray-400"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+											>
+												<path
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+												/>
+											</svg>
+											<span>{{ modalEventData.organizer }}</span>
+										</div>
+									</div>
+								</div>
+								<div>
+									<h3 class="font-semibold text-gray-900 mb-4">
+										Why You'll Love This
+									</h3>
+									<p class="text-gray-600 mb-6">
+										{{ modalEventData.whyRecommended || 'Perfect opportunity to expand your network and learn something new!' }}
+									</p>
 
-                  <!-- Additional Info -->
-                  <div class="space-y-3 text-sm">
-                    <div v-if="modalEventData.isFree" class="flex items-center text-green-600">
-                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                      </svg>
-                      Free Event
-                    </div>
-                    <div v-if="modalEventData.isVirtual" class="flex items-center text-blue-600">
-                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
-                      </svg>
-                      Virtual Event
-                    </div>
-                  </div>
-                </div>
-              </div>
+									<!-- Tags -->
+									<div
+										v-if="modalEventData.tags && modalEventData.tags.length > 0"
+										class="mb-6"
+									>
+										<h4 class="font-medium text-gray-900 mb-2">
+											Tags
+										</h4>
+										<div class="flex flex-wrap gap-2">
+											<span
+												v-for="tag in modalEventData.tags"
+												:key="tag"
+												class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full font-medium"
+											>
+												{{ tag }}
+											</span>
+										</div>
+									</div>
 
-              <!-- Event Map - Full Width -->
-              <EventMap :event="modalEventData" />
+									<!-- Additional Info -->
+									<div class="space-y-3 text-sm">
+										<div
+											v-if="modalEventData.isFree"
+											class="flex items-center text-green-600"
+										>
+											<svg
+												class="w-4 h-4 mr-2"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+											>
+												<path
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="M5 13l4 4L19 7"
+												/>
+											</svg>
+											Free Event
+										</div>
+										<div
+											v-if="modalEventData.isVirtual"
+											class="flex items-center text-blue-600"
+										>
+											<svg
+												class="w-4 h-4 mr-2"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+											>
+												<path
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"
+												/>
+											</svg>
+											Virtual Event
+										</div>
+									</div>
+								</div>
+							</div>
 
-              <div class="flex gap-4 pt-6 border-t border-gray-200/50">
-                <button
-                  @click="rsvpEvent(modalEventData, 'going')"
-                  class="flex-1 py-4 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-medium text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105"
-                  :class="{ 'from-green-600 to-green-700 hover:from-green-700 hover:to-green-800': (modalEventData as any).rsvpStatus === 'going' }"
-                >
-                  {{ (modalEventData as any).rsvpStatus === 'going' ? '✓ Going' : 'I\'m Going' }}
-                </button>
-                <button
-                  @click="rsvpEvent(modalEventData, 'interested')"
-                  class="flex-1 py-4 px-6 bg-white border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 font-medium text-lg shadow-sm hover:shadow-md transform hover:-translate-y-1 hover:scale-105"
-                  :class="{ 'border-indigo-600 text-indigo-600 bg-indigo-50': (modalEventData as any).rsvpStatus === 'interested' }"
-                >
-                  {{ (modalEventData as any).rsvpStatus === 'interested' ? '✓ Interested' : 'Interested' }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </Transition>
-      </div>
-    </Transition>
-  </div>
+							<!-- Event Map - Full Width -->
+							<EventMap :event="modalEventData" />
+
+							<div class="flex gap-4 pt-6 border-t border-gray-200/50">
+								<button
+									class="flex-1 py-4 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-medium text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105"
+									:class="{ 'from-green-600 to-green-700 hover:from-green-700 hover:to-green-800': (modalEventData as any).rsvpStatus === 'going' }"
+									@click="rsvpEvent(modalEventData, 'going')"
+								>
+									{{ (modalEventData as any).rsvpStatus === 'going' ? '✓ Going' : 'I\'m Going' }}
+								</button>
+								<button
+									class="flex-1 py-4 px-6 bg-white border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 font-medium text-lg shadow-sm hover:shadow-md transform hover:-translate-y-1 hover:scale-105"
+									:class="{ 'border-indigo-600 text-indigo-600 bg-indigo-50': (modalEventData as any).rsvpStatus === 'interested' }"
+									@click="rsvpEvent(modalEventData, 'interested')"
+								>
+									{{ (modalEventData as any).rsvpStatus === 'interested' ? '✓ Interested' : 'Interested' }}
+								</button>
+							</div>
+						</div>
+					</div>
+				</Transition>
+			</div>
+		</Transition>
+
+		<!-- Research Guide Modal -->
+		<Transition
+			enter-active-class="transition-all duration-300 ease-out"
+			enter-from-class="opacity-0"
+			enter-to-class="opacity-100"
+			leave-active-class="transition-all duration-200 ease-in"
+			leave-from-class="opacity-100"
+			leave-to-class="opacity-0"
+		>
+			<div
+				v-if="showResearchGuide"
+				class="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50 p-4"
+				@click="showResearchGuide = false"
+			>
+				<Transition
+					enter-active-class="transition-all duration-300 ease-out"
+					enter-from-class="opacity-0 transform scale-95 translate-y-4"
+					enter-to-class="opacity-100 transform scale-100 translate-y-0"
+					leave-active-class="transition-all duration-200 ease-in"
+					leave-from-class="opacity-100 transform scale-100 translate-y-0"
+					leave-to-class="opacity-0 transform scale-95 translate-y-4"
+				>
+					<div
+						v-if="showResearchGuide"
+						class="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl max-w-4xl w-full mx-4 max-h-[85vh] overflow-y-auto border border-white/20"
+						@click.stop
+					>
+						<!-- Research Guide Content -->
+						<div class="p-8">
+							<div class="flex justify-between items-start mb-8">
+								<div class="flex-1 pr-6">
+									<h2 class="text-2xl font-bold text-gray-900 mb-2">
+										🔬 Student Research Guide
+									</h2>
+									<p class="text-gray-600">
+										Your comprehensive guide to finding and getting involved in undergraduate research opportunities
+									</p>
+								</div>
+								<button
+									class="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100"
+									@click="showResearchGuide = false"
+								>
+									<svg
+										class="w-6 h-6"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M6 18L18 6M6 6l12 12"
+										/>
+									</svg>
+								</button>
+							</div>
+
+							<div class="space-y-8">
+								<!-- Step 1 -->
+								<div class="border-l-4 border-indigo-500 pl-6">
+									<h3 class="text-xl font-semibold text-gray-900 mb-3">
+										1. Explore Your Interests
+									</h3>
+									<p class="text-gray-700 mb-4">
+										Start by identifying areas that genuinely interest you. Research is most rewarding when you're passionate about the subject matter.
+									</p>
+									<ul class="list-disc list-inside text-gray-600 space-y-2">
+										<li>Review your coursework - which topics sparked your curiosity?</li>
+										<li>Browse faculty research profiles in your department</li>
+										<li>Attend research seminars and department talks</li>
+										<li>Read recent papers in fields that interest you</li>
+									</ul>
+								</div>
+
+								<!-- Step 2 -->
+								<div class="border-l-4 border-green-500 pl-6">
+									<h3 class="text-xl font-semibold text-gray-900 mb-3">
+										2. Find Faculty Mentors
+									</h3>
+									<p class="text-gray-700 mb-4">
+										Building relationships with faculty is crucial for getting involved in research. Start early and be genuine in your approach.
+									</p>
+									<ul class="list-disc list-inside text-gray-600 space-y-2">
+										<li>Visit professors during office hours to discuss their research</li>
+										<li>Attend department events and research presentations</li>
+										<li>Read faculty publications before reaching out</li>
+										<li>Volunteer for research-related tasks or projects</li>
+									</ul>
+								</div>
+
+								<!-- Step 3 -->
+								<div class="border-l-4 border-purple-500 pl-6">
+									<h3 class="text-xl font-semibold text-gray-900 mb-3">
+										3. Develop Essential Skills
+									</h3>
+									<p class="text-gray-700 mb-4">
+										Research requires both technical and soft skills. Start building these early in your academic journey.
+									</p>
+									<ul class="list-disc list-inside text-gray-600 space-y-2">
+										<li><strong>Technical:</strong> Programming, data analysis, lab techniques, literature review</li>
+										<li><strong>Communication:</strong> Scientific writing, presentation skills, peer collaboration</li>
+										<li><strong>Critical Thinking:</strong> Problem-solving, experimental design, hypothesis testing</li>
+										<li><strong>Time Management:</strong> Project planning, deadline management, work-life balance</li>
+									</ul>
+								</div>
+
+								<!-- Step 4 -->
+								<div class="border-l-4 border-orange-500 pl-6">
+									<h3 class="text-xl font-semibold text-gray-900 mb-3">
+										4. Apply for Programs & Funding
+									</h3>
+									<p class="text-gray-700 mb-4">
+										Many institutions offer structured research programs for undergraduates. These provide excellent entry points.
+									</p>
+									<ul class="list-disc list-inside text-gray-600 space-y-2">
+										<li>Undergraduate Research Opportunity Programs (UROP)</li>
+										<li>Summer research internships (REU, industry programs)</li>
+										<li>Independent study courses for research credit</li>
+										<li>Research scholarships and grants for undergraduates</li>
+									</ul>
+								</div>
+
+								<!-- Tips Box -->
+								<div class="bg-blue-50 rounded-xl p-6 border border-blue-200">
+									<h3 class="text-lg font-semibold text-blue-900 mb-4">
+										💡 Pro Tips for Success
+									</h3>
+									<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+										<div>
+											<h4 class="font-medium text-blue-800 mb-2">
+												When Reaching Out:
+											</h4>
+											<ul class="text-blue-700 space-y-1">
+												<li>• Be specific about your interests</li>
+												<li>• Show you've done your homework</li>
+												<li>• Attach a resume/CV</li>
+												<li>• Be persistent but respectful</li>
+											</ul>
+										</div>
+										<div>
+											<h4 class="font-medium text-blue-800 mb-2">
+												Building Your Profile:
+											</h4>
+											<ul class="text-blue-700 space-y-1">
+												<li>• Maintain a strong GPA</li>
+												<li>• Get involved in relevant clubs</li>
+												<li>• Attend conferences when possible</li>
+												<li>• Document your work and progress</li>
+											</ul>
+										</div>
+									</div>
+								</div>
+
+								<!-- Action Items -->
+								<div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-6 text-white">
+									<h3 class="text-lg font-semibold mb-4">
+										🚀 Ready to Start? Your Next Steps:
+									</h3>
+									<div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+										<div class="bg-white/20 rounded-lg p-4">
+											<h4 class="font-medium mb-2">
+												This Week
+											</h4>
+											<p>Identify 3-5 faculty members whose research interests you</p>
+										</div>
+										<div class="bg-white/20 rounded-lg p-4">
+											<h4 class="font-medium mb-2">
+												Next Week
+											</h4>
+											<p>Attend office hours or research seminars to learn more</p>
+										</div>
+										<div class="bg-white/20 rounded-lg p-4">
+											<h4 class="font-medium mb-2">
+												This Month
+											</h4>
+											<p>Apply to research programs and reach out to potential mentors</p>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="pt-6 border-t border-gray-200/50 mt-8">
+								<button
+									class="w-full py-4 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-medium text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+									@click="showResearchGuide = false"
+								>
+									Got it! Let's Get Started 🎯
+								</button>
+							</div>
+						</div>
+					</div>
+				</Transition>
+			</div>
+		</Transition>
+	</div>
 </template>
 
 <script setup lang="ts">
@@ -860,30 +1022,44 @@ import { useUser } from '~/composables/useUser';
 import { useEvents } from '~/composables/useEvents';
 import { useClubs } from '~/composables/useClubs';
 
-// Redirect to login if not authenticated
-const { user, isAuthenticated, userInitials, fullName, logout } = useUser();
-if (!isAuthenticated.value) {
-  await navigateTo('/');
-}
+// Check authentication and redirect if needed
+const { user, isAuthenticated, userInitials, fullName, logout, init, isInitialized, isLoading } = useUser();
 
-// Use API services for data
+// Enhanced authentication check with proper initialization
+const checkAuthentication = async () => {
+	// Initialize user state on page load if not already done
+	if (!isInitialized.value) {
+		await init();
+	}
+
+	// After initialization, check if user is authenticated
+	// if (!isLoading.value && !isAuthenticated.value) {
+	// 	await navigateTo('/login');
+	// 	return;
+	// }
+};
+
+// Run authentication check on mount
+onMounted(async () => {
+	await checkAuthentication();
+});// Use API services for data
 const {
-  events,
-  recommendedEvents,
-  isLoading: eventsLoading,
-  error: eventsError,
-  fetchRecommendedEvents,
-  rsvpToEvent,
-  toggleEventBookmark
+	events,
+	recommendedEvents,
+	isLoading: eventsLoading,
+	error: eventsError,
+	fetchRecommendedEvents,
+	rsvpToEvent,
+	toggleEventBookmark,
 } = useEvents();
 
 const {
-  clubs,
-  recommendedClubs,
-  isLoading: clubsLoading,
-  error: clubsError,
-  fetchRecommendedClubs,
-  toggleClubFollow
+	clubs,
+	recommendedClubs,
+	isLoading: clubsLoading,
+	error: clubsError,
+	fetchRecommendedClubs,
+	toggleClubFollow,
 } = useClubs();
 
 // Modal and tour states
@@ -892,6 +1068,7 @@ const showTour = ref(false);
 const planAccepted = ref(false);
 const showNotifications = ref(false);
 const showProfileDropdown = ref(false);
+const showResearchGuide = ref(false);
 
 // Event modal states
 const showEventModal = ref(false);
@@ -902,12 +1079,12 @@ const commitments = ref<Commitment[]>([]);
 
 // Computed values for dashboard stats
 const upcomingEvents = computed(() => {
-  const now = new Date();
-  const upcoming = recommendedEvents.value.filter(event => 
-    new Date(event.startTime) > now
-  ).slice(0, 5); // Show only next 5 events
-  
-  return upcoming.length > 0 ? upcoming : events.value.slice(0, 5);
+	const now = new Date();
+	const upcoming = recommendedEvents.value.filter(event =>
+		new Date(event.startTime) > now,
+	).slice(0, 5); // Show only next 5 events
+
+	return upcoming.length > 0 ? upcoming : events.value.slice(0, 5);
 });
 
 // Starter plan data
@@ -985,7 +1162,7 @@ onMounted(async () => {
 	try {
 		await Promise.all([
 			fetchRecommendedEvents(10),
-			fetchRecommendedClubs(6)
+			fetchRecommendedClubs(6),
 		]);
 	} catch (error) {
 		console.error('Failed to load dashboard data:', error);
@@ -1045,7 +1222,7 @@ const acceptOpportunity = async (club: Club) => {
 	try {
 		// Follow the club via API
 		await toggleClubFollow(club.id);
-		
+
 		// Add to local commitments list
 		const newCommitment: Commitment = {
 			id: 'commitment-' + Date.now(),
@@ -1092,7 +1269,7 @@ const acceptStarterPlan = async () => {
 				return null;
 			}
 		});
-		
+
 		const followedClubs = (await Promise.all(followPromises)).filter(Boolean) as Club[];
 
 		// Add commitments for followed clubs
@@ -1186,7 +1363,7 @@ const rsvpEvent = async (event: Event, status: 'going' | 'interested' | 'not-goi
 	try {
 		await rsvpToEvent(event.id, status);
 		console.log('RSVP for event:', event.name, 'with status:', status);
-		
+
 		// Update local state for immediate UI feedback
 		const eventInList = upcomingEvents.value.find(e => e.id === event.id);
 		if (eventInList && 'rsvpStatus' in eventInList) {
@@ -1201,7 +1378,7 @@ const rsvpEvent = async (event: Event, status: 'going' | 'interested' | 'not-goi
 };
 
 // Mock data fallbacks for involvement plan (using actual API data when available)
-const mockHighCommitment = computed(() => 
+const mockHighCommitment = computed(() =>
 	recommendedClubs.value[0] || {
 		id: 'club-high-1',
 		name: 'AI Research Club',
@@ -1212,7 +1389,7 @@ const mockHighCommitment = computed(() =>
 		upcomingEvents: [],
 		logoUrl: '',
 		url: 'https://ai.research.ucf.edu',
-	}
+	},
 );
 
 const mockLowCommitment1 = computed(() =>
@@ -1226,7 +1403,7 @@ const mockLowCommitment1 = computed(() =>
 		upcomingEvents: [],
 		logoUrl: '',
 		url: 'https://techentrepreneurship.ucf.edu',
-	}
+	},
 );
 
 const mockLowCommitment2 = computed(() =>
@@ -1240,7 +1417,7 @@ const mockLowCommitment2 = computed(() =>
 		upcomingEvents: [],
 		logoUrl: '',
 		url: 'https://acm.ucf.edu',
-	}
+	},
 );
 
 const mockDiscoveryClub = computed(() =>
@@ -1254,7 +1431,7 @@ const mockDiscoveryClub = computed(() =>
 		upcomingEvents: [],
 		logoUrl: '',
 		url: 'https://photo.ucf.edu',
-	}
+	},
 );
 
 // Check for fresh signup on mount

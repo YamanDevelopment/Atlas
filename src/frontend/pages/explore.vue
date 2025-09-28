@@ -1,311 +1,635 @@
-<!-- Explore Page: Integration with real authentication and API services -->
+<!-- Explore Page: Three-Section Horizontal Scrollable Layout -->
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-    <!-- Navigation -->
-    <nav class="bg-white/80 backdrop-blur-lg shadow-sm border-b border-white/20">
-      <div class="max-w-7xl mx-auto px-4">
-        <div class="flex justify-between items-center h-16">
-          <div class="flex items-center space-x-8">
-            <div class="text-2xl font-bold text-indigo-600">
-              OppTrack
-            </div>
-            <div class="hidden md:flex space-x-6">
-              <NuxtLink
-                to="/dashboard"
-                class="text-gray-500 hover:text-gray-700 transition-colors duration-200"
-              >
-                Dashboard
-              </NuxtLink>
-              <NuxtLink
-                to="/explore"
-                class="text-indigo-600 font-medium relative"
-              >
-                Explore
-                <div class="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full" />
-              </NuxtLink>
-              <NuxtLink
-                to="/profile"
-                class="text-gray-500 hover:text-gray-700 transition-colors duration-200"
-              >
-                Profile
-              </NuxtLink>
-            </div>
-          </div>
+	<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+		<!-- Navigation -->
+		<nav class="bg-white/80 backdrop-blur-lg shadow-sm border-b border-white/20">
+			<div class="max-w-7xl mx-auto px-4">
+				<div class="flex justify-between items-center h-16">
+					<div class="flex items-center space-x-8">
+						<NuxtLink
+							to="/"
+							class="text-2xl font-bold text-indigo-600 hover:text-indigo-700 transition-colors duration-200"
+						>
+							OppTrack
+						</NuxtLink>
+						<div class="hidden md:flex space-x-6">
+							<NuxtLink
+								to="/dashboard"
+								class="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+							>
+								Dashboard
+							</NuxtLink>
+							<NuxtLink
+								to="/explore"
+								class="text-indigo-600 font-medium relative"
+							>
+								Explore
+								<div class="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full" />
+							</NuxtLink>
+							<NuxtLink
+								to="/profile"
+								class="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+							>
+								Profile
+							</NuxtLink>
+						</div>
+					</div>
 
-          <div class="flex items-center space-x-4">
-            <button class="text-gray-500 hover:text-gray-700 transition-colors duration-200">
-              <svg
-                class="w-6 h-6"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </button>
+					<div class="flex items-center space-x-4">
+						<!-- User Profile Button -->
+						<NuxtLink
+							to="/profile"
+							class="w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-medium hover:shadow-lg transform hover:scale-105 transition-all duration-200 cursor-pointer"
+						>
+							{{ userInitials || 'U' }}
+						</NuxtLink>
+					</div>
+				</div>
+			</div>
+		</nav>
 
-            <NuxtLink
-              to="/profile"
-              class="w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-medium hover:shadow-lg transform hover:scale-105 transition-all duration-200 cursor-pointer"
-            >
-              {{ userInitials || 'U' }}
-            </NuxtLink>
-          </div>
-        </div>
-      </div>
-    </nav>
+		<!-- Loading State -->
+		<div
+			v-if="isLoading || eventsLoading || clubsLoading"
+			class="max-w-7xl mx-auto px-4 py-8"
+		>
+			<div class="text-center">
+				<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto" />
+				<p class="mt-4 text-gray-600">
+					Loading opportunities...
+				</p>
+			</div>
+		</div>
 
-    <!-- Loading State -->
-    <div v-if="isLoading || eventsLoading || clubsLoading" class="max-w-7xl mx-auto px-4 py-8">
-      <div class="text-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-        <p class="mt-4 text-gray-600">Loading opportunities...</p>
-      </div>
-    </div>
+		<!-- Error State -->
+		<div
+			v-else-if="error || eventsError || clubsError"
+			class="max-w-7xl mx-auto px-4 py-8"
+		>
+			<div class="text-center text-red-600">
+				<p>{{ error || eventsError || clubsError }}</p>
+				<button
+					class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+					@click="reloadData"
+				>
+					Try Again
+				</button>
+			</div>
+		</div>
 
-    <!-- Error State -->
-    <div v-else-if="error || eventsError || clubsError" class="max-w-7xl mx-auto px-4 py-8">
-      <div class="text-center text-red-600">
-        <p>{{ error || eventsError || clubsError }}</p>
-        <button 
-          @click="reloadData" 
-          class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-        >
-          Try Again
-        </button>
-      </div>
-    </div>
+		<!-- Main Content -->
+		<main
+			v-else
+			class="max-w-7xl mx-auto px-4 py-8"
+		>
+			<!-- Page Header -->
+			<div class="text-center mb-12">
+				<h1 class="text-4xl font-bold text-gray-900 mb-4">
+					Explore Opportunities
+				</h1>
+				<p class="text-lg text-gray-600 max-w-2xl mx-auto">
+					Discover student organizations, exciting events, and cutting-edge research labs
+				</p>
+			</div>
 
-    <!-- Main Content -->
-    <main v-else class="max-w-7xl mx-auto px-4 py-8">
-      <!-- Search Section -->
-      <div class="mb-8">
-        <div class="bg-white/80 backdrop-blur-lg rounded-2xl shadow-sm p-6 border border-white/20">
-          <h1 class="text-3xl font-bold text-gray-900 mb-6">
-            Explore Opportunities
-          </h1>
-          
-          <!-- Search Input -->
-          <div class="relative mb-6">
-            <svg
-              class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Search clubs, events, or professors..."
-              class="w-full pl-10 pr-4 py-3 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-            />
-          </div>
+			<!-- Organizations Section -->
+			<section class="mb-12">
+				<div class="flex items-center justify-between mb-6">
+					<h2 class="text-2xl font-semibold text-gray-900">
+						Student Organizations
+					</h2>
+					<span class="text-sm text-gray-500">{{ clubs?.length || 0 }} organizations</span>
+				</div>
 
-          <!-- Quick Filters -->
-          <div class="flex flex-wrap gap-2">
-            <button
-              v-for="filter in quickFilters"
-              :key="filter.key"
-              class="px-4 py-2 rounded-full text-sm font-medium transition-all duration-200"
-              :class="activeFilters.includes(filter.key)
-                ? 'bg-indigo-600 text-white shadow-lg'
-                : 'bg-white/80 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border border-gray-200'"
-              @click="toggleFilter(filter.key)"
-            >
-              {{ filter.label }}
-            </button>
-          </div>
-        </div>
-      </div>
+				<div
+					v-if="clubs && clubs.length > 0"
+					class="relative"
+				>
+					<div class="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide">
+						<div
+							v-for="club in clubs"
+							:key="club.id"
+							class="flex-shrink-0 w-80 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer border border-gray-200"
+							@click="openModal('club', club)"
+						>
+							<div class="p-6">
+								<div class="flex items-start justify-between mb-4">
+									<div>
+										<h3 class="text-lg font-semibold text-gray-900 mb-2">
+											{{ club.name }}
+										</h3>
+										<p class="text-sm text-gray-600 line-clamp-3">
+											{{ club.shortDescription || club.description }}
+										</p>
+									</div>
+								</div>
 
-      <!-- Events Section - Show at Top -->
-      <div v-if="filteredEvents.length > 0" class="mb-8">
-        <div class="bg-white/80 backdrop-blur-lg rounded-2xl shadow-sm p-6 border border-white/20">
-          <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-            <span class="mr-2">🎯</span>
-            Upcoming Events
-          </h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div
-              v-for="event in filteredEvents.slice(0, 6)"
-              :key="event.id"
-              class="bg-gradient-to-br from-white to-gray-50/50 backdrop-blur-sm rounded-xl shadow-sm border border-white/20 p-4 hover:shadow-md transition-all duration-300 cursor-pointer group"
-              @click="openModal('event', event)"
-            >
-              <div class="mb-3">
-                <h3 class="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors duration-200">
-                  {{ event.name }}
-                </h3>
-                <p class="text-sm text-gray-600 mt-1">
-                  {{ event.shortDescription || event.description?.slice(0, 80) + '...' }}
-                </p>
-              </div>
-              
-              <div class="flex items-center text-xs text-gray-500 mb-2">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                {{ formatEventDate(event.startTime) }}
-              </div>
-              
-              <div class="flex items-center justify-between">
-                <div class="flex items-center text-xs text-gray-500">
-                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  </svg>
-                  {{ event.location }}
-                </div>
-                <button
-                  @click.stop="rsvpEvent(event, 'interested')"
-                  class="px-3 py-1 bg-indigo-600 text-white text-xs rounded-full hover:bg-indigo-700 transition-colors duration-200"
-                >
-                  Interested
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+								<div class="flex flex-wrap gap-2 mb-4">
+									<span
+										v-for="category in club.categories?.slice(0, 3)"
+										:key="category.id"
+										class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full"
+									>
+										{{ category.name }}
+									</span>
+								</div>
 
-      <!-- Dynamic Categories -->
-      <div v-if="dynamicCategories.length > 0">
-        <div
-          v-for="category in dynamicCategories"
-          :key="category.tag"
-          class="mb-8"
-        >
-          <div class="bg-white/80 backdrop-blur-lg rounded-2xl shadow-sm p-6 border border-white/20">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">
-              {{ category.title }}
-              <span class="text-lg font-normal text-gray-500 ml-2">
-                ({{ category.clubs.length }} organizations)
-              </span>
-            </h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div
-                v-for="club in category.clubs"
-                :key="club.id"
-                class="bg-gradient-to-br from-white to-gray-50/50 backdrop-blur-sm rounded-xl shadow-sm border border-white/20 p-4 hover:shadow-md transition-all duration-300 cursor-pointer group"
-                @click="openModal('club', club)"
-              >
-                <div class="mb-3">
-                  <h3 class="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors duration-200">
-                    {{ club.name }}
-                  </h3>
-                  <p class="text-sm text-gray-600 mt-1">
-                    {{ club.shortDescription || club.description?.slice(0, 80) + '...' }}
-                  </p>
-                </div>
-                
-                <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
-                  <span>👥 {{ club.memberCount }} members</span>
-                  <span v-if="club.timeCommitment">⏱️ {{ club.timeCommitment }}</span>
-                </div>
-                
-                <!-- Tags -->
-                <div v-if="club.tags && club.tags.length > 0" class="flex flex-wrap gap-1 mb-3">
-                  <span
-                    v-for="tag in club.tags.slice(0, 3)"
-                    :key="tag"
-                    class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"
-                  >
-                    {{ tag }}
-                  </span>
-                </div>
-                
-                <button
-                  @click.stop="getInvolved(club)"
-                  class="w-full py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors duration-200"
-                >
-                  {{ club.isFollowing ? 'Following' : 'Get Involved' }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+								<div class="flex items-center justify-between">
+									<div class="flex items-center space-x-2">
+										<span class="text-sm text-gray-500">{{ club.memberCount || 0 }} members</span>
+										<span
+											v-if="club.location"
+											class="text-sm text-gray-500"
+										>• {{ club.location }}</span>
+									</div>
+									<button
+										class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors"
+										@click.stop="joinClub(club)"
+									>
+										{{ club.isJoined ? 'Joined' : 'Join' }}
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 
-      <!-- Professors Section -->
-      <div v-if="filteredProfessors.length > 0" class="mb-8">
-        <div class="bg-white/80 backdrop-blur-lg rounded-2xl shadow-sm p-6 border border-white/20">
-          <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-            <span class="mr-2">👨‍🏫</span>
-            Connect with Professors
-          </h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div
-              v-for="professor in filteredProfessors"
-              :key="professor.id"
-              class="bg-gradient-to-br from-white to-gray-50/50 backdrop-blur-sm rounded-xl shadow-sm border border-white/20 p-4 hover:shadow-md transition-all duration-300 cursor-pointer group"
-              @click="openModal('professor', professor)"
-            >
-              <div class="mb-3">
-                <h3 class="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors duration-200">
-                  {{ professor.name }}
-                </h3>
-                <p class="text-sm text-gray-600">
-                  {{ professor.title }}, {{ professor.department }}
-                </p>
-              </div>
-              
-              <div class="mb-3">
-                <p class="text-xs text-gray-500 mb-2">Research Areas:</p>
-                <div class="flex flex-wrap gap-1">
-                  <span
-                    v-for="area in professor.researchAreas.slice(0, 3)"
-                    :key="area"
-                    class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full"
-                  >
-                    {{ area }}
-                  </span>
-                </div>
-              </div>
-              
-              <button
-                @click.stop="connectWithProfessor(professor)"
-                class="w-full py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors duration-200"
-                :disabled="!professor.isAcceptingStudents"
-              >
-                {{ professor.isAcceptingStudents ? 'Connect' : 'Not Available' }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
+				<div
+					v-else
+					class="text-center py-12 text-gray-500"
+				>
+					<p>No student organizations available at the moment.</p>
+				</div>
+			</section>
 
-    <!-- Modal -->
-    <ModalOverlay 
-      :show="showModal"
-      :type="modalType"
-      :data="modalData"
-      @close="closeModal"
-      @get-involved="getInvolved"
-      @rsvp-event="rsvpEvent"
-      @connect-professor="connectWithProfessor"
-    />
-  </div>
+			<!-- Events Section -->
+			<section class="mb-12">
+				<div class="flex items-center justify-between mb-6">
+					<h2 class="text-2xl font-semibold text-gray-900">
+						Upcoming Events
+					</h2>
+					<span class="text-sm text-gray-500">{{ events?.length || 0 }} events</span>
+				</div>
+
+				<div
+					v-if="events && events.length > 0"
+					class="relative"
+				>
+					<div class="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide">
+						<div
+							v-for="event in events"
+							:key="event.id"
+							class="flex-shrink-0 w-80 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer border border-gray-200"
+							@click="openModal('event', event)"
+						>
+							<div class="p-6">
+								<div class="flex items-start justify-between mb-4">
+									<div>
+										<h3 class="text-lg font-semibold text-gray-900 mb-2">
+											{{ event.name || event.title }}
+										</h3>
+										<p class="text-sm text-gray-600 line-clamp-3">
+											{{ event.shortDescription || event.description }}
+										</p>
+									</div>
+								</div>
+
+								<div class="flex flex-wrap gap-2 mb-4">
+									<span
+										v-for="category in event.categories?.slice(0, 3)"
+										:key="category.id"
+										class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full"
+									>
+										{{ category.name }}
+									</span>
+								</div>
+
+								<div class="flex items-center justify-between">
+									<div class="text-sm text-gray-500">
+										<div>{{ formatEventDate(event.startTime) }}</div>
+										<div v-if="event.location">
+											{{ event.location }}
+										</div>
+									</div>
+									<button
+										class="p-2 rounded-full hover:bg-gray-100 transition-colors"
+										:title="event.isBookmarked ? 'Remove Bookmark' : 'Bookmark Event'"
+										@click.stop="bookmarkEvent(event)"
+									>
+										<svg
+											class="w-5 h-5"
+											:class="event.isBookmarked ? 'text-yellow-500 fill-current' : 'text-gray-400'"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+											/>
+										</svg>
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div
+					v-else
+					class="text-center py-12 text-gray-500"
+				>
+					<p>No upcoming events available at the moment.</p>
+				</div>
+			</section>
+
+			<!-- Labs Section -->
+			<section>
+				<div class="flex items-center justify-between mb-6">
+					<h2 class="text-2xl font-semibold text-gray-900">
+						Research Labs
+					</h2>
+					<span class="text-sm text-gray-500">{{ labs?.length || 0 }} labs</span>
+				</div>
+
+				<div
+					v-if="labs && labs.length > 0"
+					class="relative"
+				>
+					<div class="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide">
+						<div
+							v-for="lab in labs"
+							:key="lab.id"
+							class="flex-shrink-0 w-80 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer border border-gray-200"
+							@click="openModal('lab', lab)"
+						>
+							<div class="p-6">
+								<div class="flex items-start justify-between mb-4">
+									<div>
+										<h3 class="text-lg font-semibold text-gray-900 mb-2">
+											{{ lab.labName || lab.name }}
+										</h3>
+										<p class="text-sm text-gray-600 line-clamp-3">
+											{{ lab.labDescription || lab.description }}
+										</p>
+									</div>
+								</div>
+
+								<div class="flex flex-wrap gap-2 mb-4">
+									<span
+										v-for="area in lab.researchAreas?.slice(0, 3) || []"
+										:key="area"
+										class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full"
+									>
+										{{ area }}
+									</span>
+								</div>
+
+								<div class="flex items-center justify-between">
+									<div class="space-y-1">
+										<div class="text-sm text-gray-500">
+											{{ lab.department }}
+										</div>
+										<div class="text-xs text-gray-400">
+											PI: {{ lab.name }}
+										</div>
+									</div>
+									<div class="flex items-center space-x-2">
+										<span
+											class="px-2 py-1 text-xs rounded-full"
+											:class="lab.isAcceptingStudents ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+										>
+											{{ lab.isAcceptingStudents ? 'Available' : 'Full' }}
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div
+					v-else
+					class="text-center py-12 text-gray-500"
+				>
+					<p>No research labs available at the moment.</p>
+				</div>
+			</section>
+		</main>
+
+		<!-- Club Modal -->
+		<Transition name="modal">
+			<div
+				v-if="showClubModal && selectedClub"
+				class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+				@click="showClubModal = false"
+			>
+				<div
+					class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+					@click.stop
+				>
+					<div class="p-6">
+						<div class="flex justify-between items-start mb-4">
+							<h2 class="text-2xl font-bold text-gray-900">
+								{{ selectedClub.name }}
+							</h2>
+							<button
+								class="text-gray-400 hover:text-gray-600"
+								@click="showClubModal = false"
+							>
+								<svg
+									class="w-6 h-6"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M6 18L18 6M6 6l12 12"
+									/>
+								</svg>
+							</button>
+						</div>
+
+						<div class="space-y-4">
+							<p class="text-gray-600">
+								{{ selectedClub.description }}
+							</p>
+
+							<div v-if="selectedClub.categories && selectedClub.categories.length > 0">
+								<h3 class="font-semibold mb-2">
+									Categories
+								</h3>
+								<div class="flex flex-wrap gap-2">
+									<span
+										v-for="category in selectedClub.categories"
+										:key="category.id"
+										class="px-3 py-1 bg-indigo-100 text-indigo-700 text-sm rounded-full"
+									>
+										{{ category.name }}
+									</span>
+								</div>
+							</div>
+
+							<div class="grid grid-cols-2 gap-4 text-sm">
+								<div v-if="selectedClub.memberCount">
+									<span class="font-semibold">Members:</span> {{ selectedClub.memberCount }}
+								</div>
+								<div v-if="selectedClub.location">
+									<span class="font-semibold">Location:</span> {{ selectedClub.location }}
+								</div>
+								<div v-if="selectedClub.meetingSchedule">
+									<span class="font-semibold">Meetings:</span> {{ selectedClub.meetingSchedule }}
+								</div>
+							</div>
+
+							<div v-if="selectedClub.upcomingEvents && selectedClub.upcomingEvents.length > 0">
+								<h3 class="font-semibold mb-2">
+									Upcoming Events
+								</h3>
+								<div class="space-y-2">
+									<div
+										v-for="event in selectedClub.upcomingEvents.slice(0, 3)"
+										:key="event.id"
+										class="p-3 bg-gray-50 rounded-lg"
+									>
+										<div class="font-medium">
+											{{ event.name }}
+										</div>
+										<div class="text-sm text-gray-600">
+											{{ formatEventDate(event.startDate || event.startTime) }}
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="flex space-x-4 pt-4">
+								<button
+									class="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors"
+									@click="joinClub(selectedClub)"
+								>
+									{{ selectedClub.isJoined ? 'Joined' : 'Join' }}
+								</button>
+								<button
+									v-if="selectedClub.url"
+									class="flex-1 border border-indigo-600 text-indigo-600 py-2 px-4 rounded-lg hover:bg-indigo-50 transition-colors"
+									@click="openUrl(selectedClub.url)"
+								>
+									Visit Website
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</Transition>
+
+		<!-- Event Modal -->
+		<Transition name="modal">
+			<div
+				v-if="showEventModal && selectedEvent"
+				class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+				@click="showEventModal = false"
+			>
+				<div
+					class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+					@click.stop
+				>
+					<div class="p-6">
+						<div class="flex justify-between items-start mb-4">
+							<h2 class="text-2xl font-bold text-gray-900">
+								{{ selectedEvent.name || selectedEvent.title }}
+							</h2>
+							<button
+								class="text-gray-400 hover:text-gray-600"
+								@click="showEventModal = false"
+							>
+								<svg
+									class="w-6 h-6"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M6 18L18 6M6 6l12 12"
+									/>
+								</svg>
+							</button>
+						</div>
+
+						<div class="space-y-4">
+							<p class="text-gray-600">
+								{{ selectedEvent.description }}
+							</p>
+
+							<div class="grid grid-cols-1 gap-4 text-sm">
+								<div>
+									<span class="font-semibold">Date & Time:</span> {{ formatEventDate(selectedEvent.startTime) }}
+								</div>
+								<div v-if="selectedEvent.location">
+									<span class="font-semibold">Location:</span> {{ selectedEvent.location }}
+								</div>
+								<div v-if="selectedEvent.organization">
+									<span class="font-semibold">Hosted by:</span> {{ selectedEvent.organization.name }}
+								</div>
+							</div>
+
+							<div v-if="selectedEvent.categories && selectedEvent.categories.length > 0">
+								<h3 class="font-semibold mb-2">
+									Categories
+								</h3>
+								<div class="flex flex-wrap gap-2">
+									<span
+										v-for="category in selectedEvent.categories"
+										:key="category.id"
+										class="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full"
+									>
+										{{ category.name }}
+									</span>
+								</div>
+							</div>
+
+							<div class="flex space-x-2 pt-4">
+								<button
+									class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+									@click="bookmarkEvent(selectedEvent)"
+								>
+									<svg
+										class="w-5 h-5 mr-2"
+										:class="selectedEvent.isBookmarked ? 'text-yellow-500 fill-current' : 'text-gray-400'"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+										/>
+									</svg>
+									{{ selectedEvent.isBookmarked ? 'Bookmarked' : 'Bookmark' }}
+								</button>
+								<button
+									v-if="selectedEvent.url"
+									class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
+									@click="openUrl(selectedEvent.url)"
+								>
+									Visit Event
+								</button>
+								<button
+									v-else
+									class="flex-1 bg-gray-400 text-white py-2 px-4 rounded-lg cursor-not-allowed"
+									disabled
+								>
+									No Event Link
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</Transition>
+
+		<!-- Professor Modal -->
+		<Transition name="modal">
+			<div
+				v-if="showProfessorModal && selectedProfessor"
+				class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+				@click="showProfessorModal = false"
+			>
+				<div
+					class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+					@click.stop
+				>
+					<div class="p-6">
+						<div class="flex justify-between items-start mb-4">
+							<h2 class="text-2xl font-bold text-gray-900">
+								{{ selectedProfessor.name }}
+							</h2>
+							<button
+								class="text-gray-400 hover:text-gray-600"
+								@click="showProfessorModal = false"
+							>
+								<svg
+									class="w-6 h-6"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M6 18L18 6M6 6l12 12"
+									/>
+								</svg>
+							</button>
+						</div>
+
+						<div class="space-y-4">
+							<p class="text-gray-600">
+								{{ selectedProfessor.title }}, {{ selectedProfessor.department }}
+							</p>
+
+							<div class="grid grid-cols-1 gap-4 text-sm">
+								<div v-if="selectedProfessor.department">
+									<span class="font-semibold">Department:</span> {{ selectedProfessor.department }}
+								</div>
+								<div v-if="selectedProfessor.email">
+									<span class="font-semibold">Email:</span> {{ selectedProfessor.email }}
+								</div>
+							</div>
+
+							<div v-if="selectedProfessor.researchAreas && selectedProfessor.researchAreas.length > 0">
+								<h3 class="font-semibold mb-2">
+									Research Areas
+								</h3>
+								<div class="flex flex-wrap gap-2">
+									<span
+										v-for="area in selectedProfessor.researchAreas"
+										:key="area"
+										class="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full"
+									>
+										{{ area }}
+									</span>
+								</div>
+							</div>
+
+							<div
+								v-if="selectedProfessor.whyRecommended"
+								class="bg-blue-50 p-4 rounded-lg"
+							>
+								<h4 class="font-semibold text-blue-900 mb-2">
+									Why Recommended
+								</h4>
+								<p class="text-blue-800 text-sm">
+									{{ selectedProfessor.whyRecommended }}
+								</p>
+							</div>
+
+							<div class="flex space-x-4 pt-4">
+								<button
+									class="flex-1 bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors"
+									:disabled="!selectedProfessor.isAcceptingStudents"
+									@click="connectWithProfessor(selectedProfessor)"
+								>
+									{{ selectedProfessor.isAcceptingStudents ? 'Connect' : 'Not Accepting Students' }}
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</Transition>
+	</div>
 </template>
 
 <script setup lang="ts">
@@ -315,246 +639,248 @@ import { useEvents } from '~/composables/useEvents';
 import { useClubs } from '~/composables/useClubs';
 import { apiService } from '~/services/api';
 
-// Authentication check
-const { user, isAuthenticated, userInitials } = useUser();
-if (!isAuthenticated.value) {
-  await navigateTo('/');
-}
+// Authentication setup
+const { userInitials, init, isAuthenticated } = useUser();
 
 // Use API services
 const {
-  events,
-  fetchAllEvents,
-  rsvpToEvent,
-  toggleEventBookmark,
-  getEventsByCategory,
-  getEventsByTag,
-  searchEvents,
-  isLoading: eventsLoading,
-  error: eventsError
+	events,
+	fetchAllEvents,
+	rsvpToEvent,
+	isLoading: eventsLoading,
+	error: eventsError,
 } = useEvents();
 
 const {
-  clubs,
-  fetchAllClubs,
-  toggleClubFollow,
-  getClubsByCategory,
-  getClubsByTag,
-  searchClubs,
-  isLoading: clubsLoading,
-  error: clubsError
+	clubs,
+	fetchAllClubs,
+	toggleClubFollow,
+	isLoading: clubsLoading,
+	error: clubsError,
 } = useClubs();
 
-// State
-const searchQuery = ref('');
-const activeFilters = ref<string[]>([]);
-
-// Modal state
-const showModal = ref(false);
-const modalType = ref<'club' | 'event' | 'professor'>('club');
-const modalData = ref<any>(null);
+// Modal states
+const showClubModal = ref(false);
+const showEventModal = ref(false);
+const showProfessorModal = ref(false);
+const selectedClub = ref<Club | null>(null);
+const selectedEvent = ref<Event | null>(null);
+const selectedProfessor = ref<Professor | null>(null);
 
 // Loading state
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 
-const quickFilters = [
-  { key: 'today', label: 'Today' },
-  { key: 'this-week', label: 'This Week' },
-  { key: 'free', label: 'Free' },
-  { key: 'virtual', label: 'Virtual' },
-];
+// Labs/Research data loaded from API
+interface Lab {
+	id: string;
+	name: string;
+	labName?: string;
+	description?: string;
+	labDescription?: string;
+	department: string;
+	principalInvestigator: string;
+	email?: string;
+	location?: string;
+	researchAreas: string[];
+	isAcceptingStudents: boolean;
+}
 
-// Professors data (mock for now)
-const professors = ref<Professor[]>([
-  {
-    id: 'prof-1',
-    name: 'Dr. Sarah Johnson',
-    title: 'Associate Professor',
-    department: 'Computer Science',
-    email: 'sarah.johnson@ucf.edu',
-    researchAreas: ['Machine Learning', 'Computer Vision', 'AI Ethics'],
-    whyRecommended: 'Leading researcher in your area of interest',
-    isAcceptingStudents: true
-  },
-  {
-    id: 'prof-2',
-    name: 'Dr. Michael Chen',
-    title: 'Professor',
-    department: 'Computer Science',
-    email: 'michael.chen@ucf.edu',
-    researchAreas: ['Cybersecurity', 'Network Security', 'Cryptography'],
-    whyRecommended: 'Excellent mentor for cybersecurity research',
-    isAcceptingStudents: true
-  },
-  {
-    id: 'prof-3',
-    name: 'Dr. Lisa Rodriguez',
-    title: 'Assistant Professor',
-    department: 'Data Science',
-    email: 'lisa.rodriguez@ucf.edu',
-    researchAreas: ['Natural Language Processing', 'Data Mining', 'Sentiment Analysis'],
-    whyRecommended: 'Perfect for NLP and text analysis projects',
-    isAcceptingStudents: true
-  },
-]);
+const labs = ref<Lab[]>([]);
 
-// Computed properties
-const filteredEvents = computed(() => {
-  let filtered = events.value;
-  
-  if (searchQuery.value) {
-    filtered = filtered.filter(event =>
-      event.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      event.description.toLowerCase().includes(searchQuery.value.toLowerCase())
-    );
-  }
-  
-  // Apply quick filters
-  if (activeFilters.value.includes('today')) {
-    const today = new Date();
-    filtered = filtered.filter(event => 
-      new Date(event.startTime).toDateString() === today.toDateString()
-    );
-  }
-  
-  if (activeFilters.value.includes('this-week')) {
-    const oneWeek = new Date();
-    oneWeek.setDate(oneWeek.getDate() + 7);
-    filtered = filtered.filter(event => 
-      new Date(event.startTime) <= oneWeek
-    );
-  }
-  
-  if (activeFilters.value.includes('free')) {
-    filtered = filtered.filter(event => event.isFree);
-  }
-  
-  if (activeFilters.value.includes('virtual')) {
-    filtered = filtered.filter(event => event.isVirtual);
-  }
-  
-  return filtered;
-});
+// Fetch labs data from API
+const fetchLabs = async (limit = 20) => {
+	try {
+		const labsData = await apiService.getLabs(limit);
 
-const filteredProfessors = computed(() => {
-  if (!searchQuery.value) return professors.value;
-  
-  return professors.value.filter(prof =>
-    prof.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    prof.department.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    prof.researchAreas.some(area => 
-      area.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
-  );
-});
+		labs.value = labsData.map((lab: any) => ({
+			id: lab.id.toString(),
+			name: lab.principalInvestigator || 'Principal Investigator',
+			labName: lab.name,
+			description: lab.description,
+			labDescription: lab.description,
+			department: lab.department,
+			principalInvestigator: lab.principalInvestigator,
+			email: lab.email || `${(lab.principalInvestigator || 'contact').toLowerCase().replace(/\s+/g, '.')}@ucf.edu`,
+			location: lab.location,
+			researchAreas: lab.researchAreas || [],
+			isAcceptingStudents: lab.acceptingStudents || false,
+		}));
+	} catch (fetchError) {
+		console.error('Failed to fetch labs:', fetchError);
+		labs.value = []; // Clear on error
+	}
+};
 
-// Dynamic categories based on API data
-const dynamicCategories = computed(() => {
-  const tagCounts = new Map<string, Club[]>();
-
-  // Group clubs by their most prominent tags
-  clubs.value.forEach(club => {
-    if (club.tags && club.tags.length > 0) {
-      club.tags.forEach(tag => {
-        if (!tagCounts.has(tag)) {
-          tagCounts.set(tag, []);
-        }
-        tagCounts.get(tag)!.push(club);
-      });
-    }
-  });
-
-  // Convert to categories array and sort by club count (most popular first)
-  const categories = Array.from(tagCounts.entries())
-    .filter(([_, clubs]) => clubs.length >= 1) // Show tags with at least 1 club
-    .sort(([, clubsA], [, clubsB]) => clubsB.length - clubsA.length)
-    .slice(0, 6) // Show top 6 categories
-    .map(([tag, clubs]) => ({
-      tag,
-      title: `${tag} Organizations`,
-      clubs: clubs.slice(0, 10), // Limit to 10 clubs per category
-    }));
-
-  return categories;
-});
+// Keep professors computed for backward compatibility (but empty now)
+const professors = computed(() => labs.value as any[]);
 
 // Initialize data on mount
 onMounted(async () => {
-  try {
-    isLoading.value = true;
-    await Promise.all([
-      fetchAllClubs(100),
-      fetchAllEvents(50)
-    ]);
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to load data';
-    console.error('Failed to load explore data:', err);
-  } finally {
-    isLoading.value = false;
-  }
+	// Initialize user authentication first
+	await init();
+
+	// Check authentication after initialization
+	if (!isAuthenticated.value) {
+		await navigateTo('/login');
+		return;
+	}
+
+	try {
+		isLoading.value = true;
+		await Promise.all([
+			fetchAllClubs(100),
+			fetchAllEvents(50),
+			fetchLabs(20),
+		]);
+	} catch (err) {
+		error.value = err instanceof Error ? err.message : 'Failed to load data';
+		console.error('Failed to load explore data:', err);
+	} finally {
+		isLoading.value = false;
+	}
 });
 
 // Methods
 const reloadData = async () => {
-  error.value = null;
-  await Promise.all([
-    fetchAllClubs(100),
-    fetchAllEvents(50)
-  ]);
+	error.value = null;
+	try {
+		await Promise.all([
+			fetchAllClubs(100),
+			fetchAllEvents(50),
+		]);
+	} catch (err) {
+		error.value = err instanceof Error ? err.message : 'Failed to reload data';
+	}
 };
 
-const toggleFilter = (filterKey: string) => {
-  const index = activeFilters.value.indexOf(filterKey);
-  if (index > -1) {
-    activeFilters.value.splice(index, 1);
-  } else {
-    activeFilters.value.push(filterKey);
-  }
+const openModal = (type: 'club' | 'event' | 'professor' | 'lab', data: any) => {
+	if (type === 'club') {
+		selectedClub.value = data;
+		showClubModal.value = true;
+	} else if (type === 'event') {
+		selectedEvent.value = data;
+		showEventModal.value = true;
+	} else if (type === 'professor' || type === 'lab') {
+		selectedProfessor.value = data;
+		showProfessorModal.value = true;
+	}
 };
 
-const openModal = (type: 'club' | 'event' | 'professor', data: any) => {
-  modalType.value = type;
-  modalData.value = data;
-  showModal.value = true;
+const joinClub = async (club: any) => {
+	try {
+		// Add club as commitment instead of following
+		const response = await apiService.post('/involvement/add-commitment', {
+			type: 'organization',
+			itemId: parseInt(club.id),
+			status: 'active',
+		});
+
+		if (response.success) {
+			club.isJoined = !club.isJoined;
+			console.log('Joined club as commitment:', club.name);
+		}
+	} catch (err) {
+		console.error('Failed to join club:', err);
+	}
 };
 
-const closeModal = () => {
-  showModal.value = false;
-  modalData.value = null;
+const bookmarkEvent = async (event: any) => {
+	try {
+		// Toggle bookmark status
+		const response = await apiService.post(`/events/${event.id}/bookmark`, {
+			bookmarked: !event.isBookmarked,
+		});
+
+		if (response.success) {
+			event.isBookmarked = !event.isBookmarked;
+			console.log('Toggled bookmark for event:', event.name);
+		}
+	} catch (err) {
+		console.error('Failed to bookmark event:', err);
+	}
 };
 
-const getInvolved = async (club: Club) => {
-  try {
-    await toggleClubFollow(club.id);
-    console.log('Toggled follow for club:', club.name);
-  } catch (error) {
-    console.error('Failed to follow/unfollow club:', error);
-  }
+const followClub = async (club: Club) => {
+	try {
+		await toggleClubFollow(club.id);
+		club.isFollowing = !club.isFollowing;
+		console.log('Toggled follow for club:', club.name);
+	} catch (err) {
+		console.error('Failed to follow/unfollow club:', err);
+	}
+};
+
+const openUrl = (url: string) => {
+	window.open(url, '_blank');
 };
 
 const rsvpEvent = async (event: Event, status: 'going' | 'interested' | 'not-going') => {
-  try {
-    await rsvpToEvent(event.id, status);
-    console.log('RSVP for event:', event.name, 'with status:', status);
-  } catch (error) {
-    console.error('Failed to RSVP to event:', error);
-  }
+	try {
+		await rsvpToEvent(event.id, status);
+		console.log('RSVP for event:', event.name, 'with status:', status);
+
+		// Close modal after RSVP
+		showEventModal.value = false;
+	} catch (err) {
+		console.error('Failed to RSVP to event:', err);
+	}
 };
 
 const connectWithProfessor = (professor: Professor) => {
-  console.log('Connecting with professor:', professor.name);
-  // This would integrate with email or messaging system
+	console.log('Connecting with professor:', professor.name);
+	// This would integrate with email or messaging system
+	// For now, just close the modal
+	showProfessorModal.value = false;
 };
 
 const formatEventDate = (date: Date | string) => {
-  const eventDate = new Date(date);
-  return eventDate.toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+	const eventDate = new Date(date);
+	return eventDate.toLocaleDateString('en-US', {
+		weekday: 'short',
+		month: 'short',
+		day: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
+	});
 };
 </script>
+
+<style scoped>
+.scrollbar-hide {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+	display: none;
+}
+
+.line-clamp-3 {
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.modal-enter-active,
+.modal-leave-active {
+	transition: opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+	opacity: 0;
+}
+
+.modal-enter-active .bg-white,
+.modal-leave-active .bg-white {
+	transition: transform 0.3s ease;
+}
+
+.modal-enter-from .bg-white,
+.modal-leave-to .bg-white {
+	transform: scale(0.9);
+}
+</style>

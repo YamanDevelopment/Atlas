@@ -52,7 +52,7 @@ const UserSchema: Schema = new Schema<IUser>({
 		trim: true,
 		minlength: [2, 'Name must be at least 2 characters long'],
 		maxlength: [100, 'Name cannot exceed 100 characters'],
-		match: [/^[a-zA-Z0-9_-]+$/, 'Name can only contain letters, numbers, hyphens, and underscores'],
+		match: [/^[a-zA-Z0-9\s'_-]+$/, 'Name can only contain letters, numbers, spaces, apostrophes, hyphens, and underscores'],
 	},
 	username: {
 		type: String,

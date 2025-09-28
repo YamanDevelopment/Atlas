@@ -6,6 +6,8 @@ import {
 	validateRefreshToken,
 	rateLimiters,
 } from '../../auth';
+import { requireAuth } from '../../auth/middleware/auth';
+import { authConfig } from '../../auth/config';
 import { User } from '../../database/schemas/User';
 import { jwtService } from '../../auth/services/jwt';
 import { passwordService } from '../../auth/services/password';
@@ -164,7 +166,7 @@ router.post('/login',
 
 			// Update last login
 			user.lastLogin = new Date();
-			await user.save();
+			await user.save({ validateBeforeSave: false });
 
 			// Generate tokens
 			const tokens = jwtService.generateTokenPair({
@@ -545,5 +547,83 @@ router.get('/session', async (req: Request, res: Response): Promise<void> => {
 		});
 	}
 });
+
+/**
+ * POST /api/auth/update-interests
+ */
+router.post('/update-interests',
+	requireAuth,
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			const { interests } = req.body;
+			const token = req.headers.authorization?.split(' ')[1];
+
+			if (!token) {
+				res.status(401).json({
+					success: false,
+					error: 'No token provided',
+					message: 'Authorization token is required',
+				});
+				return;
+			}
+
+			// Validate interests array
+			if (!Array.isArray(interests)) {
+				res.status(400).json({
+					success: false,
+					error: 'Invalid interests format',
+					message: 'Interests must be an array of interest IDs',
+				});
+				return;
+			}
+
+			try {
+				const decoded = jwt.verify(token, authConfig.jwt.secret) as { userId: string };
+				const user = await User.findById(decoded.userId);
+
+				if (!user) {
+					res.status(404).json({
+						success: false,
+						error: 'User not found',
+						message: 'User account not found',
+					});
+					return;
+				}
+
+				// Update user's interests
+				user.interests = interests;
+				await user.save();
+
+				res.json({
+					success: true,
+					message: 'Interests updated successfully',
+					data: {
+						user: {
+							id: user.id,
+							name: user.name,
+							email: user.email,
+							interests: user.interests,
+						},
+					},
+				});
+
+			} catch {
+				res.status(401).json({
+					success: false,
+					error: 'Invalid token',
+					message: 'Authorization token is invalid or expired',
+				});
+			}
+
+		} catch (error) {
+			console.error('❌ Update interests error:', error);
+			res.status(500).json({
+				success: false,
+				error: 'Failed to update interests',
+				message: 'An error occurred while updating interests',
+			});
+		}
+	},
+);
 
 export default router;

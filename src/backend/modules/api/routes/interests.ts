@@ -27,8 +27,9 @@ export function setHandler(handlerInstance: Handler) {
  */
 router.get('/', async (req: Request, res: Response): Promise<void> => {
 	try {
-		// Since there's no getAllInterests method, we'll use search with empty query
-		const interests = await handler.searchInterestsByKeyword('');
+		const { search = '' } = req.query;
+
+		const interests = await handler.searchInterestsByKeyword(search as string);
 
 		res.json({
 			success: true,

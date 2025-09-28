@@ -5,9 +5,12 @@
 			<div class="max-w-7xl mx-auto px-4">
 				<div class="flex justify-between items-center h-16">
 					<div class="flex items-center space-x-8">
-						<div class="text-2xl font-bold text-indigo-600">
+						<NuxtLink
+							to="/"
+							class="text-2xl font-bold text-indigo-600 hover:text-indigo-700 transition-colors duration-200"
+						>
 							OppTrack
-						</div>
+						</NuxtLink>
 						<div class="hidden md:flex space-x-6">
 							<NuxtLink
 								to="/dashboard"
@@ -317,6 +320,8 @@
 											placeholder="Search interests or add custom ones..."
 											class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
 											@input="handleInterestSearch"
+											@focus="showInterestDropdown = true"
+											@blur="closeInterestDropdown"
 										>
 										<button
 											v-if="interestSearch && !searchResults.some((i: any) => i.name.toLowerCase() === interestSearch.toLowerCase())"
@@ -326,31 +331,31 @@
 										>
 											Add Custom
 										</button>
-									</div>
 
-									<!-- Search Results -->
-									<div
-										v-if="searchResults.length > 0"
-										class="max-h-48 overflow-y-auto border rounded-lg"
-									>
-										<button
-											v-for="interest in searchResults"
-											:key="interest.id"
-											:disabled="!profile.interests.some((i: any) => i.id === interest.id) && profile.interests.length >= 10"
-											class="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 disabled:opacity-50"
-											:class="{ 'bg-indigo-50 text-indigo-700': profile.interests.some((i: any) => i.id === interest.id) }"
-											@click="toggleInterest(interest)"
+										<!-- Search Results Dropdown -->
+										<div
+											v-if="showInterestDropdown && searchResults.length > 0"
+											class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto"
 										>
-											<div class="flex justify-between items-center">
-												<span>{{ interest.name }}</span>
-												<span
-													class="text-xs px-2 py-1 rounded-full"
-													:class="getCategoryColor(interest.category)"
-												>
-													{{ interest.category }}
-												</span>
-											</div>
-										</button>
+											<button
+												v-for="interest in searchResults"
+												:key="interest.id"
+												:disabled="!profile.interests.some((i: any) => i.id === interest.id) && profile.interests.length >= 10"
+												class="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 disabled:opacity-50 last:border-b-0"
+												:class="{ 'bg-indigo-50 text-indigo-700': profile.interests.some((i: any) => i.id === interest.id) }"
+												@click="toggleInterest(interest)"
+											>
+												<div class="flex justify-between items-center">
+													<span>{{ interest.name }}</span>
+													<span
+														class="text-xs px-2 py-1 rounded-full"
+														:class="getCategoryColor(interest.category)"
+													>
+														{{ interest.category }}
+													</span>
+												</div>
+											</button>
+										</div>
 									</div>
 								</div>
 
@@ -603,18 +608,17 @@
 <script setup lang="ts">
 import type { Interest } from '~/types';
 import { useUser } from '~/composables/useUser';
+import { apiService } from '~/services/api';
 
-// Get user data from authentication and redirect if not authenticated
-const { user, isLoading: userLoading, updateProfile, isAuthenticated } = useUser();
-if (!isAuthenticated.value) {
-  await navigateTo('/login');
-}
+// Get user data from authentication
+const { user, isLoading: userLoading, updateProfile, isAuthenticated, init } = useUser();
 
 // State
 const activeSection = ref('basic');
 const isSaving = ref(false);
 const interestSearch = ref('');
-const searchResults = ref<Interest[]>([]);
+const searchResults = ref<SimpleInterest[]>([]);
+const showInterestDropdown = ref(false);
 
 // Profile data from authenticated user
 const profile = ref({
@@ -661,16 +665,43 @@ const timeBudgetOptions = [
 	},
 ];
 
-const allInterests: Interest[] = [
-	{ id: '1', name: 'Machine Learning', category: 'academic', isCustom: false },
-	{ id: '2', name: 'Data Science', category: 'academic', isCustom: false },
-	{ id: '3', name: 'Web Development', category: 'academic', isCustom: false },
-	{ id: '11', name: 'Entrepreneurship', category: 'career', isCustom: false },
-	{ id: '16', name: 'Photography', category: 'hobby', isCustom: false },
-	{ id: '22', name: 'Christianity', category: 'lifestyle', isCustom: false },
-	{ id: '26', name: 'Pickleball', category: 'sport', isCustom: false },
-	// Add more interests...
-];
+// Simple interface for profile interests
+interface SimpleInterest {
+	id: string;
+	name: string;
+	category: string;
+	isCustom: boolean;
+}
+
+const allInterests = ref<SimpleInterest[]>([]);
+const isLoadingInterests = ref(false);
+
+// Load interests from backend API
+const loadInterests = async () => {
+	try {
+		isLoadingInterests.value = true;
+		const response = await apiService.get('/interests');
+
+		if (response.success) {
+			allInterests.value = response.data.interests.map((interest: any) => ({
+				id: interest.id.toString(),
+				name: interest.name || interest.keyword, // Use keyword if name doesn't exist
+				category: interest.category || 'academic',
+				isCustom: false,
+			}));
+		}
+	} catch (error) {
+		console.error('Failed to load interests:', error);
+		// Fallback to basic interests if API fails
+		allInterests.value = [
+			{ id: '1', name: 'Machine Learning', category: 'academic', isCustom: false },
+			{ id: '2', name: 'Data Science', category: 'academic', isCustom: false },
+			{ id: '3', name: 'Web Development', category: 'academic', isCustom: false },
+		];
+	} finally {
+		isLoadingInterests.value = false;
+	}
+};
 
 // Methods
 const saveBasicInfo = async () => {
@@ -693,21 +724,40 @@ const saveBasicInfo = async () => {
 
 const handleInterestSearch = () => {
 	if (interestSearch.value.length > 0) {
-		searchResults.value = allInterests.filter((interest: Interest) =>
+		searchResults.value = allInterests.value.filter((interest: SimpleInterest) =>
 			interest.name.toLowerCase().includes(interestSearch.value.toLowerCase()),
 		);
 	} else {
-		searchResults.value = allInterests.slice(0, 10);
+		searchResults.value = allInterests.value.slice(0, 10);
 	}
+	showInterestDropdown.value = true;
 };
 
-const toggleInterest = (interest: Interest) => {
+const closeInterestDropdown = () => {
+	setTimeout(() => {
+		showInterestDropdown.value = false;
+	}, 200);
+};
+
+const toggleInterest = (interest: SimpleInterest) => {
 	const index = profile.value.interests.findIndex((i: Interest) => i.id === interest.id);
 	if (index >= 0) {
 		profile.value.interests.splice(index, 1);
 	} else if (profile.value.interests.length < 10) {
-		profile.value.interests.push(interest);
+		// Convert SimpleInterest to Interest format for profile
+		const fullInterest: Interest = {
+			...interest,
+			keyword: interest.name.toLowerCase(),
+			linkedTags: [],
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		};
+		profile.value.interests.push(fullInterest);
 	}
+
+	// Close dropdown and clear search when interest is added
+	showInterestDropdown.value = false;
+	interestSearch.value = '';
 };
 
 const removeInterest = (interest: Interest) => {
@@ -722,12 +772,17 @@ const addCustomInterest = () => {
 		const customInterest: Interest = {
 			id: 'custom-' + Date.now(),
 			name: interestSearch.value,
+			keyword: interestSearch.value.toLowerCase(),
 			category: 'hobby',
 			isCustom: true,
+			linkedTags: [],
+			createdAt: new Date(),
+			updatedAt: new Date(),
 		};
 		profile.value.interests.push(customInterest);
 		interestSearch.value = '';
 		searchResults.value = [];
+		showInterestDropdown.value = false;
 	}
 };
 
@@ -776,7 +831,18 @@ const savePreferences = async () => {
 };
 
 // Initialize
-onMounted(() => {
-	searchResults.value = allInterests.slice(0, 10);
+onMounted(async () => {
+	// Initialize user authentication first
+	await init();
+
+	// Check authentication after initialization
+	if (!isAuthenticated.value) {
+		await navigateTo('/login');
+		return;
+	}
+
+	// Initialize search results
+	await loadInterests();
+	searchResults.value = allInterests.value.slice(0, 10);
 });
 </script>
