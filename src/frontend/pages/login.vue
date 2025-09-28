@@ -30,24 +30,24 @@
 					class="space-y-6"
 					@submit.prevent="handleLogin"
 				>
-					<!-- Email -->
+					<!-- Username -->
 					<div>
 						<label
-							for="email"
+							for="username"
 							class="block text-sm font-medium text-gray-700"
 						>
-							Email address
+							Username
 						</label>
 						<div class="mt-1">
 							<input
-								id="email"
-								v-model="email"
-								name="email"
-								type="email"
-								autocomplete="email"
+								id="username"
+								v-model="username"
+								name="username"
+								type="text"
+								autocomplete="username"
 								required
 								class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-								placeholder="Enter your email"
+								placeholder="Enter your username"
 							>
 						</div>
 					</div>
@@ -141,50 +141,24 @@
 						</button>
 					</div>
 				</form>
-
-				<!-- Demo notice -->
-				<div class="mt-6 p-4 bg-blue-50 rounded-md">
-					<div class="flex">
-						<div class="flex-shrink-0">
-							<svg
-								class="h-5 w-5 text-blue-400"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-								/>
-							</svg>
-						</div>
-						<div class="ml-3">
-							<h3 class="text-sm font-medium text-blue-800">
-								Demo Mode
-							</h3>
-							<div class="mt-2 text-sm text-blue-700">
-								<p>Any email and password will work for demo purposes.</p>
-							</div>
-						</div>
-					</div>
-				</div>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-const email = ref('');
+import { useUser } from '~/composables/useUser';
+
+const username = ref('');
 const password = ref('');
 const error = ref('');
 const isLoading = ref(false);
+const { login: loginUser } = useUser();
 
 const handleLogin = async () => {
 	error.value = '';
 
-	if (!email.value || !password.value) {
+	if (!username.value || !password.value) {
 		error.value = 'Please fill in all fields';
 		return;
 	}
@@ -192,21 +166,12 @@ const handleLogin = async () => {
 	isLoading.value = true;
 
 	try {
-		// Simulate API call
-		await new Promise(resolve => setTimeout(resolve, 1500));
-
-		// For demo, any credentials work
+		await loginUser(username.value, password.value);
 		await navigateTo('/dashboard');
 	} catch (err) {
-		error.value = 'Login failed. Please try again.';
+		error.value = err instanceof Error ? err.message : 'Login failed. Please try again.';
 	} finally {
 		isLoading.value = false;
 	}
 };
-
-// Set default values for demo
-onMounted(() => {
-	email.value = 'john.doe@ucf.edu';
-	password.value = 'password123';
-});
 </script>

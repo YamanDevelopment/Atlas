@@ -164,12 +164,39 @@
 							</div>
 						</div>
 
-						<NuxtLink
-							to="/profile"
-							class="w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-medium hover:shadow-lg transform hover:scale-105 transition-all duration-200 cursor-pointer"
-						>
-							JD
-						</NuxtLink>
+						<!-- User Profile Dropdown -->
+						<div class="relative">
+							<button
+								class="w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-medium hover:shadow-lg transform hover:scale-105 transition-all duration-200 cursor-pointer"
+								@click="showProfileDropdown = !showProfileDropdown"
+							>
+								{{ userInitials || 'U' }}
+							</button>
+
+							<!-- Profile Dropdown Menu -->
+							<div
+								v-if="showProfileDropdown"
+								class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
+							>
+								<div class="px-4 py-2 border-b border-gray-100">
+									<p class="font-medium text-gray-900">{{ fullName || user?.name || 'User' }}</p>
+									<p class="text-sm text-gray-500">{{ user?.email || '' }}</p>
+								</div>
+								<NuxtLink
+									to="/profile"
+									class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+									@click="showProfileDropdown = false"
+								>
+									Profile Settings
+								</NuxtLink>
+								<button
+									class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+									@click="handleLogout"
+								>
+									Sign Out
+								</button>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -180,7 +207,7 @@
 			<!-- Welcome Header -->
 			<div class="mb-8 stats-section">
 				<h1 class="text-3xl font-bold text-gray-900">
-					Welcome back, John!
+					Welcome back, {{ fullName || user?.name || 'there' }}!
 				</h1>
 				<p class="text-gray-600 mt-2">
 					Here's what's happening in your campus journey.
@@ -204,7 +231,7 @@
 					</div>
 					<div class="bg-white rounded-lg p-4 shadow-sm">
 						<div class="text-2xl font-bold text-purple-600">
-							{{ recommendedClubs.length }}
+							{{ recommendedClubs.length || 'Loading...' }}
 						</div>
 						<div class="text-sm text-gray-600">
 							Recommendations
@@ -367,20 +394,20 @@
 									</div>
 									<div class="mb-4">
 										<h4 class="font-medium text-gray-900">
-											{{ recommendedClubs[0]?.name || 'AI Research Club' }}
+											{{ mockHighCommitment.name }}
 										</h4>
 										<p class="text-gray-600 text-sm mt-1">
-											{{ recommendedClubs[0]?.description || 'Perfect for CS majors - research opportunities and leadership roles' }}
+											{{ mockHighCommitment.description || mockHighCommitment.shortDescription || 'Perfect for CS majors - research opportunities and leadership roles' }}
 										</p>
 										<div class="flex items-center mt-2 space-x-4 text-xs text-gray-500">
-											<span>👥 {{ recommendedClubs[0]?.memberCount || 87 }} members</span>
+											<span>👥 {{ mockHighCommitment.memberCount || 87 }} members</span>
 											<span>🎯 Matches your major & interests</span>
 										</div>
 									</div>
 									<div class="flex justify-end">
 										<button
 											class="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 font-medium whitespace-nowrap"
-											@click="acceptOpportunity(recommendedClubs[0] || mockHighCommitment)"
+											@click="acceptOpportunity(mockHighCommitment)"
 										>
 											Accept
 										</button>
@@ -403,16 +430,16 @@
 											</div>
 											<div class="mb-4">
 												<h5 class="font-medium text-gray-900">
-													{{ recommendedClubs[1]?.name || 'Tech Entrepreneurship Club' }}
+													{{ mockLowCommitment1.name }}
 												</h5>
 												<p class="text-gray-600 text-sm mt-1">
-													{{ recommendedClubs[1]?.description || 'Network with like-minded students and learn about startups' }}
+													{{ mockLowCommitment1.description || mockLowCommitment1.shortDescription || 'Network with like-minded students and learn about startups' }}
 												</p>
 											</div>
 											<div class="flex justify-end">
 												<button
 													class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 font-medium whitespace-nowrap"
-													@click="acceptOpportunity(recommendedClubs[1] || mockLowCommitment1)"
+													@click="acceptOpportunity(mockLowCommitment1)"
 												>
 													Accept
 												</button>
@@ -429,16 +456,16 @@
 											</div>
 											<div class="mb-4">
 												<h5 class="font-medium text-gray-900">
-													{{ recommendedClubs[2]?.name || 'ACM Student Chapter' }}
+													{{ mockLowCommitment2.name }}
 												</h5>
 												<p class="text-gray-600 text-sm mt-1">
-													{{ recommendedClubs[2]?.description || 'Professional development and coding competitions' }}
+													{{ mockLowCommitment2.description || mockLowCommitment2.shortDescription || 'Professional development and coding competitions' }}
 												</p>
 											</div>
 											<div class="flex justify-end">
 												<button
 													class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 font-medium whitespace-nowrap"
-													@click="acceptOpportunity(recommendedClubs[2] || mockLowCommitment2)"
+													@click="acceptOpportunity(mockLowCommitment2)"
 												>
 													Accept
 												</button>
@@ -457,13 +484,13 @@
 									</div>
 									<div class="mb-4">
 										<h4 class="font-medium text-gray-900">
-											Photography Club
+											{{ mockDiscoveryClub.name }}
 										</h4>
 										<p class="text-gray-600 text-sm mt-1">
-											Explore your creative side and build a portfolio outside of tech
+											{{ mockDiscoveryClub.description || mockDiscoveryClub.shortDescription || 'Explore your creative side and build a portfolio outside of tech' }}
 										</p>
 										<div class="flex items-center mt-2 space-x-4 text-xs text-gray-500">
-											<span>👥 89 members</span>
+											<span>👥 {{ mockDiscoveryClub.memberCount || 89 }} members</span>
 											<span>📸 Beginner friendly</span>
 										</div>
 									</div>
@@ -829,16 +856,59 @@
 
 <script setup lang="ts">
 import type { Plan, Commitment, Event, Club } from '~/types';
+import { useUser } from '~/composables/useUser';
+import { useEvents } from '~/composables/useEvents';
+import { useClubs } from '~/composables/useClubs';
+
+// Redirect to login if not authenticated
+const { user, isAuthenticated, userInitials, fullName, logout } = useUser();
+if (!isAuthenticated.value) {
+  await navigateTo('/');
+}
+
+// Use API services for data
+const {
+  events,
+  recommendedEvents,
+  isLoading: eventsLoading,
+  error: eventsError,
+  fetchRecommendedEvents,
+  rsvpToEvent,
+  toggleEventBookmark
+} = useEvents();
+
+const {
+  clubs,
+  recommendedClubs,
+  isLoading: clubsLoading,
+  error: clubsError,
+  fetchRecommendedClubs,
+  toggleClubFollow
+} = useClubs();
 
 // Modal and tour states
 const showStarterPlanModal = ref(false);
 const showTour = ref(false);
 const planAccepted = ref(false);
 const showNotifications = ref(false);
+const showProfileDropdown = ref(false);
 
 // Event modal states
 const showEventModal = ref(false);
 const modalEventData = ref<Event | null>(null);
+
+// Local state for commitments (would eventually be API-driven too)
+const commitments = ref<Commitment[]>([]);
+
+// Computed values for dashboard stats
+const upcomingEvents = computed(() => {
+  const now = new Date();
+  const upcoming = recommendedEvents.value.filter(event => 
+    new Date(event.startTime) > now
+  ).slice(0, 5); // Show only next 5 events
+  
+  return upcoming.length > 0 ? upcoming : events.value.slice(0, 5);
+});
 
 // Starter plan data
 const starterPlan = ref<Plan>({
@@ -888,184 +958,71 @@ const tourSteps = ref([
 	},
 ]);
 
-// Mock data
+// Mock data for notifications (would eventually be API-driven)
 const nudges = ref([
 	{
 		id: 'nudge-1',
-		message: 'AI Research Club meeting today at 6 PM in Engineering Building',
+		message: `${recommendedClubs.value[0]?.name || 'AI Research Club'} meeting today at 6 PM in Engineering Building`,
 		type: 'reminder',
 		actionText: 'View Details',
 	},
 	{
 		id: 'nudge-2',
-		message: 'You have 2 new event recommendations based on your interests',
+		message: `You have ${recommendedEvents.value.length} new event recommendations based on your interests`,
 		type: 'recommendation',
 		actionText: 'View Recommendations',
 	},
 ]);
 
-const commitments = ref<Commitment[]>([
-	{
-		id: 'commitment-1',
-		title: 'AI Research Club',
-		type: 'club',
-		description: 'Weekly meetings and project work',
-		startTime: new Date(),
-		endTime: new Date(),
-		location: 'Engineering Building',
-		priority: 'high',
-		status: 'pending',
-		relatedId: 'club-1',
-	},
-	{
-		id: 'commitment-2',
-		title: 'Neural Networks Workshop',
-		type: 'event',
-		description: 'Learn about deep learning fundamentals',
-		startTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-		endTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-		location: 'Student Union',
-		priority: 'medium',
-		status: 'active',
-		relatedId: 'event-1',
-	},
-]);
+// Initialize data on component mount
+onMounted(async () => {
+	const searchParams = new URLSearchParams(window.location.search);
+	if (searchParams.get('from') === 'onboarding') {
+		showStarterPlanModal.value = true;
+	}
 
-const upcomingEvents = ref<Event[]>([
-	{
-		id: 'event-1',
-		name: 'AI Workshop: Neural Networks',
-		title: 'AI Workshop: Neural Networks',
-		description: 'Learn the fundamentals of neural networks through hands-on coding exercises and real-world applications. Perfect for beginners and intermediate students.',
-		shortDescription: 'Hands-on neural network workshop',
-		location: 'Engineering Building Room 201',
-		startTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-		endTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000),
-		date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-		endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000),
-		categories: [{ id: 'workshop', name: 'Workshop' }],
-		category: 'workshop',
-		tags: ['AI', 'Machine Learning', 'Workshop'],
-		isBookmarked: true,
-		attendeeCount: 45,
-		organizer: 'AI Research Club',
-		whyRecommended: 'Perfect match for your machine learning interests and career goals',
-		isVirtual: false,
-		isFree: true,
-		url: 'https://events.ucf.edu/ai-workshop',
-	},
-	{
-		id: 'event-2',
-		name: 'Tech Career Fair',
-		title: 'Tech Career Fair',
-		description: 'Connect with top tech companies including Google, Microsoft, and local startups. Bring your resume and be prepared to network!',
-		shortDescription: 'Network with tech recruiters',
-		location: 'Student Union Pegasus Ballroom',
-		startTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-		endTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 6 * 60 * 60 * 1000),
-		date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-		endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 6 * 60 * 60 * 1000),
-		categories: [{ id: 'career', name: 'Career' }],
-		category: 'career',
-		tags: ['Career', 'Technology', 'Networking'],
-		isBookmarked: false,
-		attendeeCount: 234,
-		organizer: 'Career Services',
-		whyRecommended: 'Excellent opportunity for your computer science career path',
-		isVirtual: false,
-		isFree: true,
-		url: 'https://events.ucf.edu/tech-career-fair',
-	},
-]);
+	// Load dashboard data
+	try {
+		await Promise.all([
+			fetchRecommendedEvents(10),
+			fetchRecommendedClubs(6)
+		]);
+	} catch (error) {
+		console.error('Failed to load dashboard data:', error);
+	}
 
-const recommendedClubs = ref<Club[]>([
-	{
-		id: 'club-1',
-		name: 'AI Research Club',
-		description: 'A community of students passionate about artificial intelligence.',
-		categories: [{ id: 'academic', name: 'Academic' }],
-		memberCount: 87,
-		isFollowing: false,
-		upcomingEvents: [],
-		logoUrl: '',
-		url: 'https://ai.research.ucf.edu',
-	},
-	{
-		id: 'club-2',
-		name: 'Pickleball Club',
-		description: 'Join UCF\'s fastest growing sport!',
-		categories: [{ id: 'sport', name: 'Sport' }],
-		memberCount: 124,
-		isFollowing: false,
-		upcomingEvents: [],
-		logoUrl: '',
-		url: 'https://pickleball.ucf.edu',
-	},
-	{
-		id: 'club-3',
-		name: 'Photography Club',
-		description: 'Capture the world through your lens!',
-		categories: [{ id: 'hobby', name: 'Hobby' }],
-		memberCount: 89,
-		isFollowing: false,
-		upcomingEvents: [],
-		logoUrl: '',
-		url: 'https://photo.ucf.edu',
-	},
-]);
+	// Close dropdowns when clicking outside
+	const handleClickOutside = (event: MouseEvent) => {
+		const target = event.target as HTMLElement;
+		if (showNotifications.value && !target.closest('.relative')) {
+			showNotifications.value = false;
+		}
+		if (showProfileDropdown.value && !target.closest('.relative')) {
+			showProfileDropdown.value = false;
+		}
+	};
 
-// Mock data for involvement plan - these would come from backend recommendations
-const mockHighCommitment = ref<Club>({
-	id: 'club-high-1',
-	name: 'AI Research Club',
-	description: 'Perfect for CS majors - research opportunities and leadership roles',
-	categories: [{ id: 'academic', name: 'Academic' }],
-	memberCount: 87,
-	isFollowing: false,
-	upcomingEvents: [],
-	logoUrl: '',
-	url: 'https://ai.research.ucf.edu',
-});
+	document.addEventListener('click', handleClickOutside);
 
-const mockLowCommitment1 = ref<Club>({
-	id: 'club-low-1',
-	name: 'Tech Entrepreneurship Club',
-	description: 'Network with like-minded students and learn about startups',
-	categories: [{ id: 'career', name: 'Career' }],
-	memberCount: 156,
-	isFollowing: false,
-	upcomingEvents: [],
-	logoUrl: '',
-	url: 'https://techentrepreneurship.ucf.edu',
-});
-
-const mockLowCommitment2 = ref<Club>({
-	id: 'club-low-2',
-	name: 'ACM Student Chapter',
-	description: 'Professional development and coding competitions',
-	categories: [{ id: 'academic', name: 'Academic' }],
-	memberCount: 203,
-	isFollowing: false,
-	upcomingEvents: [],
-	logoUrl: '',
-	url: 'https://acm.ucf.edu',
-});
-
-const mockDiscoveryClub = ref<Club>({
-	id: 'club-discovery-1',
-	name: 'Photography Club',
-	description: 'Explore your creative side and build a portfolio outside of tech',
-	categories: [{ id: 'hobby', name: 'Hobby' }],
-	memberCount: 89,
-	isFollowing: false,
-	upcomingEvents: [],
-	logoUrl: '',
-	url: 'https://photo.ucf.edu',
+	onUnmounted(() => {
+		document.removeEventListener('click', handleClickOutside);
+	});
 });
 
 // Methods
 const toggleNotifications = () => {
 	showNotifications.value = !showNotifications.value;
+};
+
+const handleLogout = async () => {
+	try {
+		await logout();
+		await navigateTo('/login');
+	} catch (error) {
+		console.error('Logout failed:', error);
+		// Force navigation even if logout fails
+		await navigateTo('/login');
+	}
 };
 
 const clearAllNotifications = () => {
@@ -1085,22 +1042,29 @@ const handleNotificationAction = (nudge: any) => {
 };
 
 const acceptOpportunity = async (club: Club) => {
-	// Add to commitments
-	const newCommitment: Commitment = {
-		id: 'commitment-' + Date.now(),
-		title: club.name,
-		type: 'club',
-		description: club.description,
-		startTime: new Date(),
-		endTime: new Date(),
-		location: 'TBD',
-		priority: 'medium',
-		status: 'pending',
-		relatedId: club.id,
-	};
+	try {
+		// Follow the club via API
+		await toggleClubFollow(club.id);
+		
+		// Add to local commitments list
+		const newCommitment: Commitment = {
+			id: 'commitment-' + Date.now(),
+			title: club.name,
+			type: 'club',
+			description: club.description || club.shortDescription || '',
+			startTime: new Date(),
+			endTime: new Date(),
+			location: 'TBD',
+			priority: 'medium',
+			status: 'pending',
+			relatedId: club.id,
+		};
 
-	commitments.value.push(newCommitment);
-	console.log('Accepted opportunity:', club.name);
+		commitments.value.push(newCommitment);
+		console.log('Accepted opportunity:', club.name);
+	} catch (error) {
+		console.error('Failed to accept opportunity:', error);
+	}
 };
 
 const startDashboardTour = () => {
@@ -1117,25 +1081,42 @@ const onTourComplete = () => {
 };
 
 const acceptStarterPlan = async () => {
-	// Add all recommended clubs as commitments
-	recommendedClubs.value.forEach(club => {
-		const commitment: Commitment = {
-			id: 'commitment-' + Date.now() + '-' + club.id,
-			title: club.name,
-			type: 'club',
-			description: club.description,
-			startTime: new Date(),
-			endTime: new Date(),
-			location: 'TBD',
-			priority: 'medium',
-			status: 'pending',
-			relatedId: club.id,
-		};
-		commitments.value.push(commitment);
-	});
+	try {
+		// Follow all recommended clubs
+		const followPromises = recommendedClubs.value.slice(0, 4).map(async (club) => {
+			try {
+				await toggleClubFollow(club.id);
+				return club;
+			} catch (error) {
+				console.warn('Failed to follow club:', club.name, error);
+				return null;
+			}
+		});
+		
+		const followedClubs = (await Promise.all(followPromises)).filter(Boolean) as Club[];
 
-	planAccepted.value = true;
-	console.log('Accepted starter plan with', recommendedClubs.value.length, 'club recommendations');
+		// Add commitments for followed clubs
+		followedClubs.forEach(club => {
+			const commitment: Commitment = {
+				id: 'commitment-' + Date.now() + '-' + club.id,
+				title: club.name,
+				type: 'club',
+				description: club.description || club.shortDescription || '',
+				startTime: new Date(),
+				endTime: new Date(),
+				location: 'TBD',
+				priority: 'medium',
+				status: 'pending',
+				relatedId: club.id,
+			};
+			commitments.value.push(commitment);
+		});
+
+		planAccepted.value = true;
+		console.log('Accepted starter plan with', followedClubs.length, 'club recommendations');
+	} catch (error) {
+		console.error('Failed to accept starter plan:', error);
+	}
 };
 
 const updateCommitmentStatus = async (commitmentId: string, status: string) => {
@@ -1143,6 +1124,7 @@ const updateCommitmentStatus = async (commitmentId: string, status: string) => {
 	if (commitment) {
 		commitment.status = status as any;
 		console.log('Updated commitment status:', status);
+		// TODO: Update status via API when backend supports it
 	}
 };
 
@@ -1152,6 +1134,7 @@ const removeCommitment = async (commitmentId: string) => {
 		const [removedCommitment] = commitments.value.splice(index, 1);
 		if (removedCommitment) {
 			console.log('Removed commitment:', removedCommitment.title);
+			// TODO: Remove commitment via API when backend supports it
 		}
 	}
 };
@@ -1199,36 +1182,82 @@ const closeEventModal = () => {
 	modalEventData.value = null;
 };
 
-const rsvpEvent = (event: Event, status: string) => {
-	console.log('RSVP for event:', event.name, 'with status:', status);
-	// Update event RSVP status
-	const eventInList = upcomingEvents.value.find(e => e.id === event.id);
-	if (eventInList && 'rsvpStatus' in eventInList) {
-		(eventInList as any).rsvpStatus = status;
+const rsvpEvent = async (event: Event, status: 'going' | 'interested' | 'not-going') => {
+	try {
+		await rsvpToEvent(event.id, status);
+		console.log('RSVP for event:', event.name, 'with status:', status);
+		
+		// Update local state for immediate UI feedback
+		const eventInList = upcomingEvents.value.find(e => e.id === event.id);
+		if (eventInList && 'rsvpStatus' in eventInList) {
+			(eventInList as any).rsvpStatus = status;
+		}
+		if (modalEventData.value && modalEventData.value.id === event.id) {
+			(modalEventData.value as any).rsvpStatus = status;
+		}
+	} catch (error) {
+		console.error('Failed to RSVP to event:', error);
 	}
 };
 
-// Check for fresh signup on mount
-onMounted(() => {
-	const searchParams = new URLSearchParams(window.location.search);
-	if (searchParams.get('from') === 'onboarding') {
-		showStarterPlanModal.value = true;
+// Mock data fallbacks for involvement plan (using actual API data when available)
+const mockHighCommitment = computed(() => 
+	recommendedClubs.value[0] || {
+		id: 'club-high-1',
+		name: 'AI Research Club',
+		description: 'Perfect for CS majors - research opportunities and leadership roles',
+		categories: [{ id: 'academic', name: 'Academic' }],
+		memberCount: 87,
+		isFollowing: false,
+		upcomingEvents: [],
+		logoUrl: '',
+		url: 'https://ai.research.ucf.edu',
 	}
+);
 
-	// Close notifications dropdown when clicking outside
-	const handleClickOutside = (event: MouseEvent) => {
-		const target = event.target as HTMLElement;
-		if (showNotifications.value && !target.closest('.relative')) {
-			showNotifications.value = false;
-		}
-	};
+const mockLowCommitment1 = computed(() =>
+	recommendedClubs.value[1] || {
+		id: 'club-low-1',
+		name: 'Tech Entrepreneurship Club',
+		description: 'Network with like-minded students and learn about startups',
+		categories: [{ id: 'career', name: 'Career' }],
+		memberCount: 156,
+		isFollowing: false,
+		upcomingEvents: [],
+		logoUrl: '',
+		url: 'https://techentrepreneurship.ucf.edu',
+	}
+);
 
-	document.addEventListener('click', handleClickOutside);
+const mockLowCommitment2 = computed(() =>
+	recommendedClubs.value[2] || {
+		id: 'club-low-2',
+		name: 'ACM Student Chapter',
+		description: 'Professional development and coding competitions',
+		categories: [{ id: 'academic', name: 'Academic' }],
+		memberCount: 203,
+		isFollowing: false,
+		upcomingEvents: [],
+		logoUrl: '',
+		url: 'https://acm.ucf.edu',
+	}
+);
 
-	onUnmounted(() => {
-		document.removeEventListener('click', handleClickOutside);
-	});
-});
+const mockDiscoveryClub = computed(() =>
+	recommendedClubs.value[3] || {
+		id: 'club-discovery-1',
+		name: 'Photography Club',
+		description: 'Explore your creative side and build a portfolio outside of tech',
+		categories: [{ id: 'hobby', name: 'Hobby' }],
+		memberCount: 89,
+		isFollowing: false,
+		upcomingEvents: [],
+		logoUrl: '',
+		url: 'https://photo.ucf.edu',
+	}
+);
+
+// Check for fresh signup on mount
 </script>
 
 <style scoped>

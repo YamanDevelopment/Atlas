@@ -30,44 +30,45 @@
 					class="space-y-6"
 					@submit.prevent="handleSignup"
 				>
-					<!-- First Name -->
+					<!-- Full Name -->
 					<div>
 						<label
-							for="firstName"
+							for="name"
 							class="block text-sm font-medium text-gray-700"
 						>
-							First Name
+							Full Name
 						</label>
 						<div class="mt-1">
 							<input
-								id="firstName"
-								v-model="firstName"
-								name="firstName"
+								id="name"
+								v-model="name"
+								name="name"
 								type="text"
 								required
 								class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-								placeholder="Enter your first name"
+								placeholder="Enter your full name"
 							>
 						</div>
 					</div>
 
-					<!-- Last Name -->
+					<!-- Username -->
 					<div>
 						<label
-							for="lastName"
+							for="username"
 							class="block text-sm font-medium text-gray-700"
 						>
-							Last Name
+							Username
 						</label>
 						<div class="mt-1">
 							<input
-								id="lastName"
-								v-model="lastName"
-								name="lastName"
+								id="username"
+								v-model="username"
+								name="username"
 								type="text"
+								autocomplete="username"
 								required
 								class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-								placeholder="Enter your last name"
+								placeholder="Choose a username"
 							>
 						</div>
 					</div>
@@ -211,8 +212,12 @@
 </template>
 
 <script setup lang="ts">
-const firstName = ref('');
-const lastName = ref('');
+import { useUser } from '~/composables/useUser';
+import { authService } from '~/services/auth';
+import type { RegisterData } from '~/types/auth';
+
+const name = ref('');
+const username = ref('');
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
@@ -224,7 +229,7 @@ const handleSignup = async () => {
 	error.value = '';
 
 	// Validation
-	if (!firstName.value || !lastName.value || !email.value || !password.value) {
+	if (!name.value || !username.value || !email.value || !password.value) {
 		error.value = 'Please fill in all fields';
 		return;
 	}
@@ -247,13 +252,17 @@ const handleSignup = async () => {
 	isLoading.value = true;
 
 	try {
-		// Simulate API call
-		await new Promise(resolve => setTimeout(resolve, 2000));
+		const registerData: RegisterData = {
+			name: name.value,
+			username: username.value,
+			email: email.value,
+			password: password.value,
+		};
 
-		// For demo, redirect to onboarding
+		await authService.register(registerData);
 		await navigateTo('/onboarding');
 	} catch (err) {
-		error.value = 'Registration failed. Please try again.';
+		error.value = err instanceof Error ? err.message : 'Registration failed. Please try again.';
 	} finally {
 		isLoading.value = false;
 	}

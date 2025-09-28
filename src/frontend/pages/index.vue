@@ -165,5 +165,11 @@
 </template>
 
 <script setup lang="ts">
-// Landing page - no logic needed for now
+import { useUser } from '~/composables/useUser';
+
+// Redirect to dashboard if already authenticated
+const { isAuthenticated } = useUser();
+if (isAuthenticated.value) {
+  await navigateTo('/dashboard');
+}
 </script>

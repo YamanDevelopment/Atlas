@@ -207,35 +207,33 @@
 								class="space-y-6"
 								@submit.prevent="saveBasicInfo"
 							>
-								<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-									<div>
-										<label
-											for="firstName"
-											class="block text-sm font-medium text-gray-700 mb-2"
-										>
-											First Name
-										</label>
-										<input
-											id="firstName"
-											v-model="profile.firstName"
-											type="text"
-											class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-										>
-									</div>
-									<div>
-										<label
-											for="lastName"
-											class="block text-sm font-medium text-gray-700 mb-2"
-										>
-											Last Name
-										</label>
-										<input
-											id="lastName"
-											v-model="profile.lastName"
-											type="text"
-											class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-										>
-									</div>
+								<div>
+									<label
+										for="fullName"
+										class="block text-sm font-medium text-gray-700 mb-2"
+									>
+										Full Name
+									</label>
+									<input
+										id="fullName"
+										v-model="profile.name"
+										type="text"
+										class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+									>
+								</div>
+								<div>
+									<label
+										for="username"
+										class="block text-sm font-medium text-gray-700 mb-2"
+									>
+										Username
+									</label>
+									<input
+										id="username"
+										v-model="profile.username"
+										type="text"
+										class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+									>
 								</div>
 
 								<div>
@@ -604,6 +602,13 @@
 
 <script setup lang="ts">
 import type { Interest } from '~/types';
+import { useUser } from '~/composables/useUser';
+
+// Get user data from authentication and redirect if not authenticated
+const { user, isLoading: userLoading, updateProfile, isAuthenticated } = useUser();
+if (!isAuthenticated.value) {
+  await navigateTo('/login');
+}
 
 // State
 const activeSection = ref('basic');
@@ -611,21 +616,26 @@ const isSaving = ref(false);
 const interestSearch = ref('');
 const searchResults = ref<Interest[]>([]);
 
-// Mock profile data
+// Profile data from authenticated user
 const profile = ref({
-	firstName: 'John',
-	lastName: 'Doe',
-	email: 'john.doe@ucf.edu',
+	name: '',
+	username: '',
+	email: '',
 	major: 'Computer Science',
-	interests: [
-		{ id: '1', name: 'Machine Learning', category: 'academic', isCustom: false },
-		{ id: '26', name: 'Pickleball', category: 'sport', isCustom: false },
-		{ id: '16', name: 'Photography', category: 'hobby', isCustom: false },
-		{ id: '22', name: 'Christianity', category: 'lifestyle', isCustom: false },
-	] as Interest[],
+	interests: [] as Interest[],
 	timeBudget: '3-5 hours',
-	currentInvolvement: ['Study Group', 'Part-time job'],
+	currentInvolvement: [] as string[],
 });
+
+// Initialize profile data from user
+watch(user, (newUser) => {
+	if (newUser) {
+		profile.value.name = newUser.name;
+		profile.value.username = newUser.username;
+		profile.value.email = newUser.email;
+		// TODO: Load additional profile data from API when backend supports it
+	}
+}, { immediate: true });
 
 const majors = [
 	'Computer Science', 'Computer Engineering', 'Electrical Engineering',
@@ -666,9 +676,16 @@ const allInterests: Interest[] = [
 const saveBasicInfo = async () => {
 	isSaving.value = true;
 	try {
-		await new Promise(resolve => setTimeout(resolve, 1000));
-		console.log('Saved basic info:', profile.value);
-		// TODO: integrate real API
+		if (user.value) {
+			await updateProfile({
+				name: profile.value.name,
+				// TODO: Add other profile fields when backend supports them
+			});
+			console.log('Saved basic info:', profile.value);
+		}
+	} catch (error) {
+		console.error('Failed to save basic info:', error);
+		// TODO: Show user-friendly error message
 	} finally {
 		isSaving.value = false;
 	}

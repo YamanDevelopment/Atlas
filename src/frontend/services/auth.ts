@@ -1,0 +1,245 @@
+/**
+ * Atlas Authentication Service
+ * Handles all authentication operations including login, register, token management
+ * Integrates with real backend API at localhost:3001
+ */
+
+import type { 
+  User, 
+  AuthTokens, 
+  AuthResponse, 
+  LoginCredentials, 
+  RegisterData, 
+  ApiResponse 
+} from '~/types/auth';
+
+class AuthService {
+  private baseURL = 'http://localhost:3001/api/auth';
+  private accessToken: string | null = null;
+  private refreshToken: string | null = null;
+  
+  constructor() {
+    // Initialize tokens from localStorage
+    if (process.client) {
+      this.accessToken = localStorage.getItem('accessToken');
+      this.refreshToken = localStorage.getItem('refreshToken');
+    }
+  }
+
+  /**
+   * Register a new user
+   */
+  async register(userData: RegisterData): Promise<User> {
+    try {
+      const response = await fetch(`${this.baseURL}/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      const data: AuthResponse = await response.json();
+      
+      if (data.success && data.data) {
+        this.setTokens(data.data.tokens);
+        return data.data.user;
+      } else {
+        throw new Error(data.message || 'Registration failed');
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Registration failed - network error');
+    }
+  }
+
+  /**
+   * Login existing user
+   */
+  async login(credentials: LoginCredentials): Promise<User> {
+    try {
+      const response = await fetch(`${this.baseURL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
+
+      const data: AuthResponse = await response.json();
+      
+      if (data.success && data.data) {
+        this.setTokens(data.data.tokens);
+        return data.data.user;
+      } else {
+        throw new Error(data.message || 'Login failed');
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Login failed - network error');
+    }
+  }
+
+  /**
+   * Get current user profile
+   */
+  async getCurrentUser(): Promise<User> {
+    try {
+      const response = await this.authenticatedRequest(`${this.baseURL}/me`);
+      const data: ApiResponse<{ user: User }> = await response.json();
+      
+      if (data.success && data.data) {
+        return data.data.user;
+      } else {
+        throw new Error(data.message || 'Failed to get user profile');
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Failed to get user profile');
+    }
+  }
+
+  /**
+   * Refresh access token
+   */
+  async refreshAccessToken(): Promise<string> {
+    if (!this.refreshToken) {
+      throw new Error('No refresh token available');
+    }
+
+    try {
+      const response = await fetch(`${this.baseURL}/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refreshToken: this.refreshToken }),
+      });
+
+      const data: ApiResponse<{ accessToken: string; expiresIn: number; tokenType: string }> = await response.json();
+      
+      if (data.success && data.data) {
+        this.accessToken = data.data.accessToken;
+        if (process.client) {
+          localStorage.setItem('accessToken', this.accessToken);
+        }
+        return this.accessToken;
+      } else {
+        // Refresh failed, clear tokens and force re-login
+        this.logout();
+        throw new Error('Session expired, please login again');
+      }
+    } catch (error) {
+      this.logout();
+      throw new Error('Session expired, please login again');
+    }
+  }
+
+  /**
+   * Logout user
+   */
+  async logout(): Promise<void> {
+    if (this.refreshToken) {
+      try {
+        await fetch(`${this.baseURL}/logout`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ refreshToken: this.refreshToken }),
+        });
+      } catch (error) {
+        console.warn('Logout request failed:', error);
+      }
+    }
+
+    this.clearTokens();
+  }
+
+  /**
+   * Make authenticated requests with automatic token refresh
+   */
+  async authenticatedRequest(url: string, options: RequestInit = {}): Promise<Response> {
+    if (!this.accessToken) {
+      throw new Error('No access token available');
+    }
+
+    // First attempt with current token
+    let response = await fetch(url, {
+      ...options,
+      headers: {
+        ...options.headers,
+        'Authorization': `Bearer ${this.accessToken}`,
+      },
+    });
+
+    // If token expired, try to refresh and retry
+    if (response.status === 401) {
+      try {
+        await this.refreshAccessToken();
+        
+        // Retry with new token
+        response = await fetch(url, {
+          ...options,
+          headers: {
+            ...options.headers,
+            'Authorization': `Bearer ${this.accessToken}`,
+          },
+        });
+      } catch (refreshError) {
+        throw new Error('Authentication failed, please login again');
+      }
+    }
+
+    return response;
+  }
+
+  /**
+   * Set tokens in memory and storage
+   */
+  private setTokens(tokens: AuthTokens): void {
+    this.accessToken = tokens.accessToken;
+    this.refreshToken = tokens.refreshToken;
+    
+    if (process.client) {
+      localStorage.setItem('accessToken', tokens.accessToken);
+      localStorage.setItem('refreshToken', tokens.refreshToken);
+    }
+  }
+
+  /**
+   * Clear tokens from memory and storage
+   */
+  private clearTokens(): void {
+    this.accessToken = null;
+    this.refreshToken = null;
+    
+    if (process.client) {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    }
+  }
+
+  /**
+   * Check if user is authenticated
+   */
+  isAuthenticated(): boolean {
+    return !!this.accessToken;
+  }
+
+  /**
+   * Get current access token
+   */
+  getAccessToken(): string | null {
+    return this.accessToken;
+  }
+}
+
+// Export singleton instance
+export const authService = new AuthService();
