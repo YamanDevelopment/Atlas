@@ -172,7 +172,7 @@
             <div
               v-for="involvement in selectedInvolvements"
               :key="involvement.id"
-              class="flex items-center justify-between bg-gray-50 p-4 rounded-lg"
+              class="flex items-center justify-between p-4 rounded-lg bg-[rgb(87,87,87,0.03)]"
             >
               <div class="flex-1">
                 <div class="font-medium text-gray-900 mb-2">{{ involvement.name }}</div>
