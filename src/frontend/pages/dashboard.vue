@@ -489,7 +489,7 @@
                 </button>
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 <div>
                   <h3 class="font-semibold text-gray-900 mb-4">Event Details</h3>
                   <div class="space-y-3">
@@ -519,10 +519,43 @@
                       <span>{{ modalEventData.organizer }}</span>
                     </div>
                   </div>
+
+                  <!-- Event Map -->
+                  <EventMap :event="modalEventData" />
                 </div>
                 <div>
                   <h3 class="font-semibold text-gray-900 mb-4">Why You'll Love This</h3>
-                  <p class="text-gray-600">{{ modalEventData.whyRecommended || 'Perfect opportunity to expand your network and learn something new!' }}</p>
+                  <p class="text-gray-600 mb-6">{{ modalEventData.whyRecommended || 'Perfect opportunity to expand your network and learn something new!' }}</p>
+                  
+                  <!-- Tags -->
+                  <div v-if="modalEventData.tags && modalEventData.tags.length > 0" class="mb-6">
+                    <h4 class="font-medium text-gray-900 mb-2">Tags</h4>
+                    <div class="flex flex-wrap gap-2">
+                      <span 
+                        v-for="tag in modalEventData.tags" 
+                        :key="tag"
+                        class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full font-medium"
+                      >
+                        {{ tag }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Additional Info -->
+                  <div class="space-y-3 text-sm">
+                    <div v-if="modalEventData.isFree" class="flex items-center text-green-600">
+                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      Free Event
+                    </div>
+                    <div v-if="modalEventData.isVirtual" class="flex items-center text-blue-600">
+                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
+                      </svg>
+                      Virtual Event
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -662,6 +695,8 @@ const upcomingEvents = ref<Event[]>([
     description: 'Learn the fundamentals of neural networks through hands-on coding exercises and real-world applications. Perfect for beginners and intermediate students.',
     shortDescription: 'Hands-on neural network workshop',
     location: 'Engineering Building Room 201',
+    latitude: 28.6017,
+    longitude: -81.2020,
     startTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     endTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000),
     date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
@@ -684,6 +719,8 @@ const upcomingEvents = ref<Event[]>([
     description: 'Connect with top tech companies including Google, Microsoft, and local startups. Bring your resume and be prepared to network!',
     shortDescription: 'Network with tech recruiters',
     location: 'Student Union Pegasus Ballroom',
+    latitude: 28.6022,
+    longitude: -81.2005,
     startTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
     endTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 6 * 60 * 60 * 1000),
     date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
