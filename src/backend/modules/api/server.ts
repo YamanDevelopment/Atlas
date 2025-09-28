@@ -16,7 +16,8 @@ import { initializeApiRoutes } from './index';
 
 interface ServerConfig {
 	port: number;
-	dbUrl: string;
+	dbUri: string;
+	dbName: string;
 	cors?: {
 		origin: string[];
 		credentials: boolean;
@@ -35,7 +36,7 @@ class AtlasApiServer {
 	constructor(config: ServerConfig) {
 		this.config = config;
 		this.app = express();
-		this.handler = new Handler(config.dbUrl);
+		this.handler = new Handler(config.dbUri, config.dbName);
 		this.setupMiddleware();
 		this.setupRoutes();
 		this.setupErrorHandling();
@@ -144,9 +145,9 @@ class AtlasApiServer {
 	}
 
 	private setupErrorHandling(): void {
-		// Global error handler
-
-		this.app.use((error: Error, req: Request, res: Response, _next: NextFunction) => {
+		// Global error handling middleware
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		this.app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
 			console.error('❌ Unhandled error:', error);
 
 			res.status(500).json({
@@ -228,5 +229,5 @@ class AtlasApiServer {
 	}
 }
 
-export { AtlasApiServer, ServerConfig };
+export type { AtlasApiServer, ServerConfig };
 export default AtlasApiServer;

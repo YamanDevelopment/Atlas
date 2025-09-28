@@ -61,7 +61,8 @@ class AtlasApplication {
 
 		this.apiServer = new AtlasApiServer({
 			port: this.config.apiPort,
-			dbUrl: `${this.config.mongodbUri}/${this.config.dbName}`,
+			dbUri: this.config.mongodbUri,
+			dbName: this.config.dbName,
 			cors: {
 				origin: this.config.corsOrigin,
 				credentials: true,
@@ -223,5 +224,5 @@ if (require.main === module) {
 	process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 }
 
-export { AtlasApplication, AtlasConfig };
+export type { AtlasApplication, AtlasConfig };
 export default atlasApp;

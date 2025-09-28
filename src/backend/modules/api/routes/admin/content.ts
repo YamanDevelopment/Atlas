@@ -1,19 +1,13 @@
 import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { requireAdmin } from './middleware';
-import type Handler from '../../../database/services/handler';
 import { Event } from '../../../database/schemas/Event';
 import { Organization } from '../../../database/schemas/Organization';
 import { Lab } from '../../../database/schemas/Lab';
+import { Interest } from '../../../database/schemas/Interest';
+import { GeminiService } from '../../../ai/gemini';
 
 const router = Router();
-
-// Handler instance
-let handler: Handler;
-
-export function setHandler(handlerInstance: Handler) {
-	handler = handlerInstance;
-}
 
 /**
  * Admin Content Moderation API Routes
@@ -25,6 +19,11 @@ export function setHandler(handlerInstance: Handler) {
  * DELETE /api/admin/content/:type/:id - Delete content
  * GET /api/admin/content/reports - Get user reports
  * PUT /api/admin/content/reports/:id/resolve - Resolve user report
+ * POST /api/admin/content/labs - Create new lab with AI tagging
+ * POST /api/admin/content/organizations - Create new organization with AI tagging
+ * POST /api/admin/content/events - Create new event with AI tagging
+ * POST /api/admin/content/interests - Create new interest with AI tagging
+ * POST /api/admin/content/bulk/retag - Bulk retag items using AI
  */
 
 interface ContentItem {
@@ -586,6 +585,491 @@ router.get('/stats',
 				success: false,
 				error: 'Failed to fetch content statistics',
 				message: 'An error occurred while fetching content statistics',
+			});
+		}
+	},
+);
+
+const geminiService = new GeminiService();
+
+/**
+ * POST /api/admin/content/labs
+ * Create new lab with automatic AI tagging and involvement guide
+ */
+router.post('/labs',
+	requireAdmin,
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			const {
+				name,
+				description,
+				department,
+				principalInvestigator,
+				location,
+				email,
+				url,
+				acceptingStudents = true,
+				researchAreas = [],
+			} = req.body;
+
+			if (!name || !description || !department || !principalInvestigator) {
+				res.status(400).json({
+					success: false,
+					error: 'Missing required fields',
+					message: 'Name, description, department, and principal investigator are required',
+				});
+				return;
+			}
+
+			// Get the next available ID
+			const lastLab = await Lab.findOne().sort({ id: -1 });
+			const nextId = lastLab ? lastLab.id + 1 : 1;
+
+			// Create lab object for AI analysis
+			const labForAnalysis = {
+				title: name,
+				description,
+				additionalContext: {
+					department,
+					researchAreas,
+					principalInvestigator,
+				},
+			};
+
+			// Generate AI tags
+			const aiAnalysis = await geminiService.analyzeContent(labForAnalysis);
+
+			// Generate involvement guide
+			const involvementGuide = await geminiService.generateInvolvementGuide(
+				{
+					name,
+					description,
+					website: url,
+				},
+				[], // No specific user interests for generic guide
+			);
+
+			// Create the lab
+			const newLab = new Lab({
+				id: nextId,
+				name,
+				description,
+				department,
+				principalInvestigator,
+				location,
+				email,
+				url,
+				acceptingStudents,
+				researchAreas,
+				tags: aiAnalysis.tags,
+				aiProcessing: {
+					lastAnalyzed: new Date(),
+					geminiModel: geminiService.getModelInfo().model,
+				},
+				involvementGuide: {
+					guide: involvementGuide.guide,
+					actionableSteps: involvementGuide.actionableSteps,
+					tips: involvementGuide.tips,
+					lastUpdated: new Date(),
+				},
+			});
+
+			await newLab.save();
+
+			res.status(201).json({
+				success: true,
+				message: 'Lab created successfully with AI tagging and involvement guide',
+				data: {
+					lab: newLab,
+					aiAnalysis: {
+						confidence: aiAnalysis.confidence,
+						tagsGenerated: aiAnalysis.tags.length,
+					},
+				},
+			});
+
+		} catch (error) {
+			console.error('❌ Create lab error:', error);
+			res.status(500).json({
+				success: false,
+				error: 'Failed to create lab',
+				message: 'An error occurred while creating the lab',
+			});
+		}
+	},
+);
+
+/**
+ * POST /api/admin/content/organizations
+ * Create new organization with automatic AI tagging and involvement guide
+ */
+router.post('/organizations',
+	requireAdmin,
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			const {
+				name,
+				shortName,
+				description,
+				url,
+				logoUrl,
+			} = req.body;
+
+			if (!name || !description) {
+				res.status(400).json({
+					success: false,
+					error: 'Missing required fields',
+					message: 'Name and description are required',
+				});
+				return;
+			}
+
+			// Get the next available ID
+			const lastOrg = await Organization.findOne().sort({ id: -1 });
+			const nextId = lastOrg ? lastOrg.id + 1 : 1;
+
+			// Create organization object for AI analysis
+			const orgForAnalysis = {
+				title: name,
+				description,
+				additionalContext: {
+					contactInfo: shortName,
+				},
+			};
+
+			// Generate AI tags
+			const aiAnalysis = await geminiService.analyzeContent(orgForAnalysis);
+
+			// Generate involvement guide
+			const involvementGuide = await geminiService.generateInvolvementGuide(
+				{
+					name,
+					description,
+					website: url,
+				},
+				[], // No specific user interests for generic guide
+			);
+
+			// Create the organization
+			const newOrg = new Organization({
+				id: nextId,
+				name,
+				shortName,
+				description,
+				url,
+				logoUrl,
+				tags: aiAnalysis.tags,
+				aiProcessing: {
+					lastAnalyzed: new Date(),
+					geminiModel: geminiService.getModelInfo().model,
+				},
+				involvementGuide: {
+					guide: involvementGuide.guide,
+					actionableSteps: involvementGuide.actionableSteps,
+					tips: involvementGuide.tips,
+					lastUpdated: new Date(),
+				},
+			});
+
+			await newOrg.save();
+
+			res.status(201).json({
+				success: true,
+				message: 'Organization created successfully with AI tagging and involvement guide',
+				data: {
+					organization: newOrg,
+					aiAnalysis: {
+						confidence: aiAnalysis.confidence,
+						tagsGenerated: aiAnalysis.tags.length,
+					},
+				},
+			});
+
+		} catch (error) {
+			console.error('❌ Create organization error:', error);
+			res.status(500).json({
+				success: false,
+				error: 'Failed to create organization',
+				message: 'An error occurred while creating the organization',
+			});
+		}
+	},
+);
+
+/**
+ * POST /api/admin/content/events
+ * Create new event with automatic AI tagging
+ */
+router.post('/events',
+	requireAdmin,
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			const {
+				name,
+				description,
+				startTime,
+				endTime,
+				location,
+				url,
+				organization,
+				latitude,
+				longitude,
+			} = req.body;
+
+			if (!name || !description || !startTime) {
+				res.status(400).json({
+					success: false,
+					error: 'Missing required fields',
+					message: 'Name, description, and start time are required',
+				});
+				return;
+			}
+
+			// Get the next available ID
+			const lastEvent = await Event.findOne().sort({ id: -1 });
+			const nextId = lastEvent ? lastEvent.id + 1 : 1;
+
+			// Create event object for AI analysis
+			const eventForAnalysis = {
+				title: name,
+				description,
+				additionalContext: {
+					location,
+					eventType: 'general',
+				},
+			};
+
+			// Generate AI tags
+			const aiAnalysis = await geminiService.analyzeContent(eventForAnalysis);
+
+			// Create the event
+			const newEvent = new Event({
+				id: nextId,
+				name,
+				description,
+				startTime: new Date(startTime),
+				endTime: endTime ? new Date(endTime) : undefined,
+				location,
+				url,
+				organization,
+				latitude,
+				longitude,
+				tags: aiAnalysis.tags,
+				aiProcessing: {
+					lastAnalyzed: new Date(),
+					geminiModel: geminiService.getModelInfo().model,
+				},
+			});
+
+			await newEvent.save();
+
+			res.status(201).json({
+				success: true,
+				message: 'Event created successfully with AI tagging',
+				data: {
+					event: newEvent,
+					aiAnalysis: {
+						confidence: aiAnalysis.confidence,
+						tagsGenerated: aiAnalysis.tags.length,
+					},
+				},
+			});
+
+		} catch (error) {
+			console.error('❌ Create event error:', error);
+			res.status(500).json({
+				success: false,
+				error: 'Failed to create event',
+				message: 'An error occurred while creating the event',
+			});
+		}
+	},
+);
+
+/**
+ * POST /api/admin/content/interests
+ * Create new interest with automatic AI tagging
+ */
+router.post('/interests',
+	requireAdmin,
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			const { keyword, description, category } = req.body;
+
+			if (!keyword) {
+				res.status(400).json({
+					success: false,
+					error: 'Missing required fields',
+					message: 'Keyword is required',
+				});
+				return;
+			}
+
+			// Get the next available ID
+			const lastInterest = await Interest.findOne().sort({ id: -1 });
+			const nextId = lastInterest ? lastInterest.id + 1 : 1;
+
+			// Analyze interest with Gemini
+			const interestAnalysis = await geminiService.analyzeInterest({
+				interestKeyword: keyword,
+				userDescription: description,
+			});
+
+			// Create the interest
+			const newInterest = new Interest({
+				id: nextId,
+				name: interestAnalysis.suggestedInterestName || keyword,
+				keyword,
+				description: description || `Interest in ${keyword}`,
+				category: category || 'general',
+				tags: interestAnalysis.tags,
+			});
+
+			await newInterest.save();
+
+			res.status(201).json({
+				success: true,
+				message: 'Interest created successfully with AI tagging',
+				data: {
+					interest: newInterest,
+					aiAnalysis: {
+						confidence: interestAnalysis.confidence,
+						tagsGenerated: interestAnalysis.tags.length,
+						suggestedName: interestAnalysis.suggestedInterestName,
+					},
+				},
+			});
+
+		} catch (error) {
+			console.error('❌ Create interest error:', error);
+			res.status(500).json({
+				success: false,
+				error: 'Failed to create interest',
+				message: 'An error occurred while creating the interest',
+			});
+		}
+	},
+);
+
+/**
+ * POST /api/admin/content/bulk/retag
+ * Bulk retag items using AI
+ */
+router.post('/bulk/retag',
+	requireAdmin,
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			const { itemType, itemIds = [], force = false } = req.body;
+
+			if (!itemType || !['labs', 'organizations', 'events'].includes(itemType)) {
+				res.status(400).json({
+					success: false,
+					error: 'Invalid item type',
+					message: 'Item type must be one of: labs, organizations, events',
+				});
+				return;
+			}
+
+			// Build query
+			const query: any = itemIds.length > 0 ? { id: { $in: itemIds } } : {};
+			if (!force) {
+				// Only retag items that haven't been analyzed recently (>7 days)
+				const weekAgo = new Date();
+				weekAgo.setDate(weekAgo.getDate() - 7);
+				query.$or = [
+					{ 'aiProcessing.lastAnalyzed': { $lt: weekAgo } },
+					{ 'aiProcessing.lastAnalyzed': { $exists: false } },
+				];
+			}
+
+			let items: any[];
+			switch (itemType) {
+				case 'labs':
+					items = await Lab.find(query).limit(50);
+					break;
+				case 'organizations':
+					items = await Organization.find(query).limit(50);
+					break;
+				case 'events':
+					items = await Event.find(query).limit(50);
+					break;
+				default:
+					items = [];
+			}
+
+			const results = {
+				processed: 0,
+				successful: 0,
+				failed: 0,
+				errors: [] as string[],
+			};
+
+			for (const item of items) {
+				try {
+					results.processed++;
+
+					const itemForAnalysis = {
+						title: item.name,
+						description: item.description,
+						additionalContext: itemType === 'labs' ? {
+							department: item.department,
+							researchAreas: item.researchAreas,
+						} : itemType === 'events' ? {
+							location: item.location,
+						} : {
+							contactInfo: item.shortName,
+						},
+					};
+
+					const aiAnalysis = await geminiService.analyzeContent(itemForAnalysis);
+
+					// Generate new involvement guide for labs/orgs
+					if (itemType === 'labs' || itemType === 'organizations') {
+						const involvementGuide = await geminiService.generateInvolvementGuide(
+							{
+								name: item.name,
+								description: item.description,
+								website: item.url,
+							},
+							[],
+						);
+
+						item.involvementGuide = {
+							guide: involvementGuide.guide,
+							actionableSteps: involvementGuide.actionableSteps,
+							tips: involvementGuide.tips,
+							lastUpdated: new Date(),
+						};
+					}
+
+					item.tags = aiAnalysis.tags;
+					item.aiProcessing = {
+						lastAnalyzed: new Date(),
+						geminiModel: geminiService.getModelInfo().model,
+					};
+
+					await item.save();
+					results.successful++;
+
+				} catch (error) {
+					results.failed++;
+					results.errors.push(`${item.name}: ${(error as Error).message}`);
+					console.error(`❌ Failed to retag ${item.name}:`, error);
+				}
+			}
+
+			res.json({
+				success: true,
+				message: 'Bulk retagging completed',
+				data: results,
+			});
+
+		} catch (error) {
+			console.error('❌ Bulk retag error:', error);
+			res.status(500).json({
+				success: false,
+				error: 'Failed to perform bulk retagging',
+				message: 'An error occurred during bulk retagging',
 			});
 		}
 	},

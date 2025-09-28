@@ -647,4 +647,278 @@ STRICT REQUIREMENTS:
 			version: '2.5',
 		};
 	}
+
+	/**
+	 * Generate involvement guide for labs/orgs when student clicks "get involved"
+	 */
+	async generateInvolvementGuide(item: { name: string; description: string; website?: string }, userInterests: string[]): Promise<{
+		guide: string;
+		actionableSteps: string[];
+		tips: string[];
+		confidence: number;
+	}> {
+		try {
+			const prompt = this.buildInvolvementGuidePrompt(item, userInterests);
+
+			const response = await this.genAI.models.generateContent({
+				model: config.ai.gemini.model,
+				contents: prompt,
+				config: {
+					responseMimeType: 'application/json',
+					responseSchema: {
+						type: Type.OBJECT,
+						properties: {
+							guide: { type: Type.STRING },
+							actionableSteps: {
+								type: Type.ARRAY,
+								items: { type: Type.STRING },
+							},
+							tips: {
+								type: Type.ARRAY,
+								items: { type: Type.STRING },
+							},
+							confidence: { type: Type.NUMBER },
+						},
+						required: ['guide', 'actionableSteps', 'tips', 'confidence'],
+					},
+					maxOutputTokens: config.ai.gemini.maxTokens,
+					temperature: 0.7, // Slightly more creative for advice
+				},
+			});
+
+			if (!response.text || response.text.trim() === '') {
+				throw new Error('Empty response from Gemini API for involvement guide');
+			}
+
+			const result = JSON.parse(response.text);
+
+			return {
+				guide: result.guide || 'Visit the organization link to learn more about getting involved.',
+				actionableSteps: result.actionableSteps || ['Contact the organization directly'],
+				tips: result.tips || ['Check their website for more details'],
+				confidence: result.confidence || 0.5,
+			};
+
+		} catch (error) {
+			console.error('Gemini involvement guide error:', error);
+			return {
+				guide: item.website
+					? `Visit ${item.website} to learn more about getting involved with ${item.name}.`
+					: `Contact ${item.name} directly to learn more about getting involved.`,
+				actionableSteps: ['Contact the organization directly for more information'],
+				tips: ['Check their website or social media for updates'],
+				confidence: 0.3,
+			};
+		}
+	}
+
+	/**
+	 * Build involvement guide prompt
+	 */
+	private buildInvolvementGuidePrompt(item: { name: string; description: string; website?: string }, userInterests: string[]): string {
+		return `
+You are an AI assistant helping students get involved in university organizations and labs.
+
+ORGANIZATION/LAB DETAILS:
+Name: ${item.name}
+Description: ${item.description}
+${item.website ? `Website: ${item.website}` : ''}
+
+STUDENT'S INTERESTS: ${userInterests.join(', ')}
+
+Create a practical involvement guide with actionable advice. If the description is too vague or provides insufficient detail, suggest they visit the link/contact for more information.
+
+RESPONSE FORMAT (JSON):
+{
+  "guide": "2-3 sentence overview of how to get involved effectively",
+  "actionableSteps": [
+    "Specific step 1",
+    "Specific step 2", 
+    "Specific step 3"
+  ],
+  "tips": [
+    "Helpful tip 1",
+    "Helpful tip 2",
+    "Helpful tip 3"
+  ],
+  "confidence": 0.8
+}
+
+Focus on:
+- Practical first steps for getting involved
+- Ways to contribute based on student interests
+- Tips for being successful in the organization
+- How to make meaningful connections
+- If description lacks detail, recommend visiting their website/contacting directly
+`;
+	}
+
+	/**
+	 * Generate involvement plan for new students based on their interests and available opportunities
+	 */
+	async generateInvolvementPlan(
+		userInterests: string[],
+		recommendedOpportunities: { type: 'lab' | 'org' | 'event'; item: any; score: number }[],
+		professors: { name: string; email: string; researchAreas: string[]; labs: string[] }[],
+	): Promise<{
+		plan: string;
+		prioritizedSteps: string[];
+		professorRecommendations: { name: string; email: string; reason: string }[];
+		timeline: { phase: string; activities: string[]; duration: string }[];
+	}> {
+		try {
+			const prompt = this.buildInvolvementPlanPrompt(userInterests, recommendedOpportunities, professors);
+
+			const response = await this.genAI.models.generateContent({
+				model: config.ai.gemini.model,
+				contents: prompt,
+				config: {
+					responseMimeType: 'application/json',
+					responseSchema: {
+						type: Type.OBJECT,
+						properties: {
+							plan: { type: Type.STRING },
+							prioritizedSteps: {
+								type: Type.ARRAY,
+								items: { type: Type.STRING },
+							},
+							professorRecommendations: {
+								type: Type.ARRAY,
+								items: {
+									type: Type.OBJECT,
+									properties: {
+										name: { type: Type.STRING },
+										email: { type: Type.STRING },
+										reason: { type: Type.STRING },
+									},
+									required: ['name', 'email', 'reason'],
+								},
+							},
+							timeline: {
+								type: Type.ARRAY,
+								items: {
+									type: Type.OBJECT,
+									properties: {
+										phase: { type: Type.STRING },
+										activities: {
+											type: Type.ARRAY,
+											items: { type: Type.STRING },
+										},
+										duration: { type: Type.STRING },
+									},
+									required: ['phase', 'activities', 'duration'],
+								},
+							},
+						},
+						required: ['plan', 'prioritizedSteps', 'professorRecommendations', 'timeline'],
+					},
+					maxOutputTokens: config.ai.gemini.maxTokens,
+					temperature: 0.7,
+				},
+			});
+
+			if (!response.text || response.text.trim() === '') {
+				throw new Error('Empty response from Gemini API for involvement plan');
+			}
+
+			const result = JSON.parse(response.text);
+			return result;
+
+		} catch (error) {
+			console.error('Gemini involvement plan error:', error);
+			return {
+				plan: 'Start by exploring the recommended opportunities that align with your interests.',
+				prioritizedSteps: [
+					'Review your recommended organizations and labs',
+					'Attend information sessions or meetings',
+					'Connect with professors in your areas of interest',
+					'Start with 1-2 commitments to avoid overcommitting',
+				],
+				professorRecommendations: professors.slice(0, 3).map(p => ({
+					name: p.name,
+					email: p.email,
+					reason: 'Research areas align with your interests',
+				})),
+				timeline: [
+					{
+						phase: 'Exploration',
+						activities: ['Research opportunities', 'Attend info sessions'],
+						duration: '2-3 weeks',
+					},
+					{
+						phase: 'Engagement',
+						activities: ['Join 1-2 organizations', 'Start participating'],
+						duration: '1 month',
+					},
+				],
+			};
+		}
+	}
+
+	/**
+	 * Build involvement plan prompt
+	 */
+	private buildInvolvementPlanPrompt(
+		userInterests: string[],
+		opportunities: { type: 'lab' | 'org' | 'event'; item: any; score: number }[],
+		professors: { name: string; email: string; researchAreas: string[]; labs: string[] }[],
+	): string {
+		const opportunitiesList = opportunities
+			.slice(0, 10) // Top 10 opportunities
+			.map(opp => `${opp.type.toUpperCase()}: ${opp.item.name} (Score: ${opp.score}/100)`)
+			.join('\n');
+
+		const professorsList = professors
+			.slice(0, 8) // Top 8 professors
+			.map(prof => `${prof.name} (${prof.email}) - Research: ${prof.researchAreas.join(', ')} - Labs: ${prof.labs.join(', ')}`)
+			.join('\n');
+
+		return `
+You are creating a comprehensive involvement plan for a new university student.
+
+STUDENT INTERESTS: ${userInterests.join(', ')}
+
+TOP RECOMMENDED OPPORTUNITIES:
+${opportunitiesList}
+
+RELEVANT PROFESSORS:
+${professorsList}
+
+Create a comprehensive involvement plan that includes:
+1. Overall strategy (2-3 sentences)
+2. Prioritized action steps (5-7 steps)
+3. Professor recommendations with reasons (3-5 professors)
+4. Timeline with phases and activities
+
+RESPONSE FORMAT (JSON):
+{
+  "plan": "Overall involvement strategy and approach",
+  "prioritizedSteps": [
+    "Step 1 with specific action",
+    "Step 2 with specific action"
+  ],
+  "professorRecommendations": [
+    {
+      "name": "Professor Name",
+      "email": "email@university.edu",
+      "reason": "Specific reason why they should connect"
+    }
+  ],
+  "timeline": [
+    {
+      "phase": "Phase Name",
+      "activities": ["Activity 1", "Activity 2"],
+      "duration": "Time estimate"
+    }
+  ]
+}
+
+Focus on:
+- Realistic and achievable goals
+- Balance between different types of involvement
+- Building meaningful connections
+- Progressive engagement over time
+- Specific, actionable recommendations
+`;
+	}
 }
