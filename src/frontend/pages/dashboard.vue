@@ -20,11 +20,89 @@
           </div>
           
           <div class="flex items-center space-x-4">
-            <button class="text-gray-500 hover:text-gray-700">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM13 3H4a2 2 0 00-2 2v14a2 2 0 002 2h5m11-9V7a2 2 0 00-2-2H9a2 2 0 00-2 2v8a2 2 0 002 2h10a2 2 0 002-2z" />
-              </svg>
-            </button>
+            <!-- Notifications Dropdown -->
+            <div class="relative">
+              <button 
+                @click="toggleNotifications"
+                class="relative text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <!-- Notification badge -->
+                <span 
+                  v-if="nudges.length > 0" 
+                  class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
+                >
+                  {{ nudges.length }}
+                </span>
+              </button>
+
+              <!-- Notifications Dropdown -->
+              <div 
+                v-if="showNotifications" 
+                class="absolute top-full right-0 mt-1 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50"
+              >
+                <div class="p-4 border-b border-gray-200">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Notifications</h3>
+                    <button 
+                      v-if="nudges.length > 0"
+                      @click="clearAllNotifications"
+                      class="text-sm text-indigo-600 hover:text-indigo-800"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                </div>
+
+                <div class="max-h-96 overflow-y-auto">
+                  <div v-if="nudges.length === 0" class="p-6 text-center text-gray-500">
+                    <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-sm">No new notifications</p>
+                  </div>
+
+                  <div v-else class="divide-y divide-gray-100">
+                    <div
+                      v-for="nudge in nudges"
+                      :key="nudge.id"
+                      class="p-4 hover:bg-gray-50 transition-colors"
+                    >
+                      <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                          <div class="flex items-center mb-2">
+                            <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                            <span class="text-xs text-gray-500 uppercase tracking-wide">{{ nudge.type }}</span>
+                          </div>
+                          <p class="text-sm text-gray-900 mb-2">{{ nudge.message }}</p>
+                          <div class="flex items-center justify-between">
+                            <span class="text-xs text-gray-400">Just now</span>
+                            <button 
+                              @click="handleNotificationAction(nudge)"
+                              class="text-xs text-indigo-600 hover:text-indigo-800 font-medium"
+                            >
+                              View →
+                            </button>
+                          </div>
+                        </div>
+                        <button 
+                          @click="dismissNotification(nudge.id)"
+                          class="ml-2 text-gray-400 hover:text-gray-600"
+                        >
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
               JD
             </div>
@@ -52,23 +130,6 @@
             <div class="text-2xl font-bold text-purple-600">{{ recommendedClubs.length }}</div>
             <div class="text-sm text-gray-600">Recommendations</div>
           </div>
-        </div>
-      </div>
-
-      <!-- Nudges -->
-      <div v-if="nudges.length > 0" class="mb-8 space-y-3">
-        <div
-          v-for="nudge in nudges"
-          :key="nudge.id"
-          class="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg"
-        >
-          <div class="flex items-center">
-            <div class="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-            <span class="text-blue-800">{{ nudge.message }}</span>
-          </div>
-          <button class="text-blue-600 hover:text-blue-800 text-sm">
-            View →
-          </button>
         </div>
       </div>
 
@@ -332,6 +393,7 @@ import type { Plan, Commitment, Event, Club } from '~/types';
 const showStarterPlanModal = ref(false);
 const showTour = ref(false);
 const planAccepted = ref(false);
+const showNotifications = ref(false);
 
 // Starter plan data
 const starterPlan = ref<Plan>({
@@ -476,6 +538,26 @@ const recommendedClubs = ref<Club[]>([
 ]);
 
 // Methods
+const toggleNotifications = () => {
+  showNotifications.value = !showNotifications.value;
+};
+
+const clearAllNotifications = () => {
+  nudges.value = [];
+  showNotifications.value = false;
+};
+
+const dismissNotification = (notificationId: string) => {
+  nudges.value = nudges.value.filter(nudge => nudge.id !== notificationId);
+};
+
+const handleNotificationAction = (nudge: any) => {
+  // Handle notification action (e.g., navigate to relevant page)
+  console.log('Notification action:', nudge);
+  dismissNotification(nudge.id);
+  showNotifications.value = false;
+};
+
 const acceptOpportunity = async (club: Club) => {
   // Add to commitments
   const newCommitment: Commitment = {
@@ -576,5 +658,19 @@ onMounted(() => {
   if (searchParams.get('from') === 'onboarding') {
     showStarterPlanModal.value = true;
   }
+
+  // Close notifications dropdown when clicking outside
+  const handleClickOutside = (event: MouseEvent) => {
+    const target = event.target as HTMLElement;
+    if (showNotifications.value && !target.closest('.relative')) {
+      showNotifications.value = false;
+    }
+  };
+  
+  document.addEventListener('click', handleClickOutside);
+  
+  onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside);
+  });
 });
 </script>
