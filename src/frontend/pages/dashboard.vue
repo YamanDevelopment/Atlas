@@ -134,18 +134,18 @@
       </div>
 
       <!-- Grid Layout -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8" style="min-height: 500px;">
         <!-- Left Column (2/3 width) -->
-        <div class="lg:col-span-2 space-y-8">
+        <div class="lg:col-span-2 space-y-8" style="min-height: 400px;">
           <!-- Your Starter Plan -->
-          <div class="bg-white rounded-xl shadow-sm p-6">
+          <div class="bg-white rounded-xl shadow-sm p-6" style="min-height: 300px;">
             <div class="flex items-center justify-between mb-6">
               <h2 class="text-xl font-semibold text-gray-900">Your Starter Plan</h2>
               <span class="text-sm text-gray-500">Personalized for you</span>
             </div>
 
             <!-- Show recommendations if plan not accepted -->
-            <div v-if="!planAccepted">
+            <div v-if="!planAccepted" class="min-h-[400px]">
               <!-- Club Recommendations -->
               <div class="space-y-6 recommendations-section">
                 <h3 class="text-lg font-medium text-gray-900">Recommended for You</h3>
@@ -234,7 +234,7 @@
             </div>
 
             <!-- Show acceptance confirmation if plan accepted -->
-            <div v-else class="text-center py-8">
+            <div v-else class="text-center py-8 min-h-[400px] flex flex-col justify-center">
               <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -246,7 +246,7 @@
           </div>
 
           <!-- Your Commitments -->
-          <div class="bg-white rounded-xl shadow-sm p-6 commitments-section">
+          <div class="bg-white rounded-xl shadow-sm p-6 commitments-section min-h-[300px]">
             <div class="flex items-center justify-between mb-6">
               <h2 class="text-xl font-semibold text-gray-900">Your Commitments</h2>
               <span class="text-sm text-gray-500">{{ commitments.length }} active</span>
@@ -289,9 +289,9 @@
         </div>
 
         <!-- Right Column (1/3 width) -->
-        <div class="space-y-8">
+        <div class="space-y-8" style="min-height: 400px;">
           <!-- Next Up -->
-          <div class="bg-white rounded-xl shadow-sm p-6">
+          <div class="bg-white rounded-xl shadow-sm p-6" style="min-height: 200px;">
             <h2 class="text-xl font-semibold text-gray-900 mb-6">Next Up</h2>
             
             <div v-if="upcomingEvents.length > 0" class="space-y-4">
@@ -674,3 +674,22 @@ onMounted(() => {
   });
 });
 </script>
+
+<style scoped>
+/* Prevent layout shifts by ensuring stable grid layout */
+.grid {
+  contain: layout;
+}
+
+/* Ensure minimum heights are maintained for stability */
+@media (min-width: 1024px) {
+  .lg\:col-span-2 {
+    min-height: 500px;
+  }
+}
+
+/* Smooth transitions for content changes */
+.space-y-8 > * {
+  transition: all 0.2s ease-in-out;
+}
+</style>
