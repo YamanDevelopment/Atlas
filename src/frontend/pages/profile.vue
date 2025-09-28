@@ -272,78 +272,76 @@
             <div v-else-if="activeSection === 'preferences'" class="p-6">
               <h2 class="text-xl font-semibold text-gray-900 mb-6">Time Budget & Preferences</h2>
               
-              <form @submit.prevent="savePreferences" class="space-y-6">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-4">
-                    How much time do you want to commit per week?
-                  </label>
-                  <div class="space-y-3">
-                    <label
-                      v-for="option in timeBudgetOptions"
-                      :key="option.value"
-                      class="flex items-start p-4 border rounded-lg cursor-pointer hover:border-indigo-300"
-                      :class="profile.timeBudget === option.value ? 'border-indigo-600 bg-indigo-50' : 'border-gray-300'"
-                    >
-                      <input
-                        v-model="profile.timeBudget"
-                        type="radio"
-                        :value="option.value"
-                        class="mt-1 mr-3 text-indigo-600"
-                      />
-                      <div>
-                        <div class="font-medium text-gray-900">{{ option.label }}</div>
-                        <div class="text-sm text-gray-500">{{ option.description }}</div>
-                      </div>
-                    </label>
-                  </div>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-4">
-                    Current Involvements
-                  </label>
-                  <div class="space-y-2">
-                    <div
-                      v-for="(involvement, index) in profile.currentInvolvement"
-                      :key="index"
-                      class="flex gap-2"
-                    >
-                      <input
-                        v-model="profile.currentInvolvement[index]"
-                        type="text"
-                        placeholder="e.g., Study group, Part-time job..."
-                        class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                      />
-                      <button
-                        @click="removeInvolvement(index)"
-                        type="button"
-                        class="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
-                      >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
+              <div class="space-y-6">
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div class="flex">
+                    <svg class="h-5 w-5 text-yellow-400 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <h3 class="text-sm font-medium text-yellow-800">Coming Soon</h3>
+                      <p class="text-sm text-yellow-700 mt-1">
+                        Time budget and preference settings will be available in a future update. For now, we'll use smart defaults based on your profile.
+                      </p>
                     </div>
-                    <button
-                      @click="addInvolvement"
-                      type="button"
-                      class="w-full p-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400"
-                    >
-                      + Add involvement
-                    </button>
                   </div>
                 </div>
 
-                <div class="flex justify-end">
-                  <button
-                    type="submit"
-                    :disabled="isSaving"
-                    class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
-                  >
-                    {{ isSaving ? 'Saving...' : 'Save Preferences' }}
-                  </button>
+                <!-- Placeholder preference settings -->
+                <div class="opacity-50 pointer-events-none">
+                  <div class="space-y-6">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-4">
+                        How much time do you want to commit per week?
+                      </label>
+                      <div class="space-y-3">
+                        <label class="flex items-start p-4 border rounded-lg border-indigo-600 bg-indigo-50">
+                          <input type="radio" checked disabled class="mt-1 mr-3 text-indigo-600" />
+                          <div>
+                            <div class="font-medium text-gray-900">3-5 hours per week</div>
+                            <div class="text-sm text-gray-500">Moderate involvement - ideal balance of commitment and flexibility</div>
+                          </div>
+                        </label>
+                        <label class="flex items-start p-4 border rounded-lg border-gray-300">
+                          <input type="radio" disabled class="mt-1 mr-3 text-indigo-600" />
+                          <div>
+                            <div class="font-medium text-gray-900">1-2 hours per week</div>
+                            <div class="text-sm text-gray-500">Light involvement - perfect for trying new things</div>
+                          </div>
+                        </label>
+                        <label class="flex items-start p-4 border rounded-lg border-gray-300">
+                          <input type="radio" disabled class="mt-1 mr-3 text-indigo-600" />
+                          <div>
+                            <div class="font-medium text-gray-900">6+ hours per week</div>
+                            <div class="text-sm text-gray-500">High involvement - ready for leadership roles</div>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-4">
+                        Current Involvements
+                      </label>
+                      <div class="space-y-2">
+                        <input
+                          type="text"
+                          placeholder="e.g., Study group, Part-time job..."
+                          disabled
+                          class="w-full p-3 border border-gray-300 rounded-lg bg-gray-50"
+                        />
+                        <button
+                          type="button"
+                          disabled
+                          class="w-full p-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 opacity-50"
+                        >
+                          + Add involvement
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </form>
+              </div>
             </div>
 
             <!-- Notifications Section -->
