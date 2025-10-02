@@ -41,7 +41,9 @@
 								class="w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-medium hover:shadow-lg transform hover:scale-105 transition-all duration-200 cursor-pointer"
 								@click="showProfileDropdown = !showProfileDropdown"
 							>
-								{{ userInitials || 'U' }}
+								<ClientOnly fallback="U">
+									{{ userInitials || 'U' }}
+								</ClientOnly>
 							</button>
 
 							<!-- Profile Dropdown Menu -->
@@ -82,7 +84,9 @@
 			<!-- Welcome Header -->
 			<div class="mb-8 stats-section">
 				<h1 class="text-3xl font-bold text-gray-900">
-					Welcome back, {{ fullName || user?.name || 'there' }}!
+					<ClientOnly fallback="Welcome back, there!">
+						Welcome back, {{ fullName || user?.name || 'there' }}!
+					</ClientOnly>
 				</h1>
 				<p class="text-gray-600 mt-2">
 					Here's what's happening in your campus journey.
@@ -90,7 +94,7 @@
 				<div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
 					<div class="bg-white rounded-lg p-4 shadow-sm">
 						<div class="text-2xl font-bold text-indigo-600">
-							{{ commitments.length }}
+							{{ commitments?.length || 0 }}
 						</div>
 						<div class="text-sm text-gray-600">
 							Active Commitments
@@ -98,7 +102,7 @@
 					</div>
 					<div class="bg-white rounded-lg p-4 shadow-sm">
 						<div class="text-2xl font-bold text-green-600">
-							{{ upcomingEvents.length }}
+							{{ upcomingEvents?.length || 0 }}
 						</div>
 						<div class="text-sm text-gray-600">
 							Upcoming Events
@@ -106,7 +110,7 @@
 					</div>
 					<div class="bg-white rounded-lg p-4 shadow-sm">
 						<div class="text-2xl font-bold text-purple-600">
-							{{ recommendedClubs.length || 'Loading...' }}
+							{{ recommendedClubs?.length || 'Loading...' }}
 						</div>
 						<div class="text-sm text-gray-600">
 							Recommendations
@@ -131,11 +135,11 @@
 							<h2 class="text-xl font-semibold text-gray-900">
 								Your Commitments
 							</h2>
-							<span class="text-sm text-gray-500">{{ commitments.length }} active</span>
+							<span class="text-sm text-gray-500">{{ commitments?.length || 0 }} active</span>
 						</div>
 
 						<div
-							v-if="commitments.length > 0"
+							v-if="commitments?.length > 0"
 							class="space-y-4"
 						>
 							<div
@@ -204,6 +208,82 @@
 							class="text-center py-8 text-gray-500"
 						>
 							<p>No commitments yet. Accept some recommendations below to get started!</p>
+						</div>
+					</div>
+
+					<!-- Club Recommendations Widget -->
+					<div
+						v-if="user && user.interests && user.interests?.length > 0 && recommendedClubs?.length > 0"
+						class="bg-white rounded-xl shadow-sm p-6"
+					>
+						<div class="flex items-center justify-between mb-6">
+							<h2 class="text-xl font-semibold text-gray-900">
+								Recommended Clubs
+							</h2>
+							<span class="text-sm text-gray-500">Based on your interests</span>
+						</div>
+
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div
+								v-for="club in recommendedClubs.slice(0, 4)"
+								:key="club.id"
+								class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer hover:border-indigo-300"
+								@click="openClubModal(club)"
+							>
+								<div class="flex items-start justify-between mb-3">
+									<h3 class="font-semibold text-gray-900 text-lg">
+										{{ club.name }}
+									</h3>
+									<div class="flex items-center space-x-1">
+										<span class="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">
+											Recommended
+										</span>
+									</div>
+								</div>
+
+								<p class="text-sm text-gray-600 mb-3 line-clamp-2">
+									{{ club.description || club.shortDescription }}
+								</p>
+
+								<div
+									v-if="club.categories && club.categories?.length > 0"
+									class="mb-3"
+								>
+									<div class="flex flex-wrap gap-1">
+										<span
+											v-for="category in club.categories.slice(0, 2)"
+											:key="category.id || category.name"
+											class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
+										>
+											{{ category.name || category }}
+										</span>
+									</div>
+								</div>
+
+								<div class="flex items-center justify-between">
+									<span class="text-sm text-gray-500">
+										{{ club.memberCount || 0 }} members
+									</span>
+									<button
+										class="px-3 py-1 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors"
+										@click.stop="joinClubFromRecommendation(club)"
+									>
+										Join
+									</button>
+								</div>
+							</div>
+						</div>
+
+						<div
+							v-if="recommendedClubs?.length > 4"
+							class="text-center mt-4"
+						>
+							<button
+								class="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+								@click="$router.push('/explore')"
+							>
+								View All Recommendations →
+							</button>
 						</div>
 					</div>
 
@@ -426,7 +506,7 @@
 						</h2>
 
 						<div
-							v-if="upcomingEvents.length > 0"
+							v-if="upcomingEvents?.length > 0"
 							class="space-y-4"
 						>
 							<div
@@ -566,7 +646,7 @@
 		<StarterPlanModal
 			:is-visible="showStarterPlanModal"
 			:plan="starterPlan"
-			:current-commitments="commitments.length"
+			:current-commitments="commitments?.length || 0"
 			@close="showStarterPlanModal = false"
 			@start-tour="startDashboardTour"
 			@skip-tour="skipDashboardTour"
@@ -732,7 +812,7 @@
 
 									<!-- Tags -->
 									<div
-										v-if="modalEventData.tags && modalEventData.tags.length > 0"
+										v-if="modalEventData?.tags && modalEventData.tags?.length > 0"
 										class="mb-6"
 									>
 										<h4 class="font-medium text-gray-900 mb-2">
@@ -811,6 +891,132 @@
 								>
 									{{ (modalEventData as any).rsvpStatus === 'interested' ? '✓ Interested' : 'Interested' }}
 								</button>
+							</div>
+						</div>
+					</div>
+				</Transition>
+			</div>
+		</Transition>
+
+		<!-- Club Recommendation Modal -->
+		<Transition
+			enter-active-class="transition-all duration-300 ease-out"
+			enter-from-class="opacity-0"
+			enter-to-class="opacity-100"
+			leave-active-class="transition-all duration-200 ease-in"
+			leave-from-class="opacity-100"
+			leave-to-class="opacity-0"
+		>
+			<div
+				v-if="showClubModal && selectedClub"
+				class="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50 p-4"
+				@click="closeClubModal"
+			>
+				<Transition
+					enter-active-class="transition-all duration-300 ease-out"
+					enter-from-class="opacity-0 transform scale-95 translate-y-4"
+					enter-to-class="opacity-100 transform scale-100 translate-y-0"
+					leave-active-class="transition-all duration-200 ease-in"
+					leave-from-class="opacity-100 transform scale-100 translate-y-0"
+					leave-to-class="opacity-0 transform scale-95 translate-y-4"
+				>
+					<div
+						v-if="showClubModal && selectedClub"
+						class="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl max-w-2xl w-full mx-4 max-h-[85vh] overflow-y-auto border border-white/20"
+						@click.stop
+					>
+						<div class="p-6">
+							<div class="flex justify-between items-start mb-6">
+								<h2 class="text-2xl font-bold text-gray-900">
+									{{ selectedClub.name }}
+								</h2>
+								<button
+									class="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100"
+									@click="closeClubModal"
+								>
+									<svg
+										class="w-6 h-6"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M6 18L18 6M6 6l12 12"
+										/>
+									</svg>
+								</button>
+							</div>
+
+							<div class="space-y-6">
+								<p class="text-gray-600 text-lg leading-relaxed">
+									{{ selectedClub.description }}
+								</p>
+
+								<div v-if="selectedClub?.categories && selectedClub.categories?.length > 0">
+									<h3 class="font-semibold text-gray-900 mb-3">
+										Categories
+									</h3>
+									<div class="flex flex-wrap gap-2">
+										<span
+											v-for="category in selectedClub.categories"
+											:key="category.id || category.name"
+											class="px-3 py-1 bg-indigo-100 text-indigo-700 text-sm rounded-full"
+										>
+											{{ category.name || category }}
+										</span>
+									</div>
+								</div>
+
+								<div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
+									<div v-if="selectedClub.memberCount">
+										<span class="font-semibold">Members:</span> {{ selectedClub.memberCount }}
+									</div>
+									<div v-if="selectedClub.meetingSchedule">
+										<span class="font-semibold">Meetings:</span> {{ selectedClub.meetingSchedule }}
+									</div>
+								</div>
+
+								<div
+									v-if="selectedClub?.upcomingEvents && selectedClub.upcomingEvents?.length > 0"
+									class="border-t border-gray-200 pt-6"
+								>
+									<h3 class="font-semibold text-gray-900 mb-3">
+										Upcoming Events
+									</h3>
+									<div class="space-y-3">
+										<div
+											v-for="event in selectedClub.upcomingEvents.slice(0, 3)"
+											:key="event.id"
+											class="p-3 bg-gray-50 rounded-lg"
+										>
+											<h4 class="font-medium text-gray-900">
+												{{ event.name }}
+											</h4>
+											<p class="text-sm text-gray-600">
+												{{ formatDate(event.startDate || event.startTime) }}
+											</p>
+										</div>
+									</div>
+								</div>
+
+								<div class="flex gap-4 pt-6 border-t border-gray-200">
+									<button
+										class="flex-1 py-3 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+										@click="joinClubFromRecommendation(selectedClub)"
+									>
+										{{ selectedClub.isJoined ? 'Joined' : 'Join Club' }}
+									</button>
+									<button
+										v-if="selectedClub.url"
+										class="py-3 px-6 bg-white border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 font-medium"
+										@click="openUrl(selectedClub.url)"
+									>
+										Visit Website
+									</button>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -1021,43 +1227,90 @@ import type { Plan, Commitment, Event, Club } from '~/types';
 import { useUser } from '~/composables/useUser';
 import { useEvents } from '~/composables/useEvents';
 import { useClubs } from '~/composables/useClubs';
+import { apiService } from '~/services/api';
+
+// Require authentication for this page
+// TODO: Re-enable after fixing redirect loop
+// definePageMeta({
+// 	middleware: 'auth',
+// });
 
 // Check authentication and redirect if needed
 const { user, isAuthenticated, userInitials, fullName, logout, init, isInitialized, isLoading } = useUser();
 
-// Enhanced authentication check with proper initialization
-const checkAuthentication = async () => {
-	// Initialize user state on page load if not already done
+// Manual auth check since middleware is temporarily disabled
+onMounted(async () => {
+	console.log('📊 Dashboard: Starting auth check');
+
+	// Ensure auth state is properly initialized
 	if (!isInitialized.value) {
+		console.log('📊 Dashboard: Auth not initialized, initializing...');
 		await init();
+		console.log('📊 Dashboard: Auth initialization complete');
 	}
 
-	// After initialization, check if user is authenticated
-	// if (!isLoading.value && !isAuthenticated.value) {
-	// 	await navigateTo('/login');
-	// 	return;
-	// }
-};
+	console.log('📊 Dashboard: Auth state check', {
+		isLoading: isLoading.value,
+		isAuthenticated: isAuthenticated.value,
+		hasUser: !!user.value,
+		userId: user.value?.id,
+		isInitialized: isInitialized.value,
+	});
 
-// Run authentication check on mount
-onMounted(async () => {
-	await checkAuthentication();
+	// After initialization, check if user is authenticated
+	if (!isLoading.value && !isAuthenticated.value) {
+		console.log('📊 Dashboard: User not authenticated, redirecting to login');
+		await navigateTo('/login');
+		return;
+	}
+
+	console.log('📊 Dashboard: User is authenticated, staying on dashboard');
+
+	// Check for onboarding redirect
+	const searchParams = new URLSearchParams(window.location.search);
+	if (searchParams.get('from') === 'onboarding') {
+		showStarterPlanModal.value = true;
+	}
+
+	// Load dashboard data AFTER auth is complete and user is available
+	console.log('📊 Dashboard: Loading data with user ID:', user.value?.id);
+	console.log('📊 Dashboard: Full user object:', {
+		id: user.value?.id,
+		name: user.value?.name,
+		hasInterests: (user.value?.interests?.length || 0) > 0,
+	});
+	
+	try {
+		await Promise.all([
+			fetchRecommendedEvents(10),
+			fetchRecommendedClubs(6),
+			fetchCommitments(),
+		]);
+		console.log('📊 Dashboard: Data loading complete');
+	} catch (error) {
+		console.error('Failed to load dashboard data:', error);
+	}
+
+	// Setup client-side event listeners
+	if (import.meta.client) {
+		document.addEventListener('click', handleClickOutside);
+	}
 });// Use API services for data
 const {
 	events,
 	recommendedEvents,
-	isLoading: eventsLoading,
-	error: eventsError,
+	isLoading: _eventsLoading,
+	error: _eventsError,
 	fetchRecommendedEvents,
 	rsvpToEvent,
-	toggleEventBookmark,
+	toggleEventBookmark: _toggleEventBookmark,
 } = useEvents();
 
 const {
-	clubs,
+	clubs: _clubs,
 	recommendedClubs,
-	isLoading: clubsLoading,
-	error: clubsError,
+	isLoading: _clubsLoading,
+	error: _clubsError,
 	fetchRecommendedClubs,
 	toggleClubFollow,
 } = useClubs();
@@ -1074,8 +1327,51 @@ const showResearchGuide = ref(false);
 const showEventModal = ref(false);
 const modalEventData = ref<Event | null>(null);
 
-// Local state for commitments (would eventually be API-driven too)
+// Club modal states
+const showClubModal = ref(false);
+const selectedClub = ref<any>(null);
+
+// Local state for commitments
 const commitments = ref<Commitment[]>([]);
+const commitmentsLoading = ref(false);
+
+// Fetch user commitments
+const fetchCommitments = async () => {
+	try {
+		commitmentsLoading.value = true;
+		console.log('📋 Fetching user commitments...');
+
+		const response = await apiService.get('/involvement/commitments');
+
+		if (response.success) {
+			commitments.value = response.data.commitments.map((c: any) => ({
+				id: `${c.type}-${c.itemId}`,
+				title: c.item?.name || `${c.type} ${c.itemId}`,
+				status: c.status,
+				type: c.type,
+				itemId: c.itemId,
+				joinedAt: c.joinedAt,
+				lastUpdated: c.lastUpdated,
+				item: c.item,
+				// Default values for calendar fields (not used for lab/org commitments)
+				startTime: new Date(c.joinedAt || new Date()),
+				endTime: new Date(c.joinedAt || new Date()),
+				priority: 'medium' as const,
+				description: c.item?.description || '',
+				location: 'Online',
+				relatedId: c.itemId?.toString(),
+			}));
+
+			console.log(`✅ Loaded ${commitments.value?.length || 0} commitments`);
+		} else {
+			console.error('Failed to fetch commitments:', response.message);
+		}
+	} catch (error) {
+		console.error('❌ Error fetching commitments:', error);
+	} finally {
+		commitmentsLoading.value = false;
+	}
+};
 
 // Computed values for dashboard stats
 const upcomingEvents = computed(() => {
@@ -1084,7 +1380,7 @@ const upcomingEvents = computed(() => {
 		new Date(event.startTime) > now,
 	).slice(0, 5); // Show only next 5 events
 
-	return upcoming.length > 0 ? upcoming : events.value.slice(0, 5);
+	return upcoming?.length > 0 ? upcoming : events.value.slice(0, 5);
 });
 
 // Starter plan data
@@ -1145,45 +1441,27 @@ const nudges = ref([
 	},
 	{
 		id: 'nudge-2',
-		message: `You have ${recommendedEvents.value.length} new event recommendations based on your interests`,
+		message: `You have ${recommendedEvents.value?.length || 0} new event recommendations based on your interests`,
 		type: 'recommendation',
 		actionText: 'View Recommendations',
 	},
 ]);
 
-// Initialize data on component mount
-onMounted(async () => {
-	const searchParams = new URLSearchParams(window.location.search);
-	if (searchParams.get('from') === 'onboarding') {
-		showStarterPlanModal.value = true;
+// Close dropdowns when clicking outside
+const handleClickOutside = (event: MouseEvent) => {
+	const target = event.target as HTMLElement;
+	if (showNotifications.value && !target.closest('.relative')) {
+		showNotifications.value = false;
 	}
-
-	// Load dashboard data
-	try {
-		await Promise.all([
-			fetchRecommendedEvents(10),
-			fetchRecommendedClubs(6),
-		]);
-	} catch (error) {
-		console.error('Failed to load dashboard data:', error);
+	if (showProfileDropdown.value && !target.closest('.relative')) {
+		showProfileDropdown.value = false;
 	}
+};
 
-	// Close dropdowns when clicking outside
-	const handleClickOutside = (event: MouseEvent) => {
-		const target = event.target as HTMLElement;
-		if (showNotifications.value && !target.closest('.relative')) {
-			showNotifications.value = false;
-		}
-		if (showProfileDropdown.value && !target.closest('.relative')) {
-			showProfileDropdown.value = false;
-		}
-	};
-
-	document.addEventListener('click', handleClickOutside);
-
-	onUnmounted(() => {
+onUnmounted(() => {
+	if (import.meta.client) {
 		document.removeEventListener('click', handleClickOutside);
-	});
+	}
 });
 
 // Methods
@@ -1257,7 +1535,7 @@ const onTourComplete = () => {
 	console.log('Dashboard tour completed');
 };
 
-const acceptStarterPlan = async () => {
+const _acceptStarterPlan = async () => {
 	try {
 		// Follow all recommended clubs
 		const followPromises = recommendedClubs.value.slice(0, 4).map(async (club) => {
@@ -1290,7 +1568,7 @@ const acceptStarterPlan = async () => {
 		});
 
 		planAccepted.value = true;
-		console.log('Accepted starter plan with', followedClubs.length, 'club recommendations');
+		console.log('Accepted starter plan with', followedClubs?.length || 0, 'club recommendations');
 	} catch (error) {
 		console.error('Failed to accept starter plan:', error);
 	}
@@ -1298,21 +1576,48 @@ const acceptStarterPlan = async () => {
 
 const updateCommitmentStatus = async (commitmentId: string, status: string) => {
 	const commitment = commitments.value.find((c: Commitment) => c.id === commitmentId);
-	if (commitment) {
-		commitment.status = status as any;
-		console.log('Updated commitment status:', status);
-		// TODO: Update status via API when backend supports it
+	if (!commitment) return;
+
+	try {
+		// Extract type and itemId from commitment
+		const response = await apiService.put('/involvement/status', {
+			type: commitment.type,
+			itemId: commitment.itemId,
+			status,
+		});
+
+		if (response.success) {
+			commitment.status = status as any;
+			console.log(`✅ Updated commitment status: ${commitment.title} -> ${status}`);
+		} else {
+			console.error('Failed to update commitment status:', response.message);
+		}
+	} catch (error) {
+		console.error('❌ Error updating commitment status:', error);
 	}
 };
 
 const removeCommitment = async (commitmentId: string) => {
-	const index = commitments.value.findIndex((c: Commitment) => c.id === commitmentId);
-	if (index > -1) {
-		const [removedCommitment] = commitments.value.splice(index, 1);
-		if (removedCommitment) {
-			console.log('Removed commitment:', removedCommitment.title);
-			// TODO: Remove commitment via API when backend supports it
+	const commitment = commitments.value.find((c: Commitment) => c.id === commitmentId);
+	if (!commitment) return;
+
+	try {
+		const response = await apiService.delete('/involvement/leave', {
+			type: commitment.type,
+			itemId: commitment.itemId,
+		});
+
+		if (response.success) {
+			const index = commitments.value.findIndex((c: Commitment) => c.id === commitmentId);
+			if (index > -1) {
+				commitments.value.splice(index, 1);
+				console.log(`✅ Removed commitment: ${commitment.title}`);
+			}
+		} else {
+			console.error('Failed to remove commitment:', response.message);
 		}
+	} catch (error) {
+		console.error('❌ Error removing commitment:', error);
 	}
 };
 
@@ -1348,6 +1653,12 @@ const formatDate = (date: Date) => {
 	}
 };
 
+const openUrl = (url: string) => {
+	if (url) {
+		window.open(url, '_blank');
+	}
+};
+
 // Event modal methods
 const openEventModal = (event: Event) => {
 	modalEventData.value = event;
@@ -1357,6 +1668,38 @@ const openEventModal = (event: Event) => {
 const closeEventModal = () => {
 	showEventModal.value = false;
 	modalEventData.value = null;
+};
+
+// Club modal functions
+const openClubModal = (club: any) => {
+	selectedClub.value = club;
+	showClubModal.value = true;
+};
+
+const closeClubModal = () => {
+	showClubModal.value = false;
+	selectedClub.value = null;
+};
+
+const joinClubFromRecommendation = async (club: any) => {
+	try {
+		const response = await apiService.post('/involvement/join', {
+			type: 'organization',
+			itemId: parseInt(club.id),
+		});
+
+		if (response.success) {
+			console.log('✅ Joined club from recommendation:', club.name);
+			// Refresh commitments to show the new one
+			await fetchCommitments();
+			// Optionally mark club as joined in the recommendations
+			club.isJoined = true;
+		} else {
+			console.error('Failed to join club:', response.message);
+		}
+	} catch (error) {
+		console.error('❌ Error joining club:', error);
+	}
 };
 
 const rsvpEvent = async (event: Event, status: 'going' | 'interested' | 'not-going') => {

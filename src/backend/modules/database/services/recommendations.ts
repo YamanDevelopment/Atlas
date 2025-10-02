@@ -327,8 +327,8 @@ export class RecommendationService {
 	 */
 	private async getUserProfile(userId: string): Promise<UserProfile | null> {
 		try {
-			const user = await User.findById(userId).populate('interests').lean();
-			if (!user) return null;
+			const user = await User.findById(userId).lean();
+			if (!user || !user.interests?.length) return null;
 
 			const interests = await Interest.find({
 				id: { $in: user.interests },

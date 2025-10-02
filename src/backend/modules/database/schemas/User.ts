@@ -83,7 +83,7 @@ const UserSchema: Schema = new Schema<IUser>({
 	createdAt: { type: Date, default: Date.now },
 	updatedAt: { type: Date, default: Date.now },
 
-	interests: { type: [Number], ref: 'Interest' },
+	interests: { type: [Number] },
 
 	// Involvement tracking
 	commitments: [{

@@ -639,6 +639,12 @@ import { useEvents } from '~/composables/useEvents';
 import { useClubs } from '~/composables/useClubs';
 import { apiService } from '~/services/api';
 
+// Require authentication for this page
+// TODO: Re-enable after fixing redirect loop
+// definePageMeta({
+// 	middleware: 'auth',
+// });
+
 // Authentication setup
 const { userInitials, init, isAuthenticated } = useUser();
 
@@ -689,7 +695,7 @@ interface Lab {
 const labs = ref<Lab[]>([]);
 
 // Fetch labs data from API
-const fetchLabs = async (limit = 20) => {
+const fetchLabs = async (limit?: number) => {
 	try {
 		const labsData = await apiService.getLabs(limit);
 
@@ -729,9 +735,9 @@ onMounted(async () => {
 	try {
 		isLoading.value = true;
 		await Promise.all([
-			fetchAllClubs(100),
-			fetchAllEvents(50),
-			fetchLabs(20),
+			fetchAllClubs(),
+			fetchAllEvents(),
+			fetchLabs(),
 		]);
 	} catch (err) {
 		error.value = err instanceof Error ? err.message : 'Failed to load data';
@@ -746,8 +752,8 @@ const reloadData = async () => {
 	error.value = null;
 	try {
 		await Promise.all([
-			fetchAllClubs(100),
-			fetchAllEvents(50),
+			fetchAllClubs(),
+			fetchAllEvents(),
 		]);
 	} catch (err) {
 		error.value = err instanceof Error ? err.message : 'Failed to reload data';

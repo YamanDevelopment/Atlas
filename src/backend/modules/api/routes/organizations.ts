@@ -29,14 +29,25 @@ export function setHandler(handlerInstance: Handler) {
  */
 router.get('/', async (req: Request, res: Response): Promise<void> => {
 	try {
-		const { limit = '20', skip = '0', sortBy = 'name', sortOrder = 'asc' } = req.query;
+		const { limit, skip = '0', sortBy = 'name', sortOrder = 'asc' } = req.query;
 
-		const organizations = await handler.searchOrganizations('', {
-			limit: parseInt(limit as string),
+		const options: any = {
 			skip: parseInt(skip as string),
 			sortBy: sortBy as string,
 			sortOrder: sortOrder as 'asc' | 'desc',
-		});
+		};
+
+		// Only add limit if explicitly provided
+		if (limit) {
+			options.limit = parseInt(limit as string);
+		}
+
+		const organizations = await handler.searchOrganizations('', options);
+
+		// Also get total count for debugging
+		const totalCount = await Organization.countDocuments();
+		console.log(`🏢 GET /organizations: Found ${organizations.length} organizations, options:`, options);
+		console.log(`📊 Total organizations in database: ${totalCount}`);
 
 		// Transform organizations to API format
 		const transformedOrganizations = organizations.map(org => transformOrganizationForAPI(org));
@@ -47,7 +58,7 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
 				organizations: transformedOrganizations,
 				count: transformedOrganizations.length,
 				pagination: {
-					limit: parseInt(limit as string),
+					limit: limit ? parseInt(limit as string) : null,
 					skip: parseInt(skip as string),
 				},
 			},

@@ -122,6 +122,45 @@ router.get('/search', async (req: Request, res: Response): Promise<void> => {
 });
 
 /**
+ * POST /api/interests/batch
+ * Get multiple interests by IDs
+ */
+router.post('/batch', async (req: Request, res: Response): Promise<void> => {
+	try {
+		const { ids } = req.body;
+
+		if (!ids || !Array.isArray(ids)) {
+			res.status(400).json({
+				success: false,
+				error: 'Invalid request',
+				message: 'Please provide an array of interest IDs',
+			});
+			return;
+		}
+
+		const interests = await Interest.find({ id: { $in: ids } })
+			.select('id keyword')
+			.sort({ keyword: 1 });
+
+		res.json({
+			success: true,
+			data: {
+				interests,
+				count: interests.length,
+			},
+		});
+
+	} catch (error) {
+		console.error('❌ Batch fetch interests error:', error);
+		res.status(500).json({
+			success: false,
+			error: 'Failed to fetch interests',
+			message: 'An error occurred while retrieving interests',
+		});
+	}
+});
+
+/**
  * POST /api/interests (Protected route - requires authentication)
  */
 router.post('/',

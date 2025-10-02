@@ -6,47 +6,69 @@
 import type { User } from '~/types/auth';
 import { authService } from '~/services/auth';
 
+// Global reactive state - shared across all components
+const globalUserState = {
+	user: ref<User | null>(null),
+	isLoading: ref(false),
+	error: ref<string | null>(null),
+	isInitialized: ref(false),
+};
+
 export const useUser = () => {
-	const user = ref<User | null>(null);
-	const isLoading = ref(false);
-	const error = ref<string | null>(null);
-	const isInitialized = ref(false);
+	// Return the shared global state
+	const { user, isLoading, error, isInitialized } = globalUserState;
+
+	console.log('👤 useUser: Called - using global state. User ID:', globalUserState.user.value?.id);
 
 	/**
    * Initialize user state - called on app startup
    */
 	const init = async () => {
 		if (isInitialized.value) {
+			console.log('👤 useUser: Already initialized, skipping');
 			return; // Already initialized
 		}
 
+		console.log('👤 useUser: Starting initialization');
 		isLoading.value = true;
 		error.value = null;
 
 		try {
 			// Check if we have tokens in storage and validate them
-			if (authService.isAuthenticated()) {
+			const hasTokens = authService.isAuthenticated();
+			console.log('👤 useUser: Token check', { hasTokens });
+
+			if (hasTokens) {
+				console.log('👤 useUser: Tokens found, validating...');
 				const isValid = await authService.validateAuthentication();
+				console.log('👤 useUser: Token validation result', { isValid });
 
 				if (isValid) {
 					// Tokens are valid, fetch user data
+					console.log('👤 useUser: Tokens valid, fetching user data');
 					await refreshUser();
 				} else {
 					// Tokens are invalid, clear user state
+					console.log('👤 useUser: Tokens invalid, clearing user state');
 					user.value = null;
 				}
 			} else {
 				// No tokens found
+				console.log('👤 useUser: No tokens found');
 				user.value = null;
 			}
 		} catch (err) {
 			// Authentication check failed, clear state
+			console.error('👤 useUser: Initialization failed', err);
 			user.value = null;
 			error.value = err instanceof Error ? err.message : 'Failed to initialize user';
-			console.warn('User initialization failed:', err);
 		} finally {
 			isLoading.value = false;
 			isInitialized.value = true;
+			console.log('👤 useUser: Initialization complete', {
+				hasUser: !!user.value,
+				isAuthenticated: isAuthenticated.value,
+			});
 		}
 	};
 
@@ -54,13 +76,20 @@ export const useUser = () => {
    * Login with username and password
    */
 	const login = async (username: string, password: string): Promise<void> => {
+		console.log('👤 useUser: Starting login process');
 		isLoading.value = true;
 		error.value = null;
 
 		try {
 			const userData = await authService.login({ username, password });
+			console.log('👤 useUser: Login successful, setting user data', userData);
 			user.value = userData;
+			console.log('👤 useUser: User state updated', {
+				hasUser: !!user.value,
+				isAuthenticated: isAuthenticated.value,
+			});
 		} catch (err) {
+			console.error('👤 useUser: Login failed', err);
 			error.value = err instanceof Error ? err.message : 'Login failed';
 			throw err;
 		} finally {

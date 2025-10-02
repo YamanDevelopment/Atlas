@@ -173,17 +173,25 @@ const handleLogin = async () => {
 		return;
 	}
 
+	console.log('🔐 Login: Starting login process');
 	isLoading.value = true;
 
 	try {
+		console.log('🔐 Login: Calling loginUser');
 		await loginUser(username.value, password.value);
 
+		console.log('🔐 Login: Login successful, waiting for state update');
 		// Wait a moment for the authentication state to update
 		await nextTick();
 
+		// Give a bit more time for the auth state to settle
+		await new Promise(resolve => setTimeout(resolve, 100));
+
+		console.log('🔐 Login: Navigating to dashboard');
 		// Navigate to dashboard
 		await navigateTo('/dashboard');
 	} catch (err) {
+		console.error('🔐 Login: Login failed', err);
 		error.value = err instanceof Error ? err.message : 'Login failed. Please try again.';
 	} finally {
 		isLoading.value = false;

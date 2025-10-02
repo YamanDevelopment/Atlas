@@ -40,7 +40,6 @@ router.get('/:userId',
 			console.log(`👤 Getting user profile for ID: ${userId}`);
 
 			const user = await User.findById(userId)
-				.populate('interests')
 				.select('-password'); // Don't return password
 
 			if (!user) {

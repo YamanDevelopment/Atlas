@@ -14,16 +14,20 @@ export const useEvents = () => {
 	const error = ref<string | null>(null);
 
 	const { user } = useUser();
+	console.log('📅 useEvents: Composable initialized. User ID from shared state:', user.value?.id);
 
 	/**
    * Fetch recommended events for the user
    */
-	const fetchRecommendedEvents = async (limit = 10): Promise<void> => {
+	const fetchRecommendedEvents = async (limit?: number): Promise<void> => {
 		isLoading.value = true;
 		error.value = null;
 
 		try {
 			const userId = user.value?.id;
+			console.log('📅 fetchRecommendedEvents: userId from user.value:', userId);
+			console.log('📅 fetchRecommendedEvents: user object exists:', !!user.value);
+			
 			const fetchedEvents = await apiService.getRecommendedEvents(userId, limit);
 			recommendedEvents.value = fetchedEvents;
 		} catch (err) {
@@ -35,9 +39,9 @@ export const useEvents = () => {
 	};
 
 	/**
-   * Fetch all available events
+   * Fetch all events
    */
-	const fetchAllEvents = async (limit = 50): Promise<void> => {
+	const fetchAllEvents = async (limit?: number): Promise<void> => {
 		isLoading.value = true;
 		error.value = null;
 

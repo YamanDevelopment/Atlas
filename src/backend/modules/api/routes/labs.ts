@@ -28,14 +28,20 @@ export function setHandler(handlerInstance: Handler) {
  */
 router.get('/', async (req: Request, res: Response): Promise<void> => {
 	try {
-		const { limit = '20', skip = '0', sortBy = 'name', sortOrder = 'asc' } = req.query;
+		const { limit, skip = '0', sortBy = 'name', sortOrder = 'asc' } = req.query;
 
-		const labs = await handler.searchLabs('', {
-			limit: parseInt(limit as string),
+		const options: any = {
 			skip: parseInt(skip as string),
 			sortBy: sortBy as string,
 			sortOrder: sortOrder as 'asc' | 'desc',
-		});
+		};
+
+		// Only add limit if explicitly provided
+		if (limit) {
+			options.limit = parseInt(limit as string);
+		}
+
+		const labs = await handler.searchLabs('', options);
 
 		res.json({
 			success: true,
@@ -43,7 +49,7 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
 				labs,
 				count: labs.length,
 				pagination: {
-					limit: parseInt(limit as string),
+					limit: limit ? parseInt(limit as string) : null,
 					skip: parseInt(skip as string),
 				},
 			},

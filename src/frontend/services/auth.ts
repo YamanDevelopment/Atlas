@@ -19,10 +19,19 @@ class AuthService {
 	private refreshToken: string | null = null;
 
 	constructor() {
-		// Initialize tokens from localStorage on client-side only
+		// Initialize tokens from sessionStorage on client-side only (for better persistence)
 		if (typeof window !== 'undefined') {
-			this.accessToken = localStorage.getItem('accessToken');
-			this.refreshToken = localStorage.getItem('refreshToken');
+			// Try sessionStorage first (survives page refresh, cleared on browser close)
+			this.accessToken = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
+			this.refreshToken = sessionStorage.getItem('refreshToken') || localStorage.getItem('refreshToken');
+
+			// Migrate from localStorage to sessionStorage if found
+			if (localStorage.getItem('accessToken')) {
+				sessionStorage.setItem('accessToken', localStorage.getItem('accessToken')!);
+				sessionStorage.setItem('refreshToken', localStorage.getItem('refreshToken')!);
+				localStorage.removeItem('accessToken');
+				localStorage.removeItem('refreshToken');
+			}
 		}
 	}
 
@@ -72,6 +81,7 @@ class AuthService {
    * Login existing user
    */
 	async login(credentials: LoginCredentials): Promise<User> {
+		console.log('🔐 AuthService: Starting login process');
 		try {
 			const response = await fetch(`${this.baseURL}/login`, {
 				method: 'POST',
@@ -82,9 +92,12 @@ class AuthService {
 			});
 
 			const data: AuthResponse = await response.json();
+			console.log('🔐 AuthService: Login response received', { success: data.success, hasTokens: !!data.data?.tokens });
 
 			if (data.success && data.data) {
+				console.log('🔐 AuthService: Setting tokens');
 				this.setTokens(data.data.tokens);
+				console.log('🔐 AuthService: Tokens set, returning user data');
 				return data.data.user;
 			} else {
 				// Handle different types of errors
@@ -96,9 +109,11 @@ class AuthService {
 					errorMessage = 'Account data validation error. Please contact support.';
 				}
 
+				console.error('🔐 AuthService: Login failed', errorMessage);
 				throw new Error(errorMessage);
 			}
 		} catch (error) {
+			console.error('🔐 AuthService: Login error', error);
 			if (error instanceof Error) {
 				throw error;
 			}
@@ -149,6 +164,7 @@ class AuthService {
 			if (data.success && data.data) {
 				this.accessToken = data.data.accessToken;
 				if (import.meta.client) {
+					sessionStorage.setItem('accessToken', this.accessToken);
 					localStorage.setItem('accessToken', this.accessToken);
 				}
 				return this.accessToken;
@@ -226,12 +242,27 @@ class AuthService {
    * Set tokens in memory and storage
    */
 	private setTokens(tokens: AuthTokens): void {
+		console.log('🔑 AuthService: Setting tokens in memory and storage');
 		this.accessToken = tokens.accessToken;
 		this.refreshToken = tokens.refreshToken;
 
 		if (typeof window !== 'undefined') {
+			console.log('🔑 AuthService: Storing tokens in browser storage');
+			// Store in sessionStorage for better security (clears on browser close)
+			sessionStorage.setItem('accessToken', tokens.accessToken);
+			sessionStorage.setItem('refreshToken', tokens.refreshToken);
+
+			// Also store in localStorage as backup (persists longer)
 			localStorage.setItem('accessToken', tokens.accessToken);
 			localStorage.setItem('refreshToken', tokens.refreshToken);
+
+			// Verify storage worked
+			const storedAccess = sessionStorage.getItem('accessToken');
+			console.log('🔑 AuthService: Token storage verification', {
+				hasSessionToken: !!storedAccess,
+				hasLocalToken: !!localStorage.getItem('accessToken'),
+				isAuthenticated: this.isAuthenticated(),
+			});
 		}
 	}
 
@@ -243,6 +274,9 @@ class AuthService {
 		this.refreshToken = null;
 
 		if (typeof window !== 'undefined') {
+			// Clear from both storage locations
+			sessionStorage.removeItem('accessToken');
+			sessionStorage.removeItem('refreshToken');
 			localStorage.removeItem('accessToken');
 			localStorage.removeItem('refreshToken');
 		}

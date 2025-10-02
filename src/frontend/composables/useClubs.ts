@@ -14,16 +14,20 @@ export const useClubs = () => {
 	const error = ref<string | null>(null);
 
 	const { user } = useUser();
+	console.log('🏛️ useClubs: Composable initialized. User ID from shared state:', user.value?.id);
 
 	/**
    * Fetch recommended clubs for the user
    */
-	const fetchRecommendedClubs = async (limit = 10): Promise<void> => {
+	const fetchRecommendedClubs = async (limit?: number): Promise<void> => {
 		isLoading.value = true;
 		error.value = null;
 
 		try {
 			const userId = user.value?.id;
+			console.log('🏛️ fetchRecommendedClubs: userId from user.value:', userId);
+			console.log('🏛️ fetchRecommendedClubs: user object exists:', !!user.value);
+			
 			const fetchedClubs = await apiService.getRecommendedClubs(userId, limit);
 			recommendedClubs.value = fetchedClubs;
 		} catch (err) {
@@ -37,7 +41,7 @@ export const useClubs = () => {
 	/**
    * Fetch all available clubs
    */
-	const fetchAllClubs = async (limit = 100): Promise<void> => {
+	const fetchAllClubs = async (limit?: number): Promise<void> => {
 		isLoading.value = true;
 		error.value = null;
 

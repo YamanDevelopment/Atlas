@@ -610,6 +610,12 @@ import type { Interest } from '~/types';
 import { useUser } from '~/composables/useUser';
 import { apiService } from '~/services/api';
 
+// Require authentication for this page
+// TODO: Re-enable after fixing redirect loop
+// definePageMeta({
+// 	middleware: 'auth',
+// });
+
 // Get user data from authentication
 const { user, isLoading: userLoading, updateProfile, isAuthenticated, init } = useUser();
 

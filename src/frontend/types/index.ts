@@ -122,7 +122,7 @@ export interface Course {
 export interface Commitment {
   id: string;
   title: string;
-  type: 'event' | 'club' | 'course' | 'other';
+  type: 'event' | 'club' | 'course' | 'other' | 'lab' | 'organization';
   description?: string;
   startTime: Date;
   endTime: Date;
@@ -130,6 +130,7 @@ export interface Commitment {
   priority: 'low' | 'medium' | 'high';
   status: 'upcoming' | 'completed' | 'cancelled' | 'pending' | 'active' | 'passive' | 'inactive';
   relatedId?: string; // ID of related event/club/course
+  itemId?: number; // Backend itemId for lab/organization commitments
 }
 
 // Tour and onboarding types

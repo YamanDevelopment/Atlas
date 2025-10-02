@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { User } from '../../database/schemas/User';
+import { Interest } from '../../database/schemas/Interest';
 import { jwtService } from '../services/jwt';
 import { passwordService } from '../services/password';
 import {
@@ -96,19 +97,22 @@ router.post('/register',
 			console.log(`✅ User registered successfully: ${username} (ID: ${nextId})`);
 
 			res.status(201).json({
+				success: true,
 				message: 'User registered successfully',
-				user: {
-					id: newUser._id.toString(),
-					name: newUser.name,
-					username: newUser.username,
-					email: newUser.email,
-					createdAt: newUser.createdAt,
-				},
-				tokens: {
-					accessToken: tokens.accessToken,
-					refreshToken: tokens.refreshToken,
-					expiresIn: tokens.expiresIn,
-					tokenType: 'Bearer',
+				data: {
+					user: {
+						id: newUser._id.toString(),
+						name: newUser.name,
+						username: newUser.username,
+						email: newUser.email,
+						createdAt: newUser.createdAt,
+					},
+					tokens: {
+						accessToken: tokens.accessToken,
+						refreshToken: tokens.refreshToken,
+						expiresIn: tokens.expiresIn,
+						tokenType: 'Bearer',
+					},
 				},
 			});
 
@@ -174,19 +178,22 @@ router.post('/login',
 			console.log(`✅ User logged in successfully: ${username}`);
 
 			res.json({
+				success: true,
 				message: 'Login successful',
-				user: {
-					id: user._id.toString(),
-					name: user.name,
-					username: user.username,
-					email: user.email,
-					lastLogin: user.lastLogin,
-				},
-				tokens: {
-					accessToken: tokens.accessToken,
-					refreshToken: tokens.refreshToken,
-					expiresIn: tokens.expiresIn,
-					tokenType: 'Bearer',
+				data: {
+					user: {
+						id: user._id.toString(),
+						name: user.name,
+						username: user.username,
+						email: user.email,
+						lastLogin: user.lastLogin,
+					},
+					tokens: {
+						accessToken: tokens.accessToken,
+						refreshToken: tokens.refreshToken,
+						expiresIn: tokens.expiresIn,
+						tokenType: 'Bearer',
+					},
 				},
 			});
 
@@ -368,21 +375,42 @@ router.get('/me',
 			const user = await User.findById(decoded.userId);
 			if (!user) {
 				res.status(404).json({
+					success: false,
 					error: 'User not found',
 					message: 'User associated with this token no longer exists',
 				});
 				return;
 			}
 
+			// Get full interest details if user has interests
+			let userInterests: { id: number; keyword: string }[] = [];
+			if (user.interests && user.interests.length > 0) {
+				try {
+					const interests = await Interest.find({ id: { $in: user.interests } })
+						.select('id keyword');
+					userInterests = interests.map(interest => ({
+						id: interest.id,
+						keyword: interest.keyword,
+					}));
+				} catch (interestError) {
+					console.warn('⚠️ Could not fetch user interests:', interestError);
+					// Continue without interests rather than failing the whole request
+				}
+			}
+
+			// Return user info with interests
 			res.json({
-				user: {
-					id: user._id.toString(),
-					name: user.name,
-					username: user.username,
-					email: user.email,
-					lastLogin: user.lastLogin,
-					createdAt: user.createdAt,
-					interests: user.interests,
+				success: true,
+				data: {
+					user: {
+						id: user._id.toString(),
+						name: user.name,
+						username: user.username,
+						email: user.email,
+						lastLogin: user.lastLogin,
+						createdAt: user.createdAt,
+						interests: userInterests,
+					},
 				},
 			});
 
@@ -391,6 +419,84 @@ router.get('/me',
 			res.status(500).json({
 				error: 'Failed to get user info',
 				message: 'An error occurred while retrieving your profile',
+			});
+		}
+	},
+);
+
+/**
+ * GET /auth/session
+ * Validate current session and token
+ */
+router.get('/session',
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			// This route checks if the current session/token is valid
+			const authHeader = req.headers.authorization;
+
+			if (!authHeader || !authHeader.startsWith('Bearer ')) {
+				res.status(401).json({
+					success: false,
+					data: {
+						tokenValid: false,
+					},
+					error: 'Authentication required',
+					message: 'Please provide a valid authorization header',
+				});
+				return;
+			}
+
+			const token = authHeader.substring(7);
+			const decoded = jwtService.verifyAccessToken(token);
+
+			if (!decoded) {
+				res.status(401).json({
+					success: false,
+					data: {
+						tokenValid: false,
+					},
+					error: 'Invalid token',
+					message: 'Token is invalid or expired',
+				});
+				return;
+			}
+
+			// Optionally verify user still exists
+			const user = await User.findById(decoded.userId);
+			if (!user) {
+				res.status(404).json({
+					success: false,
+					data: {
+						tokenValid: false,
+					},
+					error: 'User not found',
+					message: 'User associated with this token no longer exists',
+				});
+				return;
+			}
+
+			res.json({
+				success: true,
+				data: {
+					tokenValid: true,
+					user: {
+						id: user._id.toString(),
+						name: user.name,
+						username: user.username,
+						email: user.email,
+					},
+				},
+			});
+
+		} catch (error) {
+			console.error('❌ Session validation error:', error);
+			res.status(500).json({
+				success: false,
+				data: {
+					tokenValid: false,
+				},
+				error: 'Session validation failed',
+				message: 'An error occurred while validating your session',
 			});
 		}
 	},

@@ -120,6 +120,118 @@ router.get('/guide/:type/:id',
 );
 
 /**
+ * POST /api/involvement/bulk-update
+ * Bulk update user commitments from onboarding
+ */
+router.post('/bulk-update',
+	requireAuth,
+	async (req: Request, res: Response): Promise<void> => {
+		try {
+			const userId = (req as any).user?.userId;
+			const { involvements } = req.body;
+
+			console.log(`📝 Bulk-update commitments for user ${userId}:`, involvements);
+
+			if (!userId) {
+				res.status(401).json({
+					success: false,
+					error: 'Authentication required',
+					message: 'User not authenticated',
+				});
+				return;
+			}
+
+			if (!involvements || !Array.isArray(involvements)) {
+				res.status(400).json({
+					success: false,
+					error: 'Invalid request',
+					message: 'involvements array is required',
+				});
+				return;
+			}
+
+			const user = await User.findById(userId);
+			if (!user) {
+				res.status(404).json({
+					success: false,
+					error: 'User not found',
+					message: 'No user found with the provided ID',
+				});
+				return;
+			}
+
+			// Process each involvement
+			const results = [];
+			for (const involvement of involvements) {
+				const { type, itemId, status = 'active' } = involvement;
+
+				if (!type || !itemId || !['lab', 'organization'].includes(type)) {
+					console.warn('⚠️ Invalid involvement:', involvement);
+					continue;
+				}
+
+				try {
+					// Check if commitment already exists
+					const existingCommitment = user.commitments.find(c =>
+						c.type === type && c.itemId === itemId,
+					);
+
+					if (existingCommitment) {
+						// Update existing commitment status
+						await user.updateCommitmentStatus(type, itemId, status);
+						console.log(`✅ Updated commitment: ${type} ${itemId} -> ${status}`);
+					} else {
+						// Add new commitment
+						await user.addCommitment(type, itemId);
+						if (status !== 'pending') {
+							await user.updateCommitmentStatus(type, itemId, status);
+						}
+						console.log(`✅ Added commitment: ${type} ${itemId} (${status})`);
+					}
+
+					results.push({
+						type,
+						itemId,
+						status,
+						action: existingCommitment ? 'updated' : 'added',
+					});
+				} catch (error) {
+					console.error(`❌ Failed to process involvement ${type} ${itemId}:`, error);
+					results.push({
+						type,
+						itemId,
+						status: 'error',
+						action: 'failed',
+						error: (error as Error).message,
+					});
+				}
+			}
+
+			console.log(`✅ Bulk-update complete: ${results.length} involvements processed`);
+
+			res.json({
+				success: true,
+				message: `Successfully processed ${results.length} involvements`,
+				data: {
+					processed: results,
+					totalCount: results.length,
+					successCount: results.filter(r => r.action !== 'failed').length,
+					errorCount: results.filter(r => r.action === 'failed').length,
+				},
+			});
+
+		} catch (error) {
+			console.error('❌ Bulk-update involvements error:', error);
+			res.status(500).json({
+				success: false,
+				error: 'Failed to update involvements',
+				message: 'An error occurred while updating involvements',
+			});
+		}
+	},
+);
+
+/**
  * POST /api/involvement/join
  * Join a lab/org (simplified - just track commitment)
  */

@@ -284,9 +284,9 @@ class Handler {
 
 	async searchEvents(query: string, options: SearchOptions = {}): Promise<IEvent[]> {
 		try {
-			const { limit = 20, skip = 0, sortBy = 'startDate', sortOrder = 'asc' } = options;
+			const { limit, skip = 0, sortBy = 'startDate', sortOrder = 'asc' } = options;
 
-			return await Event.find({
+			let mongoQuery = Event.find({
 				$or: [
 					{ title: { $regex: query, $options: 'i' } },
 					{ description: { $regex: query, $options: 'i' } },
@@ -296,8 +296,14 @@ class Handler {
 				.populate('tags')
 				.populate('organization')
 				.sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
-				.limit(limit)
 				.skip(skip);
+
+			// Only apply limit if specified
+			if (limit) {
+				mongoQuery = mongoQuery.limit(limit);
+			}
+
+			return await mongoQuery;
 		} catch (error) {
 			console.error('Error searching events:', error);
 			throw error;
@@ -357,9 +363,11 @@ class Handler {
 
 	async searchOrganizations(query: string, options: SearchOptions = {}): Promise<IOrganization[]> {
 		try {
-			const { limit = 20, skip = 0, sortBy = 'name', sortOrder = 'asc' } = options;
+			const { limit, skip = 0, sortBy = 'name', sortOrder = 'asc' } = options;
 
-			return await Organization.find({
+			console.log(`🔍 searchOrganizations called with query: "${query}", options:`, { limit, skip, sortBy, sortOrder });
+
+			let mongoQuery = Organization.find({
 				$or: [
 					{ name: { $regex: query, $options: 'i' } },
 					{ description: { $regex: query, $options: 'i' } },
@@ -368,8 +376,20 @@ class Handler {
 			})
 				.populate('tags')
 				.sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
-				.limit(limit)
 				.skip(skip);
+
+			// Only apply limit if specified
+			if (limit) {
+				console.log(`⚠️ Applying limit: ${limit}`);
+				mongoQuery = mongoQuery.limit(limit);
+			} else {
+				console.log('✅ No limit specified - returning all results');
+			}
+
+			const results = await mongoQuery;
+			console.log(`📊 searchOrganizations returning ${results.length} organizations`);
+
+			return results;
 		} catch (error) {
 			console.error('Error searching organizations:', error);
 			throw error;
@@ -410,9 +430,9 @@ class Handler {
 
 	async searchLabs(query: string, options: SearchOptions = {}): Promise<ILab[]> {
 		try {
-			const { limit = 20, skip = 0, sortBy = 'name', sortOrder = 'asc' } = options;
+			const { limit, skip = 0, sortBy = 'name', sortOrder = 'asc' } = options;
 
-			return await Lab.find({
+			let mongoQuery = Lab.find({
 				$or: [
 					{ name: { $regex: query, $options: 'i' } },
 					{ description: { $regex: query, $options: 'i' } },
@@ -422,8 +442,14 @@ class Handler {
 			})
 				.populate('tags')
 				.sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
-				.limit(limit)
 				.skip(skip);
+
+			// Only apply limit if specified
+			if (limit) {
+				mongoQuery = mongoQuery.limit(limit);
+			}
+
+			return await mongoQuery;
 		} catch (error) {
 			console.error('Error searching labs:', error);
 			throw error;
@@ -781,11 +807,16 @@ class Handler {
 	 */
 	async getWeightedEventRecommendations(userId: string, limit: number = 10): Promise<IEvent[]> {
 		try {
-			const user = await User.findById(userId).populate<{ interests: IInterest[] }>('interests');
+			// Find user by id field (number) instead of _id (ObjectId)
+			const user = await User.findOne({ id: parseInt(userId) });
 			if (!user || !user.interests?.length) return [];
 
+			// Get user interests by IDs since they're stored as numbers
+			const userInterests = await Interest.find({ id: { $in: user.interests } });
+			if (!userInterests.length) return [];
+
 			// Extract user interest tags with weights
-			const userInterestTags = user.interests.flatMap(interest =>
+			const userInterestTags = userInterests.flatMap(interest =>
 				interest.linkedTags.map(linkedTag => ({
 					tagId: linkedTag.tagId,
 					weight: linkedTag.weight,
@@ -838,10 +869,15 @@ class Handler {
 
 	async getWeightedOrganizationRecommendations(userId: string, limit: number = 10): Promise<IOrganization[]> {
 		try {
-			const user = await User.findById(userId).populate<{ interests: IInterest[] }>('interests');
+			// Find user by id field (number) instead of _id (ObjectId)
+			const user = await User.findOne({ id: parseInt(userId) });
 			if (!user || !user.interests?.length) return [];
 
-			const userInterestTags = user.interests.flatMap(interest =>
+			// Get user interests by IDs since they're stored as numbers
+			const userInterests = await Interest.find({ id: { $in: user.interests } });
+			if (!userInterests.length) return [];
+
+			const userInterestTags = userInterests.flatMap(interest =>
 				interest.linkedTags.map(linkedTag => ({
 					tagId: linkedTag.tagId,
 					weight: linkedTag.weight,
@@ -884,10 +920,15 @@ class Handler {
 
 	async getWeightedLabRecommendations(userId: string, limit: number = 10): Promise<ILab[]> {
 		try {
-			const user = await User.findById(userId).populate<{ interests: IInterest[] }>('interests');
+			// Find user by id field (number) instead of _id (ObjectId)
+			const user = await User.findOne({ id: parseInt(userId) });
 			if (!user || !user.interests?.length) return [];
 
-			const userInterestTags = user.interests.flatMap(interest =>
+			// Get user interests by IDs since they're stored as numbers
+			const userInterests = await Interest.find({ id: { $in: user.interests } });
+			if (!userInterests.length) return [];
+
+			const userInterestTags = userInterests.flatMap(interest =>
 				interest.linkedTags.map(linkedTag => ({
 					tagId: linkedTag.tagId,
 					weight: linkedTag.weight,

@@ -232,7 +232,7 @@
 							>
 								Loading involvements...
 							</div>
-							
+
 							<!-- Involvement options -->
 							<button
 								v-for="involvement in filteredInvolvements"
@@ -348,6 +348,12 @@
 <script setup lang="ts">
 import { apiService } from '~/services/api';
 
+// Require authentication for this page (onboarding should be for authenticated users)
+// TODO: Re-enable after fixing redirect loop
+// definePageMeta({
+// 	middleware: 'auth',
+// });
+
 // Simple interface for onboarding interests (avoiding complex Interest type for now)
 interface OnboardingInterest {
 	id: string;
@@ -460,11 +466,9 @@ const loadInvolvements = async () => {
 	try {
 		isLoadingInvolvements.value = true;
 		const [orgsResponse, labsResponse] = await Promise.all([
-			apiService.get('/organizations?limit=100'),
-			apiService.get('/labs?limit=50'),
-		]);
-
-		const involvements: any[] = [];
+			apiService.get('/organizations'),
+			apiService.get('/labs'),
+		]);		const involvements: any[] = [];
 
 		// Add organizations
 		if (orgsResponse.success && orgsResponse.data.organizations) {
@@ -523,10 +527,10 @@ const filteredInvolvements = computed(() => {
 // Computed
 const canProceed = computed(() => {
 	switch (currentStep.value) {
-		case 1: return selectedMajor.value !== '';
-		case 2: return selectedInterests.value.length > 0;
-		case 3: return true; // Optional step
-		default: return false;
+	case 1: return selectedMajor.value !== '';
+	case 2: return selectedInterests.value.length > 0;
+	case 3: return true; // Optional step
+	default: return false;
 	}
 });
 
